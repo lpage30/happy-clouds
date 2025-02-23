@@ -1,0 +1,33 @@
+[build-system]
+requires = [
+    "setuptools",
+    "Cython",
+    "numpy"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "happy-clouds"
+version = "2025.1.0"
+authors = [
+    { name = "Larry Page", email = "lawrence.page@live.com" },
+]
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.13"
+license = { text = "MIT License" }
+dependencies = [ 
+    "pillow",
+    "numpy",
+    "matplotlib",
+    "webcolors"
+]
+
+[project.urls]
+Homepage = "https://github.com/lpage30/happy-clouds"
+
+[project.scripts]
+generate_imagecloud = "imagecloud.clis.generate_cli:generate"
+layout_imagecloud = "imagecloud.clis.layout_cli:layout"
+
+[tool.setuptools.packages.find]
+where = ["src"]

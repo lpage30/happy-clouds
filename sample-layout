@@ -1,0 +1,15 @@
+#!/bin/bash
+layout_log=/Users/$USER/happy-clouds/layout-log.$(date '+%Y%m%d.%H%M%S').txt
+
+input_csv=/Users/$USER/happy-clouds/li/imagecloud-import.layout.csv
+output_directory=/Users/$USER/happy-clouds/li
+image_type=png
+
+layout_imagecloud \
+    -i $input_csv \
+    -output_directory $output_directory \
+    -output_image_format $image_type \
+    -maximize_empty_space \
+    -show_imagecloud \
+    -show_imagecloud_reservation_chart \
+    -log_filepath $layout_log
