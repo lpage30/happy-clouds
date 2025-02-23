@@ -10,6 +10,6 @@ layout_imagecloud \
     -output_directory $output_directory \
     -output_image_format $image_type \
     -maximize_empty_space \
-    -show_imagecloud \
-    -show_imagecloud_reservation_chart \
+    -show_itemcloud \
+    -show_itemcloud_reservation_chart \
     -log_filepath $layout_log

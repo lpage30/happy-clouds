@@ -16,8 +16,9 @@ generate_imagecloud \
     -output_directory $output_directory \
     -output_image_format $image_type \
     -cloud_size $linkedin_background_size \
-    -min_image_size $reasonable_smallest_size \
+    -min_item_size $reasonable_smallest_size \
     -resize_type MAINTAIN_ASPECT_RATIO \
-    -show_imagecloud \
+    -maximize_empty_space \
+    -show_itemcloud \
     -log_filepath $generate_log \
     -total_threads 64
