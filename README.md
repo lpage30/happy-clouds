@@ -28,6 +28,10 @@ This is the generic module containing abstract classes. This does all the work o
 This is a data cloud to render weighted images in a single 'Image' based cloud.
 [ImageCloud readme](src/imagecloud/readme.md)
 
+### TextCloud
+This is a data cloud to render weighted text in a single 'Image' based cloud.
+[TextCloud readme](src/textcloud/readme.md)
+
 ### Future other clouds
 * WordCloud (just for fun)
 * need to think of others that would actually be useful. :)

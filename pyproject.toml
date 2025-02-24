@@ -28,6 +28,7 @@ Homepage = "https://github.com/lpage30/happy-clouds"
 [project.scripts]
 generate_imagecloud = "imagecloud.clis.generate_cli:generate"
 layout_imagecloud = "imagecloud.clis.layout_cli:layout"
+generate_textcloud = "textcloud.clis.generate_cli:generate"
 
 [tool.setuptools.packages.find]
 where = ["src"]

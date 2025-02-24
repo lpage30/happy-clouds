@@ -76,3 +76,6 @@ class Box:
             native_box['right'],
             native_box['lower']
         )
+
+def to_box(bbox: tuple[int, int, int, int]) -> Box:
+    return Box(bbox[0], bbox[1], bbox[2], bbox[3])

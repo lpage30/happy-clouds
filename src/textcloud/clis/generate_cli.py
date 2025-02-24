@@ -5,14 +5,14 @@ from itemcloud.size import (
     Size,
     RESIZE_TYPES
 )
-from imagecloud.containers.weighted_image import (
-    WEIGHTED_IMAGES_CSV_FILE_HELP
+from textcloud.containers.weighted_text import (
+    WEIGHTED_TEXTS_CSV_FILE_HELP
 )
 import itemcloud.item_cloud_defaults as item_cloud_defaults
 import itemcloud.clis.cli_helpers as cli_helpers
 from itemcloud.clis.cli_base_arguments import CLIBaseArguments
-from imagecloud.image_cloud import ImageCloud
-from imagecloud.containers.weighted_image import ( WeightedImage, load_weighted_images)
+from textcloud.text_cloud import TextCloud
+from textcloud.containers.weighted_text import ( WeightedText, load_weighted_texts)
 
 
 DEFAULT_SHOW = True
@@ -25,7 +25,7 @@ step > 1 might speed up computation but give a worse fit.
 '''
 
 class GenerateCLIArguments(CLIBaseArguments):
-    name = 'generate_imagecloud'
+    name = 'generate_textcloud'
     def __init__ (
         self, 
         parsedArgs
@@ -57,7 +57,7 @@ class GenerateCLIArguments(CLIBaseArguments):
         )
         CLIBaseArguments.add_parser_arguments(
             parser,
-            WEIGHTED_IMAGES_CSV_FILE_HELP,
+            WEIGHTED_TEXTS_CSV_FILE_HELP,
             DEFAULT_SHOW,
             DEFAULT_VERBOSE
         )
@@ -180,11 +180,11 @@ def generate(args: GenerateCLIArguments | None = None) -> None:
     print('{0} {1}'.format(GenerateCLIArguments.name, ' '.join(sys_args)))
     args.logger.info('{0} {1}'.format(GenerateCLIArguments.name, ' '.join(sys_args)))
     args.logger.info('loading {0} ...'.format(args.input))
-    weighted_images: list[WeightedImage] = load_weighted_images(args.input)
-    total_images = len(weighted_images)
-    args.logger.info('loaded {0} weights and images'.format(total_images))
+    weighted_texts: list[WeightedText] = load_weighted_texts(args.input)
+    total_texts = len(weighted_texts)
+    args.logger.info('loaded {0} weights and texts'.format(total_texts))
 
-    image_cloud = ImageCloud(
+    text_cloud = TextCloud(
         logger=args.logger,
         mask=args.mask,
         size=args.cloud_size,
@@ -201,20 +201,21 @@ def generate(args: GenerateCLIArguments | None = None) -> None:
         name=args.get_output_name(),
         total_threads=args.total_threads
     )
-    args.logger.info('generating imagecloud from {0} weighted and normalized images.{1}'.format(
-        total_images,
-        ' Cloud will be expanded iteratively by cloud_expansion_step_size until all images are positioned.' if 0 != args.cloud_expansion_step_size else ''
+    args.logger.info('generating textcloud from {0} weighted and normalized texts.{1}'.format(
+        total_texts,
+        ' Cloud will be expanded iteratively by cloud_expansion_step_size until all texts are positioned.' if 0 != args.cloud_expansion_step_size else ''
     ))
 
-    layout = image_cloud.generate(weighted_images, cloud_expansion_step_size=args.cloud_expansion_step_size)
+    layout = text_cloud.generate(weighted_texts, cloud_expansion_step_size=args.cloud_expansion_step_size)
     if args.maximize_empty_space:
-        args.logger.info('Maximizing {0} images: expanding them to fit their surrounding empty space.'.format(len(layout.items)))
-        layout = image_cloud.maximize_empty_space(layout)
+        args.logger.info('Maximizing {0} texts: expanding them to fit their surrounding empty space.'.format(len(layout.items)))
+        layout = text_cloud.maximize_empty_space(layout)
 
     reconstructed_reservation_map = layout.reconstruct_reservation_map(args.logger)
     if not(np.array_equal(layout.canvas.reservation_map, reconstructed_reservation_map)):
         args.logger.info('Warning reservations map from generation not same as reconstructed from images.')
     
+
     collage = layout.to_image(args.logger)
 
     args.try_save_output(collage, None, layout)

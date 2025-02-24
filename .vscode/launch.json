@@ -18,6 +18,13 @@
             "request": "launch",
             "module": "imagecloud.clis.layout_cli",
             "args": "${command:pickArgs}",
-        }
+        },
+        {
+            "name": "generate_textcloud",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "textcloud.clis.generate_cli",
+            "args": "${command:pickArgs}",
+        },
     ]
 }
