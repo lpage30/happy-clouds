@@ -1,6 +1,5 @@
 import csv
-from typing import Dict, Any
-from matplotlib import font_manager
+from typing import Dict, Any, List
 from textcloud.containers.named_text import (
     NamedText,
     resize_named_text,
@@ -14,10 +13,11 @@ from textcloud.containers.named_text import (
 )
 from itemcloud.containers.weighted_item import WeightedItem
 from itemcloud.layout.layout_item import LayoutItem
-from itemcloud.util.parsers import is_empty
 from itemcloud.box import Box
 from itemcloud.size import Size
 from textcloud.layout.layout_text import LayoutText
+from itemcloud.util.colors import Color
+from textcloud.util.fonts import Font
 
 class WeightedText(WeightedItem, NamedText):
     
@@ -26,13 +26,11 @@ class WeightedText(WeightedItem, NamedText):
         weight: float,
         name: str,
         text: str,
-        font_name_path: str,
-        min_font_size: float,
-        max_font_size: float,
-        foreground_color: str,
-        background_color: str
+        font: Font,
+        foreground_color: Color,
+        background_color: Color | None
     ) -> None:
-        NamedText.__init__(self, name, text, font_name_path, min_font_size, max_font_size, foreground_color, background_color)
+        NamedText.__init__(self, name, text, font, foreground_color, background_color)
         WeightedItem.__init__(self, weight, name, self.width, self.height)
         
     def to_layout_item(
@@ -59,33 +57,29 @@ class WeightedText(WeightedItem, NamedText):
     def to_fitted_weighted_item(self, weight: float, width: int, height: int) -> "WeightedItem":
         new_named_text = resize_named_text(self, Size(width, height))
         result = WeightedText(
-                    weight,
-                    self.name,
-                    self.text,
-                    self.font_name_path,
-                    self.min_font_size,
-                    self.max_font_size,
-                    self.foreground_color,
-                    self.background_color)
+            weight,
+            self.name,
+            self.text,
+            self.font,
+            self.foreground_color,
+            self.background_color
+        )
         result.update_named_text(new_named_text)
         return result
     
     @staticmethod
     def load(row: Dict[str, Any]) -> "WeightedText":
-        return WeightedText(
+        named_text = NamedText.load(row)
+        result = WeightedText(
             float(row[WEIGHTED_TEXT_WEIGHT]),
             row[WEIGHTED_TEXT_NAME],
-            row[WEIGHTED_TEXT_TEXT],
-            row[WEIGHTED_TEXT_FONT_NAME_PATH],
-            float(row[WEIGHTED_TEXT_MIN_FONT_SIZE]),
-            float(row[WEIGHTED_TEXT_MAX_FONT_SIZE]),
-            None if is_empty(row[WEIGHTED_TEXT_FOREGROUND_COLOR]) else row[WEIGHTED_TEXT_FOREGROUND_COLOR],
-            None if is_empty(row[WEIGHTED_TEXT_BACKGROUD_COLOR]) else row[WEIGHTED_TEXT_BACKGROUD_COLOR]
+            named_text.text,
+            named_text.font,
+            named_text.foreground_color,
+            named_text.background_color
         )
-
-
-FONT_NAMES = font_manager.get_font_names()
-FONT_NAMES.sort()
+        result.update_named_text(named_text)
+        return result
 
 WEIGHTED_TEXT_NAME = TEXT_NAME
 WEIGHTED_TEXT_NAME_HELP = '<name>'
@@ -94,34 +88,34 @@ WEIGHTED_TEXT_WEIGHT_HELP = '<float>'
 WEIGHTED_TEXT_TEXT = TEXT_TEXT
 WEIGHTED_TEXT_TEXT_HELP = 'text|phrase|prose'
 WEIGHTED_TEXT_FONT_NAME_PATH = TEXT_FONT_NAME_PATH
-WEIGHTED_TEXT_FONT_NAME_PATH_HELP = '<path-to-your-font>|<name-of-font>'
+WEIGHTED_TEXT_FONT_NAME_PATH_HELP = '<path-to-your-font>|<name-of-font>|empty(random)'
 WEIGHTED_TEXT_MIN_FONT_SIZE = TEXT_MIN_FONT_SIZE
-WEIGHTED_TEXT_MIN_FONT_SIZE_HELP = '<float>'
+WEIGHTED_TEXT_MIN_FONT_SIZE_HELP = '<float>|empty(random)'
 WEIGHTED_TEXT_MAX_FONT_SIZE = TEXT_MAX_FONT_SIZE
-WEIGHTED_TEXT_MAX_FONT_SIZE_HELP = '<float>'
+WEIGHTED_TEXT_MAX_FONT_SIZE_HELP = '<float>|empty(random)'
 WEIGHTED_TEXT_FOREGROUND_COLOR = TEXT_FOREGROUND_COLOR
-WEIGHTED_TEXT_FOREGROUND_COLOR_HELP = '<color-name>|#RRGGBB'
-WEIGHTED_TEXT_BACKGROUD_COLOR = TEXT_BACKGROUND_COLOR
-WEIGHTED_TEXT_BACKGROUD_COLOR_HELP = '<color-name>|#RRGGBB'
+WEIGHTED_TEXT_FOREGROUND_COLOR_HELP = '<color-name>|#RRGGBB|empty|random'
+WEIGHTED_TEXT_BACKGROUND_COLOR = TEXT_BACKGROUND_COLOR
+WEIGHTED_TEXT_BACKGROUND_COLOR_HELP = '<color-name>|#RRGGBB|empty|random'
 WEIGHTED_TEXT_HEADERS = [
     WEIGHTED_TEXT_NAME,
-    WEIGHTED_TEXT_WEIGHT,
     WEIGHTED_TEXT_TEXT,
+    WEIGHTED_TEXT_WEIGHT,
     WEIGHTED_TEXT_FONT_NAME_PATH,
     WEIGHTED_TEXT_MIN_FONT_SIZE,
     WEIGHTED_TEXT_MAX_FONT_SIZE,
     WEIGHTED_TEXT_FOREGROUND_COLOR,
-    WEIGHTED_TEXT_BACKGROUD_COLOR
+    WEIGHTED_TEXT_BACKGROUND_COLOR
 ]
 WEIGHTED_TEXT_HEADERS_HELP = [
     WEIGHTED_TEXT_NAME_HELP,
-    WEIGHTED_TEXT_WEIGHT_HELP,
     WEIGHTED_TEXT_TEXT_HELP,
+    WEIGHTED_TEXT_WEIGHT_HELP,
     WEIGHTED_TEXT_FONT_NAME_PATH_HELP,
     WEIGHTED_TEXT_MIN_FONT_SIZE_HELP,
     WEIGHTED_TEXT_MAX_FONT_SIZE_HELP,
     WEIGHTED_TEXT_FOREGROUND_COLOR_HELP,
-    WEIGHTED_TEXT_BACKGROUD_COLOR_HELP,
+    WEIGHTED_TEXT_BACKGROUND_COLOR_HELP,
 ]
 WEIGHTED_TEXTS_CSV_FILE_HELP = '''csv file for weighted text with following format:
 "{0}"
@@ -130,7 +124,7 @@ WEIGHTED_TEXTS_CSV_FILE_HELP = '''csv file for weighted text with following form
 
 def load_weighted_texts(csv_filepath: str) -> list[WeightedText]:
     try:
-        result: list[WeightedText] = list()
+        result: List[WeightedText] = list()
         with open(csv_filepath, 'r') as file:    
             csv_reader = csv.DictReader(file, fieldnames=WEIGHTED_TEXT_HEADERS)
             next(csv_reader)

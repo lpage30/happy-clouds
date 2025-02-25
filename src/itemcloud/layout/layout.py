@@ -20,7 +20,7 @@ from PIL import Image, ImageFilter
 from typing import Any, Dict
 import csv
 import traceback
-from itemcloud.layout.colors import (
+from itemcloud.util.colors import (
     Color,
     ColorSource,
     generate_colors,

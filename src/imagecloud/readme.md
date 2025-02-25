@@ -98,7 +98,7 @@ csv file for weighted images with following format:
 "<full-path-to-image-file>",<weight-as-number>
 ```
 #### Sample generate script
-`sample-generate` is an example of how the `generate_imagecloud` could be used
+`sample-generate-image` is an example of how the `generate_imagecloud` could be used
 
 ### layout_imagecloud
 ```
@@ -145,7 +145,7 @@ csv file representing 1 Layout Contour, 1 Layout Canvas and N Layout Items:
 
 ```
 #### Sample layout script
-`sample-layout` is an example of how the `layout_imagecloud` could be used. This example builds off the `sample-generate` to operate on its result by maximizing the empty-space, if any, surrounding the images in the image-cloud.
+`sample-layout-image` is an example of how the `layout_imagecloud` could be used. This example builds off the `sample-generate` to operate on its result by maximizing the empty-space, if any, surrounding the images in the image-cloud.
 
 ## Images to load
 Really any image supported by pillow open is supported.

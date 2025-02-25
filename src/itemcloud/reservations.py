@@ -1,5 +1,4 @@
 import numpy as np
-import secrets
 from typing import List
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.box import Box
@@ -9,13 +8,12 @@ from itemcloud.native.reservations import (
     native_maximize_existing_reservation
 )
 from itemcloud.logger.base_logger import BaseLogger
+from itemcloud.util.random import random_in_range
 ReservationMapDataType = np.uint32
 ReservationMapType = np.ndarray[ReservationMapDataType, ReservationMapDataType]
 PositionBufferType = np.ndarray[ReservationMapDataType]
 
 
-def random_in_range_f(range_size: int) -> int:
-    return secrets.randbelow(range_size)
 
 class Reservation:
     def __init__(self, name: str, no: int, box: Box):
@@ -122,7 +120,7 @@ class Reservations(object):
             resize_type.value,
             step_size,
             rotation_increment,
-            random_in_range_f
+            random_in_range
         )
         return SampledUnreservedOpening.from_native(native_SampledUnreservedOpening)
     

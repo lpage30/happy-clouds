@@ -1,5 +1,4 @@
 from PIL import Image
-from random import Random
 import warnings
 import numpy as np
 from itemcloud.logger.base_logger import BaseLogger
@@ -115,7 +114,6 @@ class ItemCloud(object):
 
         self._margin = margin if margin is not None else parse_to_int(item_cloud_defaults.DEFAULT_MARGIN)
         self._mode = mode if mode is not None else item_cloud_defaults.DEFAULT_MODE
-        self._random_state = None
         self._name = name if name is not None else 'itemcloud'
         self._total_threads = total_threads if total_threads is not None else parse_to_int(item_cloud_defaults.DEFAULT_TOTAL_THREADS)
         self.layout_: Layout | None = None
@@ -185,7 +183,6 @@ class ItemCloud(object):
             result = self._generate(
                 proportional_items,
                 itemcloud_size,
-                self._random_state if self._random_state is not None else Random(),
                 max_item_size
             )
             self._logger.pop_indent()
@@ -317,7 +314,6 @@ class ItemCloud(object):
     def _generate(self,
                 proportional_items: list[WeightedItem],
                 ObjectCloud_size: Size,
-                random_state: Random,              
                 max_item_size: Size | None
     ) -> Layout: 
 
@@ -343,7 +339,6 @@ class ItemCloud(object):
                 layout = self._generate(
                     proportional_items[:2],
                     ObjectCloud_size,
-                    random_state,
                     self._size
                 )
                 # find image sizes

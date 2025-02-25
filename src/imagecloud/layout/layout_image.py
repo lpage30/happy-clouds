@@ -29,8 +29,8 @@ class LayoutImage(LayoutItem):
     def original_image(self) -> NamedImage:
         return self._original_image
     
-    def get_item_as_image(self) -> Image.Image:
-        return self.original_image.image
+    def get_item_as_named_image(self) -> NamedImage:
+        return self.original_image
 
     def write_item(self, item_name: str, layout_directory: str) -> str:
         image_filepath = to_unused_filepath(layout_directory, item_name, 'png')

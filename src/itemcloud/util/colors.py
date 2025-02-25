@@ -1,7 +1,8 @@
-from PIL import ImagePalette
+from PIL import ImagePalette, ImageColor
 from enum import Enum
+from typing import List
 import colorsys
-from random import Random
+from itemcloud.util.random import random_in_range, random_shuffle
 from webcolors import (
     name_to_rgb,
     names as color_names,
@@ -80,6 +81,10 @@ class Color:
     def integer(self) -> int:
         self._integer
     
+    @property
+    def image_color(self) -> tuple[int, int, int] | tuple[int, int, int, int]:
+        return self._rgb
+    
 
 class NamedColor(Color):
     def __init__(self, name: str):
@@ -90,6 +95,7 @@ class NamedColor(Color):
     @property
     def name(self) ->str:
         return self._name
+
 
         
 class DistinctColor(Color):
@@ -112,7 +118,7 @@ class IntColor(Color):
 WHITE_COLOR = NamedColor('white')
 BLACK_COLOR = NamedColor('black')
 
-def to_ImagePalette(colors: list[Color]) -> ImagePalette.ImagePalette:
+def to_ImagePalette(colors: List[Color]) -> ImagePalette.ImagePalette:
     bytearray_pallete: bytearray = bytearray(3*len(colors))
     b: int = 0
     for c in colors:
@@ -128,8 +134,8 @@ def to_ImagePalette(colors: list[Color]) -> ImagePalette.ImagePalette:
          palette=bytearray_pallete
      )       
     
-def generate_picked_colors(count: int) -> list[Color]:
-    result: list[Color] = list()
+def generate_picked_colors(count: int) -> List[Color]:
+    result: List[Color] = list()
     for i in range(count):
         rgb = unique_rgb[i%len(unique_rgb)]
         result.append(Color(
@@ -137,10 +143,10 @@ def generate_picked_colors(count: int) -> list[Color]:
         ))
     return result
         
-def generate_distinct_colors(count: int) -> list[DistinctColor]:
+def generate_distinct_colors(count: int) -> List[DistinctColor]:
     lightness: float = 0.5 # fixed lightness 
     saturation: float = 1.0 # full saturation 
-    result: list[DistinctColor] = list()
+    result: List[DistinctColor] = list()
     for i in range(count):
         result.append(DistinctColor(
             i*2 / count*2, # evenly spaced hues across count
@@ -149,39 +155,35 @@ def generate_distinct_colors(count: int) -> list[DistinctColor]:
         ))
     return result
 
-def generate_named_colors(count: int) -> list[NamedColor]:
-    rand = Random()
+def generate_named_colors(count: int) -> List[NamedColor]:
     names = color_names()
-    result: list[NamedColor] = list()
+    result: List[NamedColor] = list()
     for _ in range(count):
         if 0 == len(names):
             names = color_names()
         
-        name = names[rand.randint(0, len(names) - 1)]
+        name = names[random_in_range(len(names))]
         names.remove(name)
         result.append(NamedColor(name))
     return result
 
-def generate_mix_colors(count: int) -> list[Color]:
-    rand = Random()
+def generate_mix_colors(count: int) -> List[Color]:
     distinct_colors = generate_distinct_colors(count)
     named_colors = generate_named_colors(count)
     picked_colors = generate_picked_colors(count)
-    total_colors: list[Color] = list()
+    total_colors: List[Color] = list()
     total_colors.extend(named_colors)
     total_colors.extend(distinct_colors)
     total_colors.extend(picked_colors)
-    rand.shuffle(total_colors)
-    result: list[NamedColor] = list()
+    random_shuffle(total_colors)
+    result: List[NamedColor] = list()
     for _ in range(count):
-        color = total_colors[rand.randint(0, len(total_colors) - 1)]
+        color = total_colors[random_in_range(len(total_colors))]
         total_colors.remove(color)
         result.append(color)
     return result
 
-  
-
-def generate_colors(source: ColorSource, count: int) -> list[Color]:
+def generate_colors(source: ColorSource, count: int) -> List[Color]:
     match source:
         case ColorSource.NAME:
             return generate_named_colors(count)
@@ -191,3 +193,14 @@ def generate_colors(source: ColorSource, count: int) -> list[Color]:
             return generate_picked_colors(count)
         case _:
             return generate_mix_colors(count)
+
+def pick_color(source: ColorSource) -> Color:
+    match source:
+        case ColorSource.NAME:
+            return generate_named_colors(1)[0]
+        case ColorSource.DISTINCT:
+            return generate_distinct_colors(1)[0]
+        case ColorSource.PICKED:
+            return generate_picked_colors(1)[0]
+        case _:
+            return generate_mix_colors(1)[0]
