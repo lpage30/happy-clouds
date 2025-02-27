@@ -10,16 +10,20 @@ Once installed you will be able to execute scripts defined in the `myproject.tom
 ```
 usage: generate_textcloud [-h] -i <csv_filepath> [-output_directory <output-directory-path>]
                           [-output_image_format blp|bmp|dds|dib|eps|gif|icns|ico|im|jpeg|mpo|msp|pcx|pfm|png|ppm|sgi|webp|xbm]
-                          [-show_itemcloud] [-no-show_itemcloud] [-show_itemcloud_reservation_chart]
-                          [-no-show_itemcloud_reservation_chart] [-maximize_empty_space] [-no-maximize_empty_space]
-                          [-verbose] [-no-verbose] [-log_filepath <log-filepath>] [-cloud_size "<width>,<height>"]
-                          [-cloud_expansion_step_size <int>] [-margin <number>] [-min_item_size "<width>,<height>"]
-                          [-step_size <int>] [-rotation_increment <int>]
+                          [-show_itemcloud] [-no-show_itemcloud]
+                          [-show_itemcloud_reservation_chart]
+                          [-no-show_itemcloud_reservation_chart] [-maximize_empty_space]
+                          [-no-maximize_empty_space] [-verbose] [-no-verbose]
+                          [-log_filepath <log-filepath>] [-cloud_size "<width>,<height>"]
+                          [-cloud_expansion_step_size <int>] [-margin <number>]
+                          [-min_item_size "<width>,<height>"] [-step_size <int>]
+                          [-rotation_increment <int>]
                           [-resize_type NO_RESIZE_TYPE|MAINTAIN_ASPECT_RATIO|MAINTAIN_PERCENTAGE_CHANGE]
                           [-max_item_size "<width>,<height>"]
                           [-mode 1|L|P|RGB|RGBA|CMYK|YCbCr|LAB|HSV|I|F|LA|PA|RGBX|RGBa|La|I;16|I;16L|I;16B|I;16N]
-                          [-background_color <color-name>] [-mask <image_file_path>] [-contour_width <float>]
-                          [-contour_color <color-name>] [-total_threads <int>]
+                          [-background_color <color-name>] [-mask <image_file_path>]
+                          [-contour_width <float>] [-contour_color <color-name>]
+                          [-total_threads <int>]
 
             Generate an 'ImageCloud' from a csv file indicating image filepath and weight for image.
             
@@ -28,8 +32,8 @@ options:
   -h, --help            show this help message and exit
   -i, --input <csv_filepath>
                         Required, csv file for weighted text with following format:
-                        "name","weight","text","font_name_path","min_font_size","max_font_size","foreground_color","background_color"
-                        <name>,<float>,text|phrase|prose,<path-to-your-font>|<name-of-font>|empty(random),<float>|empty(random),<float>|empty(random),<color-name>|#RRGGBB|empty|random,<color-name>|#RRGGBB|empty|random
+                        "name","text","weight","font_name_path","min_font_size","max_font_size","text_layout","text_stroke_width","text_anchor","text_align","foreground_color","background_color"
+                        <name>,text|phrase|prose,<float>,<path-to-your-font>|<name-of-font>|empty(random),<float>|empty(random),<float>|empty(random),empty(0)|0(BASIC)|1(RAQM),empty|<integer>,empty(ma)|<l|m|r><t|m|b|a>,empty(center)|center|right|left,<color-name>|#RRGGBB|empty|random,<color-name>|#RRGGBB|empty|random
   -output_directory <output-directory-path>
                         Optional, output directory for all output
   -output_image_format blp|bmp|dds|dib|eps|gif|icns|ico|im|jpeg|mpo|msp|pcx|pfm|png|ppm|sgi|webp|xbm
@@ -92,8 +96,8 @@ options:
   #### CSV to import
 csv file for weighted text with following format:
 ```csv
-"name","weight","text","font_name_path","min_font_size","max_font_size","foreground_color","background_color"
-<name>,<float>,text|phrase|prose,<path-to-your-font>|<name-of-font>|empty(random),<float>|empty(random),<float>|empty(random),<color-name>|#RRGGBB|empty|random,<color-name>|#RRGGBB|empty|random
+"name","text","weight","font_name_path","min_font_size","max_font_size","text_layout","text_stroke_width","text_anchor","text_align","foreground_color","background_color"
+<name>,text|phrase|prose,<float>,<path-to-your-font>|<name-of-font>|empty(random),<float>|empty(random),<float>|empty(random),empty(0)|0(BASIC)|1(RAQM),empty|<integer>,empty(ma)|<l|m|r><t|m|b|a>,empty(center)|center|right|left,<color-name>|#RRGGBB|empty|random,<color-name>|#RRGGBB|empty|random
 ```
 #### Sample generate script
 `sample-generate-text` is an example of how the `generate_textcloud` could be used
