@@ -1,5 +1,10 @@
+from enum import Enum
 from itemcloud.size import Size
-from itemcloud.native.box import native_create_box
+from itemcloud.native.box import native_create_box, native_rotate_box
+
+class RotateDirection(Enum):
+    COUNTERCLOCKWISE = -1
+    CLOCKWISE = 1
 
 class Box:
     left: int
@@ -31,7 +36,7 @@ class Box:
     def area(self) -> int:
         return self.size.area
     
-    def scale(self, scale: float):
+    def scale(self, scale: float) -> "Box":
         return Box(
             int(round(self.left * scale)),
             int(round(self.upper * scale)),
@@ -52,7 +57,7 @@ class Box:
     def box_to_string(self) -> str:
         return f'Box({self.left}, {self.upper}, {self.right}, {self.lower})'
     
-    def remove_margin(self, margin: int):
+    def remove_margin(self, margin: int) -> "Box":
         padding = int(round(margin/2))
         return Box(
             self.left + padding,
@@ -60,6 +65,11 @@ class Box:
             self.right - padding,
             self.lower - padding
         )
+    
+    def rotate(self, degrees: int, direction: RotateDirection) -> "Box":
+        native_box = native_rotate_box(self.to_native(), degrees, direction.value)
+        return Box.from_native(native_box)
+    
     def to_native(self):
         return native_create_box(
             self.left,
@@ -69,7 +79,7 @@ class Box:
         )
     
     @staticmethod
-    def from_native(native_box):
+    def from_native(native_box) -> "Box":
         return Box(
             native_box['left'],
             native_box['upper'],

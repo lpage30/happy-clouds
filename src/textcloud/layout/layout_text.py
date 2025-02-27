@@ -1,8 +1,9 @@
-from PIL import Image
+from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.layout.layout_item import LayoutItem
 from textcloud.containers.named_text import NamedText
 from itemcloud.containers.named_image import NamedImage
 from itemcloud.box import Box
+from itemcloud.size import Size
 
 
 class LayoutText(LayoutItem):
@@ -28,8 +29,13 @@ class LayoutText(LayoutItem):
     def original_text(self) -> NamedText:
         return self._original_text
 
-    def get_item_as_named_image(self) -> NamedImage:
-        return NamedImage(self.original_text.to_image(), self.original_text.name)
+    def get_item_as_named_image(self, rotated_degrees: int | None = None, size: Size | None = None, logger: BaseLogger | None = None) -> NamedImage:
+        new_image = self.original_text.to_image(
+            rotated_degrees,
+            size,
+            logger
+        )
+        return NamedImage(new_image, self.original_text.name)
 
     def write_item(self, item_name: str, layout_directory: str) -> str:
         return self.original_text.write_item(item_name, layout_directory)

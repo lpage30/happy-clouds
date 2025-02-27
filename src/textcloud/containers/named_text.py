@@ -5,8 +5,9 @@ from itemcloud.containers.named_item import NamedItem
 from itemcloud.util.parsers import (to_unused_filepath, is_empty)
 from itemcloud.size import Size
 from itemcloud.util.colors import (Color, NamedColor, pick_color, ColorSource)
-from textcloud.util.fonts import (Font, FontName, FontSize, pick_font, pick_font_size)
+from textcloud.util.fonts import (Font, FontName, FontSize, FontTextAttributes,pick_font, pick_font_size)
 from textcloud.util.font_categories import (FontTypeCategories, FontUsageCategory)
+from itemcloud.logger.base_logger import BaseLogger
 
 
 class NamedText(NamedItem):
@@ -36,11 +37,19 @@ class NamedText(NamedItem):
         self.width = other.width
         self.height = other.height
     
-    def to_image(self) -> Image.Image:
+    def to_image(
+        self,
+        rotated_degrees: int | None = None,
+        size: Size | None = None,
+        logger: BaseLogger | None = None
+    ) -> Image.Image:
         return self.font.to_image(
             self.text,
             self.foreground_color,
-            self.background_color
+            self.background_color,
+            rotated_degrees,
+            size,
+            logger
         )
 
     def write_item(self, item_name: str, layout_directory: str) -> str:
@@ -55,6 +64,10 @@ class NamedText(NamedItem):
                 TEXT_MIN_FONT_SIZE: self.font.min_font_size,
                 TEXT_FONT_SIZE: self.font.font_size,
                 TEXT_MAX_FONT_SIZE: self.font.max_font_size,
+                TEXT_LAYOUT: self.font.layout,
+                TEXT_STROKE_WIDTH: self.font.stroke_width if not None else '',
+                TEXT_ANCHOR: self.font.anchor,
+                TEXT_ALIGN: self.font.align,
                 TEXT_FOREGROUND_COLOR: self.foreground_color.name,
                 TEXT_BACKGROUND_COLOR: self.background_color.name if self.background_color is not None else ''
             })
@@ -74,6 +87,12 @@ class NamedText(NamedItem):
         else:
             font_size = FontSize(FontUsageCategory.CUSTOM, float(row[TEXT_MIN_FONT_SIZE]), float(row[TEXT_MAX_FONT_SIZE]))
 
+        text_attributes = FontTextAttributes(
+            int(row[TEXT_LAYOUT]) if not(is_empty(row[TEXT_LAYOUT])) else None,
+            int(row[TEXT_STROKE_WIDTH]) if not(is_empty(row[TEXT_STROKE_WIDTH])) else None,
+            int(row[TEXT_ANCHOR]) if not(is_empty(row[TEXT_ANCHOR])) else None,
+            row[TEXT_ALIGN] if not(is_empty(row[TEXT_ALIGN])) else None
+        )
         if is_empty(row[TEXT_FOREGROUND_COLOR]):
             fg_color = None
         elif row[TEXT_FOREGROUND_COLOR].lower().strip() == 'random':
@@ -90,7 +109,7 @@ class NamedText(NamedItem):
         result = NamedText(
             row[TEXT_NAME],
             row[TEXT_TEXT],
-            Font(font_name, font_size),
+            Font(font_name, font_size, text_attributes),
             fg_color,
             bg_color
         )
@@ -131,6 +150,10 @@ TEXT_FONT_NAME_PATH = 'font_name_path'
 TEXT_MIN_FONT_SIZE = 'min_font_size'
 TEXT_FONT_SIZE = 'font_size'
 TEXT_MAX_FONT_SIZE = 'max_font_size'
+TEXT_LAYOUT = 'text_layout'
+TEXT_STROKE_WIDTH = 'text_stroke_width'
+TEXT_ANCHOR = 'text_anchor'
+TEXT_ALIGN = 'text_align'
 TEXT_FOREGROUND_COLOR = 'foreground_color'
 TEXT_BACKGROUND_COLOR = 'background_color'
 
@@ -141,6 +164,10 @@ TEXT_HEADERS = [
     TEXT_MIN_FONT_SIZE,
     TEXT_FONT_SIZE,
     TEXT_MAX_FONT_SIZE,
+    TEXT_LAYOUT,
+    TEXT_STROKE_WIDTH,
+    TEXT_ANCHOR,
+    TEXT_ALIGN,
     TEXT_FOREGROUND_COLOR,
     TEXT_BACKGROUND_COLOR
 ]

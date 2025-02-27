@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 import os
-from PIL import Image
 import matplotlib.patches as mpatches
 from typing import Any, Dict, Callable
 from itemcloud.box import Box
+from itemcloud.size import Size
 from itemcloud.util.colors import Color
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.containers.named_image import NamedImage
@@ -73,23 +73,12 @@ class LayoutItem(ABC):
         logger: BaseLogger,
         scale: float = 1.0
     ) -> NamedImage:
-        new_named_image = self.get_item_as_named_image()
-        new_image = new_named_image.image
+        return self.get_item_as_named_image(
+            self.rotated_degrees,
+            self.placement_box.size.scale(scale),
+            logger
+        )
 
-        if 0 < self.rotated_degrees:
-            logger.info('Rotating {0} {1} degrees'.format(self.name, self.rotated_degrees))
-            # always rotate clockwise (negative degrees)
-            new_image = new_image.rotate(-self.rotated_degrees, expand=1)
-        
-        new_size = self.placement_box.size.scale(scale)
-        if new_image.size != new_size.image_tuple:
-            logger.info('Resizing {0} ({1},{2}) -> {3}'.format(
-                new_named_image.name,
-                new_image.size[0], new_image.size[1],
-                new_size.size_to_string()
-            ))
-            new_image = new_image.resize(new_size.image_tuple)
-        return NamedImage(new_image, new_named_image.name, new_named_image.image)
 
     def to_legend_handle(self) -> mpatches.Patch:
         return mpatches.Patch(
@@ -116,7 +105,7 @@ class LayoutItem(ABC):
         }
 
     @abstractmethod
-    def get_item_as_named_image(self) -> NamedImage:
+    def get_item_as_named_image(self, rotated_degrees: int | None = None, size: Size | None = None, logger: BaseLogger | None = None) -> NamedImage:
         pass
 
     @abstractmethod

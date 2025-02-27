@@ -184,3 +184,14 @@ def native_create_box(
     lower: int
 ): # return native_box
     return create_box(left, upper, right, lower)
+
+def native_rotate_box(
+    box: Box,
+    degrees: int,
+    rotation_direction: int
+) -> Box:
+    cdef RotateDirection direction = RotateDirection.CLOCKWISE
+    if 1 != rotation_direction:
+        direction = RotateDirection.COUNTERCLOCKWISE
+
+    return rotate(box, degrees, direction)
