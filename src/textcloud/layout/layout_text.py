@@ -42,7 +42,7 @@ class LayoutText(LayoutItem):
 
 
     def load_item(self, item_filepath: str) -> None:
-        self._original_text = NamedText.load(item_filepath)
+        self._original_text = NamedText.load_item(item_filepath)
         self._name = self.original_image.name
 
     def to_reserved_item(

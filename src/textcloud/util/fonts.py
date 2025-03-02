@@ -5,7 +5,7 @@ from itemcloud.size import Size
 from itemcloud.util.random import random_in_range
 from textcloud.util.font_categories import FontUsageCategory, FontTypeCategories
 from itemcloud.util.colors import Color, BLACK_COLOR, WHITE_COLOR
-from itemcloud.logger.base_logger import BaseLogger
+from itemcloud.logger.base_logger import BaseLogger, LoggerLevel
 
 # https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
 ANCHOR = 'lt'
@@ -92,44 +92,15 @@ class Font:
     def font_size(self, v: float) -> None:
         self._font_size = v
 
-    def to_image_font(self) -> ImageFont.FreeTypeFont:
-        return ImageFont.truetype(self.font_name, self.font_size)
-    
-    def to_box(self, text: str) -> Box:
-        return get_text_box(text, self.to_image_font(), self._attributes)
-
-    def find_best_fit(self, text: str, fit_size: Size) -> "Font":
-        result: Font = Font(
-            self._font,
-            self._size,
-            self._attributes
-        )
-        result.font_size = self.font_size
-        font_size = result.font_size
-        fit_area = fit_size.area
-        box_area = result.to_box(text).size.area
-        increment = 0.25 if box_area < fit_area else -0.25
-        while True:
-            result.font_size = font_size + increment
-            box_area = result.to_box(text).size.area
-            if (0 < increment and box_area < fit_area) or (increment < 0 and fit_area < box_area):
-                font_size = result.font_size
-            else:
-                result.font_size = font_size
-                return result
-
-    def to_image(
-        self, 
-        text: str, 
-        fg_color: Color | None, 
-        bg_color: Color | None,
+    def to_image_font(
+        self,
+        text: str | None = None, 
         rotated_degrees: int | None = None,
         size: Size | None = None,
         logger: BaseLogger | None = None
-    )-> Image.Image:
-        
+    ) -> ImageFont.FreeTypeFont:
         f = self
-        if size is not None:
+        if text is not None and size is not None:
             fit_size = size
             # put rotated size back so we resize to horizontal size
             # we then rotate image later
@@ -142,21 +113,64 @@ class Font:
                     fit_size.size_to_string()
                 ))
             f = self.find_best_fit(text, fit_size)
-        font = f.to_image_font()
+        return ImageFont.truetype(f.font_name, f.font_size)
+    
+    def to_box(self, text: str) -> Box:
+        return get_text_box(text, self.to_image_font(), self._attributes)
 
-        box_size = get_text_box(text, font, self._attributes).size
+    def find_best_fit(self, text: str, fit_size: Size) -> "Font":
+        result: Font = Font(
+            self._font,
+            self._size,
+            self._attributes
+        )
+        result.font_size = self.font_size
+        font_size = result.font_size
+        box_size = result.to_box(text).size
+        fit_area = fit_size.area
+        box_area = box_size.area
+        increment = 0.25 if box_area < fit_area else -0.25
+        while True:
+            result.font_size = font_size + increment
+            box_size = result.to_box(text).size
+            box_area = box_size.area
+            if (0 < increment and 
+                box_area < fit_area and 
+                box_size.width < fit_size.width and 
+                box_size.height < fit_size.height) or (
+                    increment < 0 and 
+                    fit_area < box_area and
+                    fit_size.width < box_size.width and
+                    fit_size.height < box_size.height):
+                font_size = result.font_size
+            else:
+                result.font_size = font_size
+                return result
+        
+    
+    def draw_with_font_on_image(
+        self,
+        text: str,
+        font: ImageFont.FreeTypeFont,
+        image: Image.Image,
+        fg_color: Color | None,
+        as_watermark: bool = False,
+        xy: tuple[float, float] | None = None
+    ) -> Image.Image:
+        text_image = image
+        text_rotation = 0
+        if xy is None:
+            xy = (0.0, 0.0)
+        if as_watermark:
+            box = get_text_box(text, font, self._attributes)
+            text_rotation = box.rotate_until_wedged(Box(0,0, image.width, image.height))
+            text_image = Image.new('RGBA', box.size.image_tuple, (255,255,255,0))
 
-        if bg_color is not None:
-            result = Image.new("RGB", (box_size.width, box_size.height), bg_color.image_color)
-        else:
-            result = Image.new("RGBA", (box_size.width, box_size.height))
-
-        draw = ImageDraw.Draw(result)
-
+        draw = ImageDraw.Draw(text_image)
         if fg_color is not None:
             if '\n' in text:
                 draw.multiline_text(
-                    (0, 0),
+                    xy,
                     text, 
                     fill=fg_color.image_color, 
                     font=font, 
@@ -167,7 +181,7 @@ class Font:
                 )
             else:
                 draw.text(
-                    (0, 0),
+                    xy,
                     text,
                     fill=fg_color.image_color,
                     font=font,
@@ -179,7 +193,7 @@ class Font:
         else:
             if '\n' in self.text:
                 draw.multiline_text(
-                    (0, 0),
+                    xy,
                     text,
                     font=font,
                     anchor=self._attributes.anchor,
@@ -189,7 +203,7 @@ class Font:
                 )
             else:
                 draw.text(
-                    (0, 0),
+                    xy,
                     text,
                     font=font,
                     anchor=self._attributes.anchor,
@@ -198,7 +212,77 @@ class Font:
                     font_size=self.font_size
 
                 )
+        if as_watermark:
+            image = image.convert('RGBA')
+            if 0 < text_rotation:
+                text_image = text_image.rotate(-text_rotation, expand=1)
+            text_image = text_image.resize(image.size)
+            return Image.alpha_composite(image, text_image)
+        
+        return image
 
+    def draw_on_image(
+        self,
+        text: str, 
+        image: Image.Image,
+        fg_color: Color | None, 
+        rotated_degrees: int | None = None,
+        size: Size | None = None,
+        logger: BaseLogger | None = None,
+        as_watermark: bool = False,
+        xy: tuple[float, float] | None = None
+    ) -> Image.Image:
+
+        font = self.to_image_font(
+            text,
+            rotated_degrees,
+            size,
+            logger
+        )
+        return self.draw_with_font_on_image(
+            text,
+            font,
+            image,
+            fg_color,
+            as_watermark,
+            xy
+        )
+
+    def to_image(
+        self, 
+        text: str, 
+        fg_color: Color | None, 
+        bg_color: Color | None,
+        rotated_degrees: int | None = None,
+        size: Size | None = None,
+        logger: BaseLogger | None = None,
+        as_watermark: bool = False,
+        xy: tuple[float, float] | None = None,
+    )-> Image.Image:
+
+        font = self.to_image_font(
+            text,
+            rotated_degrees,
+            size,
+            logger
+        )
+
+        box_size = get_text_box(text, font, self._attributes).size
+
+        if not(as_watermark) and bg_color is not None:
+            result = Image.new("RGB", (box_size.width, box_size.height), bg_color.image_color)
+        else:
+            result = Image.new("RGBA", (box_size.width, box_size.height))
+
+        result = self.draw_with_font_on_image(
+            text,
+            font,
+            result,
+            fg_color,
+            as_watermark,
+            xy
+        )
+        
         if rotated_degrees is not None and 0 < rotated_degrees:
             if logger:
                 logger.info('Rotating {1} degrees'.format(rotated_degrees))
@@ -327,7 +411,13 @@ def get_font_names() -> List[FontName]:
 
 def get_text_box(text: str, font: ImageFont.FreeTypeFont, attributes: FontTextAttributes) -> Box:
     text_bbox = font.getbbox(text, stroke_width=attributes.stroke_width, anchor=attributes.anchor)
-    return Box(int(text_bbox[0]), int(text_bbox[1]), int(text_bbox[2]), int(text_bbox[3]))
+    horizontal_offset = 0
+    vertical_offset = 0
+    if int(text_bbox[0]) < 0:
+        horizontal_offset = max(abs(int(text_bbox[0])), horizontal_offset)
+    if int(text_bbox[1]) < 0:
+        vertical_offset = max(abs(int(text_bbox[1])), vertical_offset)
+    return Box(int(text_bbox[0]) + horizontal_offset, int(text_bbox[1]) + vertical_offset, int(text_bbox[2]) + horizontal_offset, int(text_bbox[3]) + vertical_offset)
 
 def generate_fonts(count: int) -> List[FontName]:
     names = get_font_names()
@@ -350,12 +440,17 @@ def pick_font_size() -> FontSize:
     return generate_font_sizes(1)[0]
 
 def show_all_fonts() -> None:
+    logger = BaseLogger('ShowAllFonts', LoggerLevel.DEBUG)
     fs = FontSize(FontUsageCategory.MOBILE_TEXT_HEAVY, 32, 32)
     fa = FontTextAttributes()
     images: List[Image.Image] = list()
     max_size: Size = Size(0,0)
     margin = 3
-    for f in get_font_names():
+    fontNames = get_font_names()
+    total_fonts = len(fontNames)
+    logger.info('Loading {0} fonts..'.format(total_fonts))
+    for index in range(total_fonts):
+        f = fontNames[index]
         i = Font(f,fs, fa).to_image(
             f.name,
             BLACK_COLOR,
@@ -366,6 +461,10 @@ def show_all_fonts() -> None:
         max_size.width = i.width if i.width > max_size.width else max_size.width
         max_size.height += i.height + margin
         images.append(i)
+        if 0 == (index+1) % 10:
+            logger.debug("{0}/{1} fonts loaded...".format(index+1, total_fonts))
+
+    logger.info('Rendering {0} fonts in 1 {1} x {2} image'.format(total_fonts, max_size.width, max_size.height))
     image = Image.new(
         'RGBA', 
         max_size.image_tuple,
@@ -380,8 +479,5 @@ def show_all_fonts() -> None:
         height += i.height + margin
     image.show()
 
-
-
-    
-
-
+if __name__ == '__main__':
+    show_all_fonts()

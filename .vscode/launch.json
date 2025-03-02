@@ -6,6 +6,30 @@
     "configurations": [
     
         {
+            "name": "samples-generate_imagecloud",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "imagecloud.clis.generate_cli",
+            "cwd": "${workspaceFolder}/samples",
+            "args": "-i ./imagecloud-import.csv -output_directory ./image-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./image-cloud/generate-log.debug.txt -total_threads 64 -verbose",
+        },
+        {
+            "name": "samples-generate_textcloud",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "textcloud.clis.generate_cli",
+            "cwd": "${workspaceFolder}/samples",
+            "args": "-i ./textcloud-import.csv -output_directory ./text-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./text-cloud/generate-log.debug.txt -total_threads 64 -verbose"
+        },
+        {
+            "name": "samples-generate_textimagecloud",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "textimagecloud.clis.generate_cli",
+            "cwd": "${workspaceFolder}/samples",
+            "args": "-i ./textimagecloud-import.csv -output_directory ./textimage-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./textimage-cloud/generate-log.debug.txt -total_threads 64 -verbose"
+        },
+        {
             "name": "generate_imagecloud",
             "type": "debugpy",
             "request": "launch",
@@ -25,6 +49,12 @@
             "request": "launch",
             "module": "textcloud.clis.generate_cli",
             "args": "${command:pickArgs}",
+        },
+        {
+            "name": "show_all_text_fonts",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "textcloud.util.fonts"
         },
     ]
 }

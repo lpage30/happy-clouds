@@ -1,0 +1,270 @@
+2025-03-02T08:07:12-45 INFO> generate_imagecloud -i ./imagecloud-import.csv -output_directory ./image-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./image-cloud/generate-log.debug.txt -total_threads 64 -verbose
+2025-03-02T08:07:12-45 INFO> loading ./imagecloud-import.csv ...
+2025-03-02T08:07:12-47 INFO> loaded 15 weights and images
+2025-03-02T08:07:12-47 INFO> generating imagecloud from 15 weighted and normalized images.
+2025-03-02T08:07:12-47 INFO> Generating ItemCloud from 15 items
+	generating	creating-itemcloud	image-park_seven[1/2] 2025-03-02T08:07:12-54 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_seven[1/2] 2025-03-02T08:07:18-54 DEBUG(native)> found opening position[7571/465022](535927) [x(1267) y(190)] Size(642,428) right(1909), lower(618) isunreserved?(1)
+	generating	creating-itemcloud	image-park_seven[1/2] 2025-03-02T08:07:18-54 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1] size(641, 427) rotated_degrees(0) opening(1267,190,1909,618) actual(1268,191,1908,617)
+
+	generating	creating-itemcloud	image-park_seven[1/2] 2025-03-02T08:07:18-54 INFO> Found position: samplings(1), rotated_degrees (0), resize(Size(641, 427)->Size(641, 427)) (000H_00M_06S_003MS)
+	generating	creating-itemcloud	image-park_seven[1/2] 2025-03-02T08:07:18-54 DEBUG> RESERVED: reserve_opening reservation(1) openingBox(1267, 190, 1909, 618)
+	generating	creating-itemcloud	image-park_two[2/2] 2025-03-02T08:07:18-56 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_two[2/2] 2025-03-02T08:07:21-61 DEBUG(native)> found opening position[183606/190460](338239) [x(559) y(120)] Size(642,428) right(1201), lower(548) isunreserved?(1)
+	generating	creating-itemcloud	image-park_two[2/2] 2025-03-02T08:07:21-61 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1] size(641, 427) rotated_degrees(0) opening(559,120,1201,548) actual(560,121,1200,547)
+
+	generating	creating-itemcloud	image-park_two[2/2] 2025-03-02T08:07:21-61 INFO> Found position: samplings(1), rotated_degrees (0), resize(Size(641, 427)->Size(641, 427)) (000H_00M_03S_048MS)
+	generating	creating-itemcloud	image-park_two[2/2] 2025-03-02T08:07:21-61 DEBUG> RESERVED: reserve_opening reservation(2) openingBox(559, 120, 1201, 548)
+	generating	creating-itemcloud	image-park_seven[1/15] 2025-03-02T08:07:21-63 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_seven[1/15] 2025-03-02T08:07:27-53 DEBUG(native)> found opening position[369107/465022](139338) [x(1452) y(49)] Size(642,428) right(2094), lower(477) isunreserved?(1)
+	generating	creating-itemcloud	image-park_seven[1/15] 2025-03-02T08:07:27-53 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1] size(641, 427) rotated_degrees(0) opening(1452,49,2094,477) actual(1453,50,2093,476)
+
+	generating	creating-itemcloud	image-park_seven[1/15] 2025-03-02T08:07:27-53 INFO> Found position: samplings(1), rotated_degrees (0), resize(Size(641, 427)->Size(641, 427)) (000H_00M_05S_896MS)
+	generating	creating-itemcloud	image-park_seven[1/15] 2025-03-02T08:07:27-53 DEBUG> RESERVED: reserve_opening reservation(1) openingBox(1452, 49, 2094, 477)
+	generating	creating-itemcloud	image-park_two[2/15] 2025-03-02T08:07:27-55 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_two[2/15] 2025-03-02T08:07:29-97 DEBUG(native)> found opening position[74656/190460](585792) [x(480) y(208)] Size(642,428) right(1122), lower(636) isunreserved?(1)
+	generating	creating-itemcloud	image-park_two[2/15] 2025-03-02T08:07:29-97 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1] size(641, 427) rotated_degrees(0) opening(480,208,1122,636) actual(481,209,1121,635)
+
+	generating	creating-itemcloud	image-park_two[2/15] 2025-03-02T08:07:29-97 INFO> Found position: samplings(1), rotated_degrees (0), resize(Size(641, 427)->Size(641, 427)) (000H_00M_02S_425MS)
+	generating	creating-itemcloud	image-park_two[2/15] 2025-03-02T08:07:29-97 DEBUG> RESERVED: reserve_opening reservation(2) openingBox(480, 208, 1122, 636)
+	generating	creating-itemcloud	image-park_ten[3/15] 2025-03-02T08:07:29-99 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_ten[3/15] 2025-03-02T08:07:30-81 DEBUG(native)> found opening position[6766/16827](522692) [x(2102) y(185)] Size(642,429) right(2744), lower(614) isunreserved?(1)
+	generating	creating-itemcloud	image-park_ten[3/15] 2025-03-02T08:07:30-81 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1] size(641, 428) rotated_degrees(0) opening(2102,185,2744,614) actual(2103,186,2743,613)
+
+	generating	creating-itemcloud	image-park_ten[3/15] 2025-03-02T08:07:30-81 INFO> Found position: samplings(1), rotated_degrees (0), resize(Size(641, 428)->Size(641, 428)) (000H_00M_00S_814MS)
+	generating	creating-itemcloud	image-park_ten[3/15] 2025-03-02T08:07:30-81 DEBUG> RESERVED: reserve_opening reservation(3) openingBox(2102, 185, 2744, 614)
+	generating	creating-itemcloud	image-park_eleven[4/15] 2025-03-02T08:07:30-83 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_eleven[4/15] 2025-03-02T08:07:31-72 DEBUG(native)> found opening position[18/54](78792) [x(0) y(28)] Size(480,640) right(480), lower(668) isunreserved?(1)
+	generating	creating-itemcloud	image-park_eleven[4/15] 2025-03-02T08:07:31-72 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[2] size(479, 639) rotated_degrees(90) opening(0,28,480,668) actual(1,29,479,667)
+
+	generating	creating-itemcloud	image-park_eleven[4/15] 2025-03-02T08:07:31-72 INFO> Found position: samplings(2), rotated_degrees (90), resize(Size(639, 479)->Size(479, 639)) (000H_00M_00S_897MS)
+	generating	creating-itemcloud	image-park_eleven[4/15] 2025-03-02T08:07:31-72 DEBUG> RESERVED: reserve_opening reservation(4) openingBox(0, 28, 480, 668)
+	generating	creating-itemcloud	image-park_one[5/15] 2025-03-02T08:07:31-75 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_one[5/15] 2025-03-02T08:10:15-32 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(639,479) -> Size(355, 515)
+
+	generating	creating-itemcloud	image-park_one[5/15] 2025-03-02T08:10:53-83 DEBUG(native)> found opening position[138/190](68658) [x(1122) y(24)] Size(330,490) right(1452), lower(514) isunreserved?(1)
+	generating	creating-itemcloud	image-park_one[5/15] 2025-03-02T08:10:53-83 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[602] size(329, 489) rotated_degrees(90) opening(1122,24,1452,514) actual(1123,25,1451,513)
+
+	generating	creating-itemcloud	image-park_one[5/15] 2025-03-02T08:10:53-83 INFO> Found position: samplings(602), rotated_degrees (90), resize(Size(639, 479)->Size(329, 489)) (000H_03M_22S_086MS)
+	generating	creating-itemcloud	image-park_one[5/15] 2025-03-02T08:10:53-83 DEBUG> RESERVED: reserve_opening reservation(5) openingBox(1122, 24, 1452, 514)
+	generating	creating-itemcloud	image-park_eight[6/15] 2025-03-02T08:10:53-84 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_eight[6/15] 2025-03-02T08:12:25-73 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(639,422) -> Size(298, 515)
+
+	generating	creating-itemcloud	image-park_eight[6/15] 2025-03-02T08:14:05-74 DEBUG(native)> found opening position[37/228](517) [x(517) y(0)] Size(415,208) right(932), lower(208) isunreserved?(1)
+	generating	creating-itemcloud	image-park_eight[6/15] 2025-03-02T08:14:05-74 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[901] size(414, 207) rotated_degrees(0) opening(517,0,932,208) actual(518,1,931,207)
+
+	generating	creating-itemcloud	image-park_eight[6/15] 2025-03-02T08:14:05-74 INFO> Found position: samplings(901), rotated_degrees (0), resize(Size(639, 422)->Size(414, 207)) (000H_03M_11S_891MS)
+	generating	creating-itemcloud	image-park_eight[6/15] 2025-03-02T08:14:05-74 DEBUG> RESERVED: reserve_opening reservation(6) openingBox(517, 0, 932, 208)
+	generating	creating-itemcloud	image-park_three[7/15] 2025-03-02T08:14:05-74 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_three[7/15] 2025-03-02T08:14:59-72 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(639,479) -> Size(355, 515)
+
+	generating	creating-itemcloud	image-park_three[7/15] 2025-03-02T08:16:09-79 DEBUG(native)> sample_to_find_unreserved_opening sampling[1000] rotated(270) Size(639,479) -> Size(230, 390)
+
+	generating	creating-itemcloud	image-park_three[7/15] 2025-03-02T08:16:35-35 DEBUG(native)> found opening position[347/376](2441) [x(2441) y(0)] Size(345,185) right(2786), lower(185) isunreserved?(1)
+	generating	creating-itemcloud	image-park_three[7/15] 2025-03-02T08:16:35-35 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1181] size(344, 184) rotated_degrees(0) opening(2441,0,2786,185) actual(2442,1,2785,184)
+
+	generating	creating-itemcloud	image-park_three[7/15] 2025-03-02T08:16:35-35 INFO> Found position: samplings(1181), rotated_degrees (0), resize(Size(639, 479)->Size(344, 184)) (000H_02M_29S_610MS)
+	generating	creating-itemcloud	image-park_three[7/15] 2025-03-02T08:16:35-35 DEBUG> RESERVED: reserve_opening reservation(7) openingBox(2441, 0, 2786, 185)
+	generating	creating-itemcloud	image-park_five[8/15] 2025-03-02T08:16:35-36 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_five[8/15] 2025-03-02T08:16:48-16 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(639,479) -> Size(355, 515)
+
+	generating	creating-itemcloud	image-park_five[8/15] 2025-03-02T08:17:06-01 DEBUG(native)> sample_to_find_unreserved_opening sampling[1000] rotated(270) Size(639,479) -> Size(230, 390)
+
+	generating	creating-itemcloud	image-park_five[8/15] 2025-03-02T08:17:13-92 DEBUG(native)> found opening position[0/3](2094) [x(2094) y(0)] Size(345,185) right(2439), lower(185) isunreserved?(1)
+	generating	creating-itemcloud	image-park_five[8/15] 2025-03-02T08:17:13-92 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1181] size(344, 184) rotated_degrees(0) opening(2094,0,2439,185) actual(2095,1,2438,184)
+
+	generating	creating-itemcloud	image-park_five[8/15] 2025-03-02T08:17:13-92 INFO> Found position: samplings(1181), rotated_degrees (0), resize(Size(639, 479)->Size(344, 184)) (000H_00M_38S_562MS)
+	generating	creating-itemcloud	image-park_five[8/15] 2025-03-02T08:17:13-92 DEBUG> RESERVED: reserve_opening reservation(8) openingBox(2094, 0, 2439, 185)
+	generating	creating-itemcloud	image-park_six[9/15] 2025-03-02T08:17:13-92 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_six[9/15] 2025-03-02T08:17:20-58 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(639,479) -> Size(355, 515)
+
+	generating	creating-itemcloud	image-park_six[9/15] 2025-03-02T08:17:29-71 DEBUG(native)> sample_to_find_unreserved_opening sampling[1000] rotated(270) Size(639,479) -> Size(230, 390)
+
+	generating	creating-itemcloud	image-park_six[9/15] 2025-03-02T08:17:35-51 DEBUG(native)> found opening position[283/326](1344013) [x(1735) y(477)] Size(325,165) right(2060), lower(642) isunreserved?(1)
+	generating	creating-itemcloud	image-park_six[9/15] 2025-03-02T08:17:35-51 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1261] size(324, 164) rotated_degrees(0) opening(1735,477,2060,642) actual(1736,478,2059,641)
+
+	generating	creating-itemcloud	image-park_six[9/15] 2025-03-02T08:17:35-51 INFO> Found position: samplings(1261), rotated_degrees (0), resize(Size(639, 479)->Size(324, 164)) (000H_00M_21S_582MS)
+	generating	creating-itemcloud	image-park_six[9/15] 2025-03-02T08:17:35-51 DEBUG> RESERVED: reserve_opening reservation(9) openingBox(1735, 477, 2060, 642)
+	generating	creating-itemcloud	image-park_nine[10/15] 2025-03-02T08:17:35-51 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_nine[10/15] 2025-03-02T08:17:42-60 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(639,425) -> Size(301, 515)
+
+	generating	creating-itemcloud	image-park_nine[10/15] 2025-03-02T08:17:52-00 DEBUG(native)> sample_to_find_unreserved_opening sampling[1000] rotated(270) Size(639,425) -> Size(195, 390)
+
+	generating	creating-itemcloud	image-park_nine[10/15] 2025-03-02T08:18:01-96 DEBUG(native)> found opening position[17/29](1363428) [x(1452) y(484)] Size(283,142) right(1735), lower(626) isunreserved?(1)
+	generating	creating-itemcloud	image-park_nine[10/15] 2025-03-02T08:18:01-96 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1429] size(282, 141) rotated_degrees(0) opening(1452,484,1735,626) actual(1453,485,1734,625)
+
+	generating	creating-itemcloud	image-park_nine[10/15] 2025-03-02T08:18:01-96 INFO> Found position: samplings(1429), rotated_degrees (0), resize(Size(639, 425)->Size(282, 141)) (000H_00M_26S_452MS)
+	generating	creating-itemcloud	image-park_nine[10/15] 2025-03-02T08:18:01-96 DEBUG> RESERVED: reserve_opening reservation(10) openingBox(1452, 484, 1735, 626)
+	generating	creating-itemcloud	image-park_thirteen[11/15] 2025-03-02T08:18:01-97 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_thirteen[11/15] 2025-03-02T08:18:09-46 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(639,359) -> Size(258, 515)
+
+	generating	creating-itemcloud	image-park_thirteen[11/15] 2025-03-02T08:18:18-90 DEBUG(native)> sample_to_find_unreserved_opening sampling[1000] rotated(270) Size(639,359) -> Size(195, 390)
+
+	generating	creating-itemcloud	image-park_thirteen[11/15] 2025-03-02T08:18:30-26 DEBUG(native)> found opening position[14/18](1447532) [x(1136) y(514)] Size(270,136) right(1406), lower(650) isunreserved?(1)
+	generating	creating-itemcloud	image-park_thirteen[11/15] 2025-03-02T08:18:30-26 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1481] size(269, 135) rotated_degrees(0) opening(1136,514,1406,650) actual(1137,515,1405,649)
+
+	generating	creating-itemcloud	image-park_thirteen[11/15] 2025-03-02T08:18:30-27 INFO> Found position: samplings(1481), rotated_degrees (0), resize(Size(639, 359)->Size(269, 135)) (000H_00M_28S_297MS)
+	generating	creating-itemcloud	image-park_thirteen[11/15] 2025-03-02T08:18:30-27 DEBUG> RESERVED: reserve_opening reservation(11) openingBox(1136, 514, 1406, 650)
+	generating	creating-itemcloud	image-park_four[12/15] 2025-03-02T08:18:30-27 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_four[12/15] 2025-03-02T08:18:37-35 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(639,424) -> Size(300, 515)
+
+	generating	creating-itemcloud	image-park_four[12/15] 2025-03-02T08:18:46-77 DEBUG(native)> sample_to_find_unreserved_opening sampling[1000] rotated(270) Size(639,424) -> Size(195, 390)
+
+	generating	creating-itemcloud	image-park_four[12/15] 2025-03-02T08:18:58-62 DEBUG(native)> sample_to_find_unreserved_opening sampling[1500] rotated(270) Size(639,424) -> Size(133, 265)
+
+	generating	creating-itemcloud	image-park_four[12/15] 2025-03-02T08:19:04-39 DEBUG(native)> found opening position[32/86](964) [x(964) y(0)] Size(105,208) right(1069), lower(208) isunreserved?(1)
+	generating	creating-itemcloud	image-park_four[12/15] 2025-03-02T08:19:04-39 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1730] size(104, 207) rotated_degrees(90) opening(964,0,1069,208) actual(965,1,1068,207)
+
+	generating	creating-itemcloud	image-park_four[12/15] 2025-03-02T08:19:04-39 INFO> Found position: samplings(1730), rotated_degrees (90), resize(Size(639, 424)->Size(104, 207)) (000H_00M_34S_119MS)
+	generating	creating-itemcloud	image-park_four[12/15] 2025-03-02T08:19:04-39 DEBUG> RESERVED: reserve_opening reservation(12) openingBox(964, 0, 1069, 208)
+	generating	creating-itemcloud	image-park_twelve[13/15] 2025-03-02T08:19:04-39 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_twelve[13/15] 2025-03-02T08:19:10-03 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(639,479) -> Size(355, 515)
+
+	generating	creating-itemcloud	image-park_twelve[13/15] 2025-03-02T08:19:18-10 DEBUG(native)> sample_to_find_unreserved_opening sampling[1000] rotated(270) Size(639,479) -> Size(230, 390)
+
+	generating	creating-itemcloud	image-park_twelve[13/15] 2025-03-02T08:19:28-13 DEBUG(native)> sample_to_find_unreserved_opening sampling[1500] rotated(270) Size(639,479) -> Size(133, 265)
+
+	generating	creating-itemcloud	image-park_twelve[13/15] 2025-03-02T08:19:37-54 DEBUG(native)> sample_to_find_unreserved_opening sampling[2000] rotated(270) Size(639,479) -> Size(70, 140)
+
+	generating	creating-itemcloud	image-park_twelve[13/15] 2025-03-02T08:19:37-64 DEBUG(native)> found opening position[208/366](1111460) [x(2744) y(394)] Size(70,139) right(2814), lower(533) isunreserved?(1)
+	generating	creating-itemcloud	image-park_twelve[13/15] 2025-03-02T08:19:37-64 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[2006] size(69, 138) rotated_degrees(90) opening(2744,394,2814,533) actual(2745,395,2813,532)
+
+	generating	creating-itemcloud	image-park_twelve[13/15] 2025-03-02T08:19:37-64 INFO> Found position: samplings(2006), rotated_degrees (90), resize(Size(639, 479)->Size(69, 138)) (000H_00M_33S_250MS)
+	generating	creating-itemcloud	image-park_twelve[13/15] 2025-03-02T08:19:37-64 DEBUG> RESERVED: reserve_opening reservation(13) openingBox(2744, 394, 2814, 533)
+	generating	creating-itemcloud	image-park_fourteen[14/15] 2025-03-02T08:19:37-64 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_fourteen[14/15] 2025-03-02T08:19:43-74 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(639,427) -> Size(303, 515)
+
+	generating	creating-itemcloud	image-park_fourteen[14/15] 2025-03-02T08:19:52-12 DEBUG(native)> sample_to_find_unreserved_opening sampling[1000] rotated(270) Size(639,427) -> Size(195, 390)
+
+	generating	creating-itemcloud	image-park_fourteen[14/15] 2025-03-02T08:20:02-09 DEBUG(native)> sample_to_find_unreserved_opening sampling[1500] rotated(270) Size(639,427) -> Size(133, 265)
+
+	generating	creating-itemcloud	image-park_fourteen[14/15] 2025-03-02T08:20:11-48 DEBUG(native)> sample_to_find_unreserved_opening sampling[2000] rotated(270) Size(639,427) -> Size(70, 140)
+
+	generating	creating-itemcloud	image-park_fourteen[14/15] 2025-03-02T08:20:11-57 DEBUG(native)> found opening position[35/89](1502606) [x(2744) y(533)] Size(70,139) right(2814), lower(672) isunreserved?(1)
+	generating	creating-itemcloud	image-park_fourteen[14/15] 2025-03-02T08:20:11-57 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[2006] size(69, 138) rotated_degrees(90) opening(2744,533,2814,672) actual(2745,534,2813,671)
+
+	generating	creating-itemcloud	image-park_fourteen[14/15] 2025-03-02T08:20:11-57 INFO> Found position: samplings(2006), rotated_degrees (90), resize(Size(639, 427)->Size(69, 138)) (000H_00M_33S_934MS)
+	generating	creating-itemcloud	image-park_fourteen[14/15] 2025-03-02T08:20:11-57 DEBUG> RESERVED: reserve_opening reservation(14) openingBox(2744, 533, 2814, 672)
+	generating	creating-itemcloud	image-park_fifteen[15/15] 2025-03-02T08:20:11-58 INFO> Finding position in ItemCloud
+	generating	creating-itemcloud	image-park_fifteen[15/15] 2025-03-02T08:20:18-04 DEBUG(native)> sample_to_find_unreserved_opening sampling[500] rotated(270) Size(426,639) -> Size(453, 302)
+
+	generating	creating-itemcloud	image-park_fifteen[15/15] 2025-03-02T08:20:27-53 DEBUG(native)> sample_to_find_unreserved_opening sampling[1000] rotated(270) Size(426,639) -> Size(266, 177)
+
+	generating	creating-itemcloud	image-park_fifteen[15/15] 2025-03-02T08:20:35-66 DEBUG(native)> found opening position[53/105](675290) [x(2744) y(239)] Size(70,105) right(2814), lower(344) isunreserved?(1)
+	generating	creating-itemcloud	image-park_fifteen[15/15] 2025-03-02T08:20:35-66 DEBUG(native)> FOUND: sample_to_find_unreserved_opening sampling[1429] size(69, 104) rotated_degrees(0) opening(2744,239,2814,344) actual(2745,240,2813,343)
+
+	generating	creating-itemcloud	image-park_fifteen[15/15] 2025-03-02T08:20:35-66 INFO> Found position: samplings(1429), rotated_degrees (0), resize(Size(426, 639)->Size(69, 104)) (000H_00M_24S_086MS)
+	generating	creating-itemcloud	image-park_fifteen[15/15] 2025-03-02T08:20:35-66 DEBUG> RESERVED: reserve_opening reservation(15) openingBox(2744, 239, 2814, 344)
+2025-03-02T08:20:35-66 INFO> Generated: 15/15 items (000H_13M_23S_126MS)
+2025-03-02T08:20:35-66 INFO> Maximizing 15 images: expanding them to fit their surrounding empty space.
+2025-03-02T08:20:35-66 INFO> Maximizing ItemCloud empty-space around  15 images
+	maximizing-empty-space	item-park_fifteen[1/15] 2025-03-02T08:20:35-66 INFO> Maximizing...
+	maximizing-empty-space	item-park_fifteen[1/15] 2025-03-02T08:20:35-66 INFO> Maximized Size(70, 105) -> Size(70, 209) (Size(70, 105))
+	maximizing-empty-space	item-park_fifteen[1/15] 2025-03-02T08:20:35-66 DEBUG> RESERVED: reserve_opening reservation(15) openingBox(2744, 185, 2814, 394)
+	maximizing-empty-space	item-park_fifteen[1/15] 2025-03-02T08:20:35-67 INFO> resized Box(2744, 239, 2814, 344) -> Box(2744, 185, 2814, 394). (000H_00M_00S_000MS)
+	maximizing-empty-space	item-park_fourteen[2/15] 2025-03-02T08:20:35-67 INFO> Maximizing...
+	maximizing-empty-space	item-park_fourteen[2/15] 2025-03-02T08:20:35-67 INFO> Maximized Size(70, 139) -> Size(70, 171) (Size(70, 139))
+	maximizing-empty-space	item-park_fourteen[2/15] 2025-03-02T08:20:35-67 DEBUG> RESERVED: reserve_opening reservation(14) openingBox(2744, 533, 2814, 704)
+	maximizing-empty-space	item-park_fourteen[2/15] 2025-03-02T08:20:35-67 INFO> resized Box(2744, 533, 2814, 672) -> Box(2744, 533, 2814, 704). (000H_00M_00S_000MS)
+	maximizing-empty-space	item-park_twelve[3/15] 2025-03-02T08:20:35-67 INFO> Maximizing...
+	maximizing-empty-space	item-park_twelve[3/15] 2025-03-02T08:20:35-67 INFO> Already Maximized (000H_00M_00S_000MS)
+	maximizing-empty-space	item-park_four[4/15] 2025-03-02T08:20:35-67 INFO> Maximizing...
+	maximizing-empty-space	item-park_four[4/15] 2025-03-02T08:20:35-67 INFO> Maximized Size(105, 208) -> Size(190, 208) (Size(105, 208))
+	maximizing-empty-space	item-park_four[4/15] 2025-03-02T08:20:35-67 DEBUG> RESERVED: reserve_opening reservation(12) openingBox(932, 0, 1122, 208)
+	maximizing-empty-space	item-park_four[4/15] 2025-03-02T08:20:35-68 INFO> resized Box(964, 0, 1069, 208) -> Box(932, 0, 1122, 208). (000H_00M_00S_005MS)
+	maximizing-empty-space	item-park_thirteen[5/15] 2025-03-02T08:20:35-68 INFO> Maximizing...
+	maximizing-empty-space	item-park_thirteen[5/15] 2025-03-02T08:20:35-68 INFO> Maximized Size(270, 136) -> Size(330, 190) (Size(270, 136))
+	maximizing-empty-space	item-park_thirteen[5/15] 2025-03-02T08:20:35-68 DEBUG> RESERVED: reserve_opening reservation(11) openingBox(1122, 514, 1452, 704)
+	maximizing-empty-space	item-park_thirteen[5/15] 2025-03-02T08:20:35-68 INFO> resized Box(1136, 514, 1406, 650) -> Box(1122, 514, 1452, 704). (000H_00M_00S_002MS)
+	maximizing-empty-space	item-park_nine[6/15] 2025-03-02T08:20:35-68 INFO> Maximizing...
+	maximizing-empty-space	item-park_nine[6/15] 2025-03-02T08:20:35-69 INFO> Maximized Size(283, 142) -> Size(283, 227) (Size(283, 142))
+	maximizing-empty-space	item-park_nine[6/15] 2025-03-02T08:20:35-69 DEBUG> RESERVED: reserve_opening reservation(10) openingBox(1452, 477, 1735, 704)
+	maximizing-empty-space	item-park_nine[6/15] 2025-03-02T08:20:35-70 INFO> resized Box(1452, 484, 1735, 626) -> Box(1452, 477, 1735, 704). (000H_00M_00S_009MS)
+	maximizing-empty-space	item-park_six[7/15] 2025-03-02T08:20:35-70 INFO> Maximizing...
+	maximizing-empty-space	item-park_six[7/15] 2025-03-02T08:20:35-70 INFO> Maximized Size(325, 165) -> Size(367, 227) (Size(325, 165))
+	maximizing-empty-space	item-park_six[7/15] 2025-03-02T08:20:35-70 DEBUG> RESERVED: reserve_opening reservation(9) openingBox(1735, 477, 2102, 704)
+	maximizing-empty-space	item-park_six[7/15] 2025-03-02T08:20:35-71 INFO> resized Box(1735, 477, 2060, 642) -> Box(1735, 477, 2102, 704). (000H_00M_00S_006MS)
+	maximizing-empty-space	item-park_five[8/15] 2025-03-02T08:20:35-71 INFO> Maximizing...
+	maximizing-empty-space	item-park_five[8/15] 2025-03-02T08:20:35-73 INFO> Maximized Size(345, 185) -> Size(347, 185) (Size(345, 185))
+	maximizing-empty-space	item-park_five[8/15] 2025-03-02T08:20:35-73 DEBUG> RESERVED: reserve_opening reservation(8) openingBox(2094, 0, 2441, 185)
+	maximizing-empty-space	item-park_five[8/15] 2025-03-02T08:20:35-73 INFO> resized Box(2094, 0, 2439, 185) -> Box(2094, 0, 2441, 185). (000H_00M_00S_017MS)
+	maximizing-empty-space	item-park_three[9/15] 2025-03-02T08:20:35-73 INFO> Maximizing...
+	maximizing-empty-space	item-park_three[9/15] 2025-03-02T08:20:35-74 INFO> Maximized Size(345, 185) -> Size(372, 185) (Size(345, 185))
+	maximizing-empty-space	item-park_three[9/15] 2025-03-02T08:20:35-74 DEBUG> RESERVED: reserve_opening reservation(7) openingBox(2441, 0, 2813, 185)
+	maximizing-empty-space	item-park_three[9/15] 2025-03-02T08:20:35-74 INFO> resized Box(2441, 0, 2786, 185) -> Box(2441, 0, 2813, 185). (000H_00M_00S_006MS)
+	maximizing-empty-space	item-park_eight[10/15] 2025-03-02T08:20:35-74 INFO> Maximizing...
+	maximizing-empty-space	item-park_eight[10/15] 2025-03-02T08:20:35-74 INFO> Maximized Size(415, 208) -> Size(452, 208) (Size(415, 208))
+	maximizing-empty-space	item-park_eight[10/15] 2025-03-02T08:20:35-74 DEBUG> RESERVED: reserve_opening reservation(6) openingBox(480, 0, 932, 208)
+	maximizing-empty-space	item-park_eight[10/15] 2025-03-02T08:20:35-75 INFO> resized Box(517, 0, 932, 208) -> Box(480, 0, 932, 208). (000H_00M_00S_001MS)
+	maximizing-empty-space	item-park_one[11/15] 2025-03-02T08:20:35-75 INFO> Maximizing...
+	maximizing-empty-space	item-park_one[11/15] 2025-03-02T08:20:35-82 INFO> Maximized Size(330, 490) -> Size(330, 514) (Size(330, 490))
+	maximizing-empty-space	item-park_one[11/15] 2025-03-02T08:20:35-82 DEBUG> RESERVED: reserve_opening reservation(5) openingBox(1122, 0, 1452, 514)
+	maximizing-empty-space	item-park_one[11/15] 2025-03-02T08:20:35-83 INFO> resized Box(1122, 24, 1452, 514) -> Box(1122, 0, 1452, 514). (000H_00M_00S_072MS)
+	maximizing-empty-space	item-park_eleven[12/15] 2025-03-02T08:20:35-83 INFO> Maximizing...
+	maximizing-empty-space	item-park_eleven[12/15] 2025-03-02T08:20:35-84 INFO> Maximized Size(480, 640) -> Size(480, 704) (Size(480, 640))
+	maximizing-empty-space	item-park_eleven[12/15] 2025-03-02T08:20:35-84 DEBUG> RESERVED: reserve_opening reservation(4) openingBox(0, 0, 480, 704)
+	maximizing-empty-space	item-park_eleven[12/15] 2025-03-02T08:20:35-86 INFO> resized Box(0, 28, 480, 668) -> Box(0, 0, 480, 704). (000H_00M_00S_000MS)
+	maximizing-empty-space	item-park_ten[13/15] 2025-03-02T08:20:35-86 INFO> Maximizing...
+	maximizing-empty-space	item-park_ten[13/15] 2025-03-02T08:20:35-86 INFO> Maximized Size(642, 429) -> Size(642, 519) (Size(642, 429))
+	maximizing-empty-space	item-park_ten[13/15] 2025-03-02T08:20:35-86 DEBUG> RESERVED: reserve_opening reservation(3) openingBox(2102, 185, 2744, 704)
+	maximizing-empty-space	item-park_ten[13/15] 2025-03-02T08:20:35-88 INFO> resized Box(2102, 185, 2744, 614) -> Box(2102, 185, 2744, 704). (000H_00M_00S_001MS)
+	maximizing-empty-space	item-park_two[14/15] 2025-03-02T08:20:35-88 INFO> Maximizing...
+	maximizing-empty-space	item-park_two[14/15] 2025-03-02T08:20:35-88 INFO> Maximized Size(642, 428) -> Size(642, 496) (Size(642, 428))
+	maximizing-empty-space	item-park_two[14/15] 2025-03-02T08:20:35-88 DEBUG> RESERVED: reserve_opening reservation(2) openingBox(480, 208, 1122, 704)
+	maximizing-empty-space	item-park_two[14/15] 2025-03-02T08:20:35-91 INFO> resized Box(480, 208, 1122, 636) -> Box(480, 208, 1122, 704). (000H_00M_00S_000MS)
+	maximizing-empty-space	item-park_seven[15/15] 2025-03-02T08:20:35-91 INFO> Maximizing...
+	maximizing-empty-space	item-park_seven[15/15] 2025-03-02T08:20:35-91 INFO> Maximized Size(642, 428) -> Size(642, 477) (Size(642, 428))
+	maximizing-empty-space	item-park_seven[15/15] 2025-03-02T08:20:35-91 DEBUG> RESERVED: reserve_opening reservation(1) openingBox(1452, 0, 2094, 477)
+	maximizing-empty-space	item-park_seven[15/15] 2025-03-02T08:20:35-93 INFO> resized Box(1452, 49, 2094, 477) -> Box(1452, 0, 2094, 477). (000H_00M_00S_000MS)
+2025-03-02T08:20:35-93 INFO> Maximized 14/15 items (000H_00M_00S_263MS)
+2025-03-02T08:20:35-93 DEBUG> RESERVED: reserve_opening reservation(1) openingBox(1452, 0, 2094, 477)
+2025-03-02T08:20:35-95 DEBUG> RESERVED: reserve_opening reservation(2) openingBox(480, 208, 1122, 704)
+2025-03-02T08:20:35-97 DEBUG> RESERVED: reserve_opening reservation(3) openingBox(2102, 185, 2744, 704)
+2025-03-02T08:20:36-00 DEBUG> RESERVED: reserve_opening reservation(4) openingBox(0, 0, 480, 704)
+2025-03-02T08:20:36-02 DEBUG> RESERVED: reserve_opening reservation(5) openingBox(1122, 0, 1452, 514)
+2025-03-02T08:20:36-03 DEBUG> RESERVED: reserve_opening reservation(6) openingBox(480, 0, 932, 208)
+2025-03-02T08:20:36-04 DEBUG> RESERVED: reserve_opening reservation(7) openingBox(2441, 0, 2813, 185)
+2025-03-02T08:20:36-04 DEBUG> RESERVED: reserve_opening reservation(8) openingBox(2094, 0, 2441, 185)
+2025-03-02T08:20:36-05 DEBUG> RESERVED: reserve_opening reservation(9) openingBox(1735, 477, 2102, 704)
+2025-03-02T08:20:36-05 DEBUG> RESERVED: reserve_opening reservation(10) openingBox(1452, 477, 1735, 704)
+2025-03-02T08:20:36-06 DEBUG> RESERVED: reserve_opening reservation(11) openingBox(1122, 514, 1452, 704)
+2025-03-02T08:20:36-06 DEBUG> RESERVED: reserve_opening reservation(12) openingBox(932, 0, 1122, 208)
+2025-03-02T08:20:36-06 DEBUG> RESERVED: reserve_opening reservation(13) openingBox(2744, 394, 2814, 533)
+2025-03-02T08:20:36-06 DEBUG> RESERVED: reserve_opening reservation(14) openingBox(2744, 533, 2814, 704)
+2025-03-02T08:20:36-07 DEBUG> RESERVED: reserve_opening reservation(15) openingBox(2744, 185, 2814, 394)
+2025-03-02T08:20:36-07 INFO> pasting 15 images into imagecloud canvas
+2025-03-02T08:20:36-07 INFO> pasting Image[1/15] park_seven into imagecloud canvas
+2025-03-02T08:20:36-07 INFO> Resizing park_seven (641,427) -> Size(644, 479)
+2025-03-02T08:20:36-07 INFO> pasting Image[2/15] park_two into imagecloud canvas
+2025-03-02T08:20:36-07 INFO> Resizing park_two (641,427) -> Size(644, 498)
+2025-03-02T08:20:36-08 INFO> pasting Image[3/15] park_ten into imagecloud canvas
+2025-03-02T08:20:36-08 INFO> Resizing park_ten (641,428) -> Size(644, 521)
+2025-03-02T08:20:36-08 INFO> pasting Image[4/15] park_eleven into imagecloud canvas
+2025-03-02T08:20:36-08 INFO> Rotating park_eleven 90 degrees
+2025-03-02T08:20:36-08 INFO> Resizing park_eleven (479,639) -> Size(482, 706)
+2025-03-02T08:20:36-09 INFO> pasting Image[5/15] park_one into imagecloud canvas
+2025-03-02T08:20:36-09 INFO> Rotating park_one 90 degrees
+2025-03-02T08:20:36-09 INFO> Resizing park_one (479,639) -> Size(332, 516)
+2025-03-02T08:20:36-09 INFO> pasting Image[6/15] park_eight into imagecloud canvas
+2025-03-02T08:20:36-09 INFO> Resizing park_eight (639,422) -> Size(454, 210)
+2025-03-02T08:20:36-09 INFO> pasting Image[7/15] park_three into imagecloud canvas
+2025-03-02T08:20:36-09 INFO> Resizing park_three (639,479) -> Size(374, 187)
+2025-03-02T08:20:36-09 INFO> pasting Image[8/15] park_five into imagecloud canvas
+2025-03-02T08:20:36-09 INFO> Resizing park_five (639,479) -> Size(349, 187)
+2025-03-02T08:20:36-09 INFO> pasting Image[9/15] park_six into imagecloud canvas
+2025-03-02T08:20:36-09 INFO> Resizing park_six (639,479) -> Size(369, 229)
+2025-03-02T08:20:36-10 INFO> pasting Image[10/15] park_nine into imagecloud canvas
+2025-03-02T08:20:36-10 INFO> Resizing park_nine (639,425) -> Size(285, 229)
+2025-03-02T08:20:36-10 INFO> pasting Image[11/15] park_thirteen into imagecloud canvas
+2025-03-02T08:20:36-10 INFO> Resizing park_thirteen (639,359) -> Size(332, 192)
+2025-03-02T08:20:36-10 INFO> pasting Image[12/15] park_four into imagecloud canvas
+2025-03-02T08:20:36-10 INFO> Rotating park_four 90 degrees
+2025-03-02T08:20:36-10 INFO> Resizing park_four (424,639) -> Size(192, 210)
+2025-03-02T08:20:36-10 INFO> pasting Image[13/15] park_twelve into imagecloud canvas
+2025-03-02T08:20:36-10 INFO> Rotating park_twelve 90 degrees
+2025-03-02T08:20:36-10 INFO> Resizing park_twelve (479,639) -> Size(68, 137)
+2025-03-02T08:20:36-10 INFO> pasting Image[14/15] park_fourteen into imagecloud canvas
+2025-03-02T08:20:36-10 INFO> Rotating park_fourteen 90 degrees
+2025-03-02T08:20:36-10 INFO> Resizing park_fourteen (427,639) -> Size(72, 173)
+2025-03-02T08:20:36-11 INFO> pasting Image[15/15] park_fifteen into imagecloud canvas
+2025-03-02T08:20:36-11 INFO> Resizing park_fifteen (426,639) -> Size(72, 211)

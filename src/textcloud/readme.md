@@ -10,20 +10,16 @@ Once installed you will be able to execute scripts defined in the `myproject.tom
 ```
 usage: generate_textcloud [-h] -i <csv_filepath> [-output_directory <output-directory-path>]
                           [-output_image_format blp|bmp|dds|dib|eps|gif|icns|ico|im|jpeg|mpo|msp|pcx|pfm|png|ppm|sgi|webp|xbm]
-                          [-show_itemcloud] [-no-show_itemcloud]
-                          [-show_itemcloud_reservation_chart]
-                          [-no-show_itemcloud_reservation_chart] [-maximize_empty_space]
-                          [-no-maximize_empty_space] [-verbose] [-no-verbose]
-                          [-log_filepath <log-filepath>] [-cloud_size "<width>,<height>"]
-                          [-cloud_expansion_step_size <int>] [-margin <number>]
-                          [-min_item_size "<width>,<height>"] [-step_size <int>]
-                          [-rotation_increment <int>]
+                          [-show_itemcloud] [-no-show_itemcloud] [-show_itemcloud_reservation_chart]
+                          [-no-show_itemcloud_reservation_chart] [-maximize_empty_space] [-no-maximize_empty_space] [-verbose]
+                          [-no-verbose] [-log_filepath <log-filepath>] [-cloud_size "<width>,<height>"]
+                          [-cloud_expansion_step_size <int>] [-margin <number>] [-min_item_size "<width>,<height>"]
+                          [-step_size <int>] [-rotation_increment <int>]
                           [-resize_type NO_RESIZE_TYPE|MAINTAIN_ASPECT_RATIO|MAINTAIN_PERCENTAGE_CHANGE]
                           [-max_item_size "<width>,<height>"]
                           [-mode 1|L|P|RGB|RGBA|CMYK|YCbCr|LAB|HSV|I|F|LA|PA|RGBX|RGBa|La|I;16|I;16L|I;16B|I;16N]
-                          [-background_color <color-name>] [-mask <image_file_path>]
-                          [-contour_width <float>] [-contour_color <color-name>]
-                          [-total_threads <int>]
+                          [-background_color <color-name>] [-mask <image_file_path>] [-contour_width <float>]
+                          [-contour_color <color-name>] [-total_threads <int>]
 
             Generate an 'ImageCloud' from a csv file indicating image filepath and weight for image.
             

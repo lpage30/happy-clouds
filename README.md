@@ -14,6 +14,13 @@ The following bash scripts may be used to clean/build/install (edit locally) thi
 - `install`  calls `build` and does `pip install` of package 
 - `uninstall`  does `pip uninstall` of package and then `clean`
 
+## supported CLIs
+- `generate_imagecloud`  imports an imagecloud csv file of weights and image filepaths, generates cloud
+- `layout_imagecloud` imports an already generated imagecloud layout csv shows reservations and cloud
+- `generate_textcloud` imports a textcloud csv file of weights, text, and font characteristics, generates cloud
+- `generate_textimagecloud` imports a textimagecloud csv file of weights, image filepaths, text, and font characteristics, generates cloud of images with text in watermark-like overlay.
+- `show_all_text_fonts` shows a zoomable image of all font names written in that font to best determine which font you'd like
+
 ## sample cli scripts
 - `sample-generate` provides parameter values for cli command to generate an ImageCloud from csv file of weighted images
 - `sample-layout` provides parameter values for cli command to layout an existing generated ImageCloud from its written layout.
@@ -32,9 +39,13 @@ This is a data cloud to render weighted images in a single 'Image' based cloud.
 This is a data cloud to render weighted text in a single 'Image' based cloud.
 [TextCloud readme](src/textcloud/readme.md)
 
+### TextImageCloud
+This is a data cloud to render weighted text as water mark in weighted image in a single 'Image' based cloud.
+[TextImageCloud readme](src/textimagecloud/readme.md)
+
+
 ### Future other clouds
-* WordCloud (just for fun)
-* need to think of others that would actually be useful. :)
+* web-based fetch or function that produces some form of image. Perhaps report, perhaps geo-location, etc...
 
 ## References / acknowledgements
 - [amueller's wordcloud](https://github.com/amueller/word_cloud)

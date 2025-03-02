@@ -50,7 +50,7 @@ class TextCloud(ItemCloud):
         layout: Layout,
         logger: BaseLogger
     ):
-        result = ImageCloud(
+        result = TextCloud(
             logger,
             layout.contour.mask,
             layout.canvas.size,

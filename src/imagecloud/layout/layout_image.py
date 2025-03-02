@@ -1,9 +1,9 @@
-from PIL import Image
 from itemcloud.layout.layout_item import LayoutItem
 from itemcloud.containers.named_image import NamedImage
 from itemcloud.util.parsers import to_unused_filepath
 from itemcloud.box import Box
 from itemcloud.size import Size
+from itemcloud.logger.base_logger import BaseLogger
 
 
 class LayoutImage(LayoutItem):
@@ -31,21 +31,11 @@ class LayoutImage(LayoutItem):
         return self._original_image
     
     def get_item_as_named_image(self, rotated_degrees: int | None = None, size: Size | None = None, logger: BaseLogger | None = None) -> NamedImage:
-        new_image = self.original_image.image
-        if rotated_degrees is not None and 0 < rotated_degrees:
-            if logger:
-                logger.info('Rotating {0} {1} degrees'.format(self.original_image.name, rotated_degrees))
-            # always rotate clockwise (negative degrees)
-            new_image = new_image.rotate(-rotated_degrees, expand=1)
-        
-        if size is not None and new_image.size != size.image_tuple:
-            if logger:
-                logger.info('Resizing {0} ({1},{2}) -> {3}'.format(
-                    self.original_image.name,
-                    new_image.width, new_image.height,
-                    size.size_to_string()
-                ))
-            new_image = new_image.resize(size.image_tuple)
+        new_image = self.original_image.to_image(
+            rotated_degrees,
+            size,
+            logger
+        )
         return NamedImage(new_image, self.original_image.name, self.original_image.image)
 
     def write_item(self, item_name: str, layout_directory: str) -> str:

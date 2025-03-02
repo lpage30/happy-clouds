@@ -30,7 +30,12 @@ class WeightedItem(NamedItem):
         pass
     
     @abstractmethod
-    def to_fitted_weighted_item(self, weight: float, width: int, height: int) -> "WeightedItem":
+    def to_fitted_weighted_item(
+        self, 
+        weight: float,
+        width: int,
+        height: int
+    ) -> "WeightedItem":
         pass
         
 def to_native_weighted_size(weighted_item: WeightedItem):

@@ -2,7 +2,6 @@ import csv
 from typing import Dict, Any, List
 from textcloud.containers.named_text import (
     NamedText,
-    resize_named_text,
     TEXT_NAME,
     TEXT_TEXT,
     TEXT_FONT_NAME_PATH,
@@ -19,23 +18,18 @@ from itemcloud.containers.weighted_item import WeightedItem
 from itemcloud.layout.layout_item import LayoutItem
 from itemcloud.box import Box
 from itemcloud.size import Size
+from itemcloud.util.parsers import validate_row
 from textcloud.layout.layout_text import LayoutText
-from itemcloud.util.colors import Color
-from textcloud.util.fonts import Font
 
 class WeightedText(WeightedItem, NamedText):
     
     def __init__(
         self, 
         weight: float,
-        name: str,
-        text: str,
-        font: Font,
-        foreground_color: Color,
-        background_color: Color | None
+        namedText: NamedText
     ) -> None:
-        NamedText.__init__(self, name, text, font, foreground_color, background_color)
-        WeightedItem.__init__(self, weight, name, self.width, self.height)
+        NamedText.__init__(self, namedText.name, namedText.text, namedText.font, namedText.foreground_color, namedText.background_color)
+        WeightedItem.__init__(self, weight, self.name, self.width, self.height)
         
     def to_layout_item(
         self,
@@ -58,32 +52,24 @@ class WeightedText(WeightedItem, NamedText):
         return item
         
     
-    def to_fitted_weighted_item(self, weight: float, width: int, height: int) -> "WeightedItem":
-        new_named_text = resize_named_text(self, Size(width, height))
-        result = WeightedText(
+    def to_fitted_weighted_item(
+        self,
+        weight: float,
+        width: int,
+        height: int
+    ) -> "WeightedItem":
+        return WeightedText(
             weight,
-            self.name,
-            self.text,
-            self.font,
-            self.foreground_color,
-            self.background_color
+            self.resize(Size(width, height))
         )
-        result.update_named_text(new_named_text)
-        return result
     
     @staticmethod
     def load(row: Dict[str, Any]) -> "WeightedText":
-        named_text = NamedText.load(row)
-        result = WeightedText(
+        validate_row(row, [WEIGHTED_TEXT_WEIGHT])
+        return WeightedText(
             float(row[WEIGHTED_TEXT_WEIGHT]),
-            row[WEIGHTED_TEXT_NAME],
-            named_text.text,
-            named_text.font,
-            named_text.foreground_color,
-            named_text.background_color
+            NamedText.load(row)
         )
-        result.update_named_text(named_text)
-        return result
 
 WEIGHTED_TEXT_NAME = TEXT_NAME
 WEIGHTED_TEXT_NAME_HELP = '<name>'
@@ -146,9 +132,8 @@ WEIGHTED_TEXTS_CSV_FILE_HELP = '''csv file for weighted text with following form
 def load_weighted_texts(csv_filepath: str) -> list[WeightedText]:
     try:
         result: List[WeightedText] = list()
-        with open(csv_filepath, 'r') as file:    
-            csv_reader = csv.DictReader(file, fieldnames=WEIGHTED_TEXT_HEADERS)
-            next(csv_reader)
+        with open(csv_filepath, 'r', encoding='utf-8-sig') as file:    
+            csv_reader = csv.DictReader(file)
             for row in csv_reader:
                 result.append(WeightedText.load(row))
         return result

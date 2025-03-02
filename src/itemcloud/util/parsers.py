@@ -1,4 +1,5 @@
 import os.path
+from typing import Dict, Any, List, Callable
 
 def parse_to_int(s:str) -> int:
     if s == None or not(s.isdigit()):
@@ -39,3 +40,22 @@ def to_existing_filepath(original_filepath: str, possible_dirnames: list[str] | 
         tried_filepaths.append(filepath)
     
     raise ValueError('The file {0} does not exist! (Tried [{1}])'.format(original_filepath, ', '.join(tried_filepaths)))
+
+def field_exists(field_name: str, row: Dict[str, Any]) -> bool:
+    return field_name in row and not(is_empty(row[field_name]))
+
+def get_value_or_default(field_name: str, row: Dict[str, Any], default: Any, value_f: Callable[[Any], Any] | None = None) -> Any:
+    if field_exists(field_name, row):
+        return value_f(row[field_name]) if value_f is not None else row[field_name] 
+    return default
+
+def get_complex_value_or_default(field_names: List[str], row: Dict[str, Any], default: Any, value_f: Callable[[List[Any]], Any]) -> Any:
+    if all([field_exists(name, row) for name in field_names]):
+        return value_f([row[name] for name in field_names])
+    return default
+
+
+def validate_row(row: Dict[str, Any], field_names: List[str]) -> None:
+    for field in field_names:
+        if not(field_exists(field, row)):
+            raise ValueError('{0} missing from data.'.format(field))

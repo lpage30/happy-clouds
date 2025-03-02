@@ -1,0 +1,20 @@
+#!/bin/bash
+script_dir=$( dirname -- "$( readlink -f -- "$0"; )"; )
+pushd $script_dir
+
+layout_log=./image-cloud/layout-log.$(date '+%Y%m%d.%H%M%S').txt
+
+input_csv=./image-cloud/imagecloud-import.layout.csv
+output_directory=./image-cloud
+image_type=png
+
+layout_imagecloud \
+    -i $input_csv \
+    -output_directory $output_directory \
+    -output_image_format $image_type \
+    -maximize_empty_space \
+    -show_itemcloud \
+    -show_itemcloud_reservation_chart \
+    -log_filepath $layout_log
+
+popd

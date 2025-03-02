@@ -7,7 +7,12 @@ from itemcloud.size import Size
 from itemcloud.util.colors import Color
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.containers.named_image import NamedImage
-from itemcloud.util.parsers import (is_empty, to_existing_filepath)
+from itemcloud.util.parsers import (
+    validate_row,
+    get_complex_value_or_default,
+    get_value_or_default,
+    to_existing_filepath
+)
 import itemcloud.layout.layout_defaults as layout_defaults
 
 create_layout_item_f = Callable[
@@ -105,7 +110,12 @@ class LayoutItem(ABC):
         }
 
     @abstractmethod
-    def get_item_as_named_image(self, rotated_degrees: int | None = None, size: Size | None = None, logger: BaseLogger | None = None) -> NamedImage:
+    def get_item_as_named_image(
+        self,
+        rotated_degrees: int | None = None,
+        size: Size | None = None,
+        logger: BaseLogger | None = None
+    ) -> NamedImage:
         pass
 
     @abstractmethod
@@ -130,9 +140,14 @@ class LayoutItem(ABC):
         row_no: int,
         layout_directory: str,
         create_layout: create_layout_item_f
-    ):
-        if all([is_empty(row[header])  for header in layout_defaults.LAYOUT_ITEM_HEADERS]): 
-            return None
+    ) -> "LayoutItem":
+        validate_row(row, [
+            layout_defaults.LAYOUT_ITEM_POSITION_X,
+            layout_defaults.LAYOUT_ITEM_POSITION_Y,
+            layout_defaults.LAYOUT_ITEM_SIZE_WIDTH,
+            layout_defaults.LAYOUT_ITEM_SIZE_HEIGHT,
+            layout_defaults.LAYOUT_ITEM_FILEPATH
+        ])
 
         placement_box = Box(
             int(row[layout_defaults.LAYOUT_ITEM_POSITION_X]),
@@ -140,29 +155,26 @@ class LayoutItem(ABC):
             int(row[layout_defaults.LAYOUT_ITEM_POSITION_X]) + int(row[layout_defaults.LAYOUT_ITEM_SIZE_WIDTH]), 
             int(row[layout_defaults.LAYOUT_ITEM_POSITION_Y]) + int(row[layout_defaults.LAYOUT_ITEM_SIZE_HEIGHT])
         )
-        reservation_box = placement_box
-        reservation_headers = [
-            layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X,
-            layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y,
-            layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_WIDTH,
-            layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT
-        ]
-
-        if all([header in row and not(is_empty(row[header])) for header in reservation_headers]):
-            reservation_box = Box(
-                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X]),
-                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y]),
-                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X]) + int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_WIDTH]), 
-                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y]) + int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT])
+        reservation_box = get_complex_value_or_default([
+                layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X,
+                layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y,
+                layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_WIDTH,
+                layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT,
+            ], row, placement_box, lambda va: Box(
+                int(va[0]),
+                int(va[1]),
+                int(va[0]) + int(va[2]), 
+                int(va[1]) + int(va[3])
             )
+        )
         item_filepath = to_existing_filepath(row[layout_defaults.LAYOUT_ITEM_FILEPATH], layout_directory)
         item = create_layout(
             os.path.splitext(os.path.basename(item_filepath))[0],
             placement_box,
-            int(row[layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES]) if not(is_empty(row[layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES])) else 0,
+            get_value_or_default(layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES, row, 0, int),
             reservation_box,
-            int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_NO]) if not(is_empty(row[layout_defaults.LAYOUT_ITEM_RESERVATION_NO])) else row_no,
-            row[layout_defaults.LAYOUT_ITEM_LATENCY] if not(is_empty(row[layout_defaults.LAYOUT_ITEM_LATENCY])) else ''
+            get_value_or_default(layout_defaults.LAYOUT_ITEM_RESERVATION_NO, row, row_no, int),
+            get_value_or_default(layout_defaults.LAYOUT_ITEM_LATENCY,'')
         )
         item.load_item(item_filepath)
         return item

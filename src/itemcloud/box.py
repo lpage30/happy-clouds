@@ -43,6 +43,14 @@ class Box:
             int(round(self.right * scale)),
             int(round(self.lower * scale))
         )
+    def copy_box(self) -> "Box":
+        return Box(
+            self.left,
+            self.upper,
+            self.right,
+            self.lower
+        )
+    
     def equals(self, other) -> bool:
         return (
             self.left == other.left and
@@ -66,9 +74,31 @@ class Box:
             self.lower - padding
         )
     
-    def rotate(self, degrees: int, direction: RotateDirection) -> "Box":
+    def is_wedged(self, bounding: "Box") -> bool:
+        # a box is wedged when it is twisted so it hits its bounding box
+        return (
+            self.upper <= bounding.upper or
+            self.lower >= bounding.lower or
+            self.left <= bounding.left or
+            self.right >= bounding.right
+        )
+
+    def rotate(self, degrees: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> "Box":
         native_box = native_rotate_box(self.to_native(), degrees, direction.value)
         return Box.from_native(native_box)
+    
+    def rotate_until_wedged(self, bounding: "Box", direction: RotateDirection = RotateDirection.CLOCKWISE) -> float:
+        result = 0
+        rotation_increment = 5
+        box = self.copy_box()
+        while not(box.is_wedged(bounding)):
+            if 90 < (result + rotation_increment):
+                break
+            result = result + rotation_increment
+            box = box.rotate(result, direction)
+        return result
+        
+
     
     def to_native(self):
         return native_create_box(

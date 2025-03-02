@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from PIL import ImagePalette, ImageColor
 from enum import Enum
 from typing import List
@@ -48,9 +49,10 @@ class ColorSource(Enum):
     PICKED = 3
     MIX = 4
 
-class Color:
-    def __init__(self, red: int, green: int, blue: int):
+class Color(ABC):
+    def __init__(self, red: int, green: int, blue: int, transparency: int = 255):
         self._rgb: tuple[int, int, int] = (red, green, blue)
+        self._transparency = transparency
         self._integer: int = red << 16 | green << 8 | blue
         self._name = None
     @property
@@ -83,7 +85,14 @@ class Color:
     
     @property
     def image_color(self) -> tuple[int, int, int] | tuple[int, int, int, int]:
-        return self._rgb
+        if 255 == self._transparency:
+            return self._rgb
+        else:
+            return (*self._rgb, self._transparency)
+        
+    @abstractmethod
+    def to_transparent(self, transparency: float) -> "Color":
+        pass
     
 
 class NamedColor(Color):
@@ -95,7 +104,11 @@ class NamedColor(Color):
     @property
     def name(self) ->str:
         return self._name
-
+    
+    def to_transparent(self, transparency: float) -> "Color":
+        result =  NamedColor(self._name)
+        result._transparency = int(transparency * 255)
+        return result
 
         
 class DistinctColor(Color):
@@ -106,14 +119,32 @@ class DistinctColor(Color):
         self.rgb_coordinates = colorsys.hls_to_rgb(hue, lightness, saturation)
         super().__init__(int(self.rgb_coordinates[0] * 255),int(self.rgb_coordinates[1] * 255),int(self.rgb_coordinates[2] * 255))
 
+    def to_transparent(self, transparency: float) -> "Color":
+        result =  DistinctColor(self.hue, self.lightness, self.saturation)
+        result._transparency = int(transparency * 255)
+        return result
+
 
 class IntColor(Color):
     def __int__(self, integer: int):
+        self._integer = integer
         super().__init__(
             (integer >> 16) & int(0xFF),
             (integer >> 8) & int(0xFF),
             integer & int(0xFF)
         ) 
+
+    def to_transparent(self, transparency: float) -> "Color":
+        result =  IntColor(self._integer)
+        result._transparency = int(transparency * 255)
+        return result
+
+class RGBAColor(Color):
+    def __int__(self, red: int, green: int, blue: int, a: int):
+        super().__init__(red, green, blue, a)
+
+    def to_transparent(self, transparency: float) -> "Color":
+        return RGBAColor(self.red, self.green, self.blue, int(transparency * 255))
 
 WHITE_COLOR = NamedColor('white')
 BLACK_COLOR = NamedColor('black')
@@ -138,7 +169,7 @@ def generate_picked_colors(count: int) -> List[Color]:
     result: List[Color] = list()
     for i in range(count):
         rgb = unique_rgb[i%len(unique_rgb)]
-        result.append(Color(
+        result.append(RGBAColor(
             rgb[0], rgb[1], rgb[2]
         ))
     return result

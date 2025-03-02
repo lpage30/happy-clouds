@@ -5,7 +5,6 @@
 *.so
 *.c*
 *.pyc
-
 # Distribution / packaging
 cython_debug/
 build/
@@ -22,3 +21,6 @@ dist/
 
 *__pycache__
 *.png
+*.csv
+!samples/**/*.csv
+!samples/**/*.png

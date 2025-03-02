@@ -7,7 +7,10 @@ from itemcloud.reservations import (
     ReservationMapDataType
 )
 from itemcloud.util.parsers import (
-    is_empty,
+    field_exists,
+    validate_row,
+    get_value_or_default,
+    get_complex_value_or_default,
     to_unused_filepath,
     to_existing_filepath
 )
@@ -122,19 +125,22 @@ class LayoutCanvas:
 
     @staticmethod
     def load(row: Dict[str,Any], _row_no: int, layout_directory: str):
-        if all([is_empty(row[header])  for header in layout_defaults.LAYOUT_CANVAS_HEADERS]): 
-            return None
+        validate_row(row, [
+            layout_defaults.LAYOUT_CANVAS_SIZE_WIDTH,
+            layout_defaults.LAYOUT_CANVAS_SIZE_HEIGHT,
+            layout_defaults.LAYOUT_CANVAS_MODE
+        ])
         
         return LayoutCanvas(
             Size(int(row[layout_defaults.LAYOUT_CANVAS_SIZE_WIDTH]), int(row[layout_defaults.LAYOUT_CANVAS_SIZE_HEIGHT])),
             row[layout_defaults.LAYOUT_CANVAS_MODE],
-            row[layout_defaults.LAYOUT_CANVAS_BACKGROUND_COLOR] if not(is_empty(row[layout_defaults.LAYOUT_CANVAS_BACKGROUND_COLOR])) else None,
-            np.loadtxt(
-                fname=to_existing_filepath(row[layout_defaults.LAYOUT_CANVAS_RESERVATION_MAP_FILEPATH], layout_directory),
+            get_value_or_default(layout_defaults.LAYOUT_CANVAS_BACKGROUND_COLOR, row, None),
+            get_value_or_default(layout_defaults.LAYOUT_CANVAS_RESERVATION_MAP_FILEPATH, row, None, lambda v: np.loadtxt(
+                fname=to_existing_filepath(v, layout_directory),
                 dtype=ReservationMapDataType,
                 delimiter=','
-            ) if not(is_empty(row[layout_defaults.LAYOUT_CANVAS_RESERVATION_MAP_FILEPATH])) else None,
-            row[layout_defaults.LAYOUT_CANVAS_NAME] if not(is_empty(row[layout_defaults.LAYOUT_CANVAS_NAME])) else None
+            )),
+            get_value_or_default(layout_defaults.LAYOUT_CANVAS_NAME, row, None),
         )
 
 class LayoutContour:
@@ -210,11 +216,15 @@ class LayoutContour:
 
     @staticmethod
     def load(row: Dict[str,Any], _row_no: int, layout_directory: str):
-        if all([is_empty(row[header])  for header in layout_defaults.LAYOUT_CONTOUR_HEADERS]): 
-            return None
+        validate_row(row, [
+            layout_defaults.LAYOUT_CONTOUR_WIDTH,
+            layout_defaults.LAYOUT_CONTOUR_COLOR
+        ])
 
         return LayoutContour(
-            np.array(NamedImage.load(to_existing_filepath(row[layout_defaults.LAYOUT_CONTOUR_MASK_IMAGE_FILEPATH], layout_directory)).image) if not(is_empty(row[layout_defaults.LAYOUT_CONTOUR_MASK_IMAGE_FILEPATH])) else None,
+            get_value_or_default(layout_defaults.LAYOUT_CONTOUR_MASK_IMAGE_FILEPATH, row, None, lambda v: np.array(
+                NamedImage.load(to_existing_filepath(v, layout_directory)).image
+            )),
             float(row[layout_defaults.LAYOUT_CONTOUR_WIDTH]),
             row[layout_defaults.LAYOUT_CONTOUR_COLOR]
         )
@@ -368,18 +378,16 @@ class Layout:
             items: list[LayoutItem] = list()
             contour: LayoutContour | None = None
             layout_directory: str = os.path.dirname(csv_filepath)
-            layout_data = {}
-            with open(csv_filepath, 'r') as file:    
-                csv_reader = csv.DictReader(file, fieldnames=layout_defaults.LAYOUT_CSV_HEADERS)
-                next(csv_reader)
+            layout_data: Dict[str,Any] = {}
+            with open(csv_filepath, 'r', encoding='utf-8-sig') as file:    
+                csv_reader = csv.DictReader(file)
                 row_no = 0
                 for row in csv_reader:
                     row_no += 1
-                    if not(all([header not in row or is_empty(row[header])  for header in layout_defaults.LAYOUT_HEADERS])):
+                    if all([field_exists(header, row) for header in layout_defaults.LAYOUT_HEADERS]):
                         layout_data = {}
                         for header in layout_defaults.LAYOUT_HEADERS:
-                            if header in row and not is_empty(row[header]):
-                                layout_data[header] = row[header]
+                            layout_data[header] = row[header]
 
                     if canvas == None:
                         canvas = LayoutCanvas.load(row, row_no, layout_directory)
@@ -390,15 +398,19 @@ class Layout:
             if canvas == None or contour == None or 0 == len(items):
                 return None
             
-            max_items = int(layout_data[layout_defaults.LAYOUT_MAX_ITEMS]) if layout_defaults.LAYOUT_MAX_ITEMS in layout_data else None
-            min_item_size = Size(int(layout_data[layout_defaults.LAYOUT_MIN_ITEM_SIZE_WIDTH]), int(layout_data[layout_defaults.LAYOUT_MIN_ITEM_SIZE_HEIGHT])) if layout_defaults.LAYOUT_MIN_ITEM_SIZE_WIDTH in layout_data and layout_defaults.LAYOUT_MIN_ITEM_SIZE_HEIGHT in layout_data else None
-            item_step = int(layout_data[layout_defaults.LAYOUT_ITEM_STEP]) if layout_defaults.LAYOUT_ITEM_STEP in layout_data else None
-            resize_type = ResizeType[layout_data[layout_defaults.LAYOUT_RESIZE_TYPE]] if layout_defaults.LAYOUT_RESIZE_TYPE in layout_data else None
-            scale = float(layout_data[layout_defaults.LAYOUT_SCALE]) if layout_defaults.LAYOUT_SCALE in layout_data else None
-            margin = int(layout_data[layout_defaults.LAYOUT_MARGIN]) if layout_defaults.LAYOUT_MARGIN in layout_data else None
-            name = layout_data[layout_defaults.LAYOUT_NAME] if layout_defaults.LAYOUT_NAME in layout_data else None  
-            total_threads = int(layout_data[layout_defaults.LAYOUT_TOTAL_THREADS]) if layout_defaults.LAYOUT_TOTAL_THREADS in layout_data else None
-            latency_str = layout_data[layout_defaults.LAYOUT_LATENCY] if layout_defaults.LAYOUT_LATENCY in layout_data else ''
+            max_items = get_value_or_default(layout_defaults.LAYOUT_MAX_ITEMS, layout_data, None, int)
+            min_item_size = get_complex_value_or_default([
+                layout_defaults.LAYOUT_MIN_ITEM_SIZE_WIDTH,
+                layout_defaults.LAYOUT_MIN_ITEM_SIZE_HEIGHT
+                ], layout_data, None, lambda va: Size(int(va[0]), int(va[1]))
+             )
+            item_step = get_value_or_default(layout_defaults.LAYOUT_ITEM_STEP, layout_data, None, int)
+            resize_type = get_value_or_default(layout_defaults.LAYOUT_RESIZE_TYPE, layout_data, None, lambda v: ResizeType[v])
+            scale = get_value_or_default(layout_defaults.LAYOUT_SCALE, layout_data, None, float)
+            margin = get_value_or_default(layout_defaults.LAYOUT_MARGIN, layout_data, None, int)
+            name = get_value_or_default(layout_defaults.LAYOUT_NAME, layout_data, None)  
+            total_threads = get_value_or_default(layout_defaults.LAYOUT_TOTAL_THREADS, layout_data, None, int)
+            latency_str = get_value_or_default(layout_defaults.LAYOUT_LATENCY, layout_data, '')
             return Layout(
                 canvas,
                 contour,
