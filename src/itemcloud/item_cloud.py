@@ -256,21 +256,29 @@ class ItemCloud(object):
                 item_measure.latency_str()
             ))
             margin = 2 * (item.reservation_box.left - item.placement_box.left)
-            reservations.reserve_opening(item.name, item.reservation_no, new_reservation_box)
-            new_items.append(
-                item.to_reserved_item(
-                    new_reservation_box.remove_margin(margin),
-                    item.rotated_degrees,
-                    new_reservation_box,
-                    item_measure.latency_str()
+            if reservations.reserve_opening(item.name, item.reservation_no, new_reservation_box):
+                new_items.append(
+                    item.to_reserved_item(
+                        new_reservation_box.remove_margin(margin),
+                        item.rotated_degrees,
+                        new_reservation_box,
+                        item_measure.latency_str()
+                    )
                 )
-            )
-            maximized_count += 1
-            self._logger.info('resized {0} -> {1}. ({2})'.format(
-                item.reservation_box.box_to_string(),
-                new_reservation_box.box_to_string(),
-                item_measure.latency_str(),
-            ))
+                maximized_count += 1
+                self._logger.info('resized {0} -> {1}. ({2})'.format(
+                    item.reservation_box.box_to_string(),
+                    new_reservation_box.box_to_string(),
+                    item_measure.latency_str(),
+                ))
+            else:
+                self._logger.error('Dropping new reservation. Failed to reserve maximized position. rotated_degrees ({1}), resize({2} -> {3}) ({4})'.format(
+                    item.rotated_degrees,
+                    item.reservation_box.box_to_string(),
+                    new_reservation_box.box_to_string(),
+                    item_measure.latency_str(),
+                ))
+
             self._logger.pop_indent()
 
         measure.stop()
@@ -396,14 +404,23 @@ class ItemCloud(object):
                     measure.latency_str()
                 ))
                 reservation_no = index + 1
-                reservations.reserve_opening(name, reservation_no, sampled_result.opening_box)
-                layout_items.append(proportional_items[index].to_layout_item(
-                    sampled_result.actual_box,
-                    sampled_result.rotated_degrees,
-                    sampled_result.opening_box,
-                    reservation_no,
-                    measure.latency_str()
-                ))
+                if reservations.reserve_opening(name, reservation_no, sampled_result.opening_box):
+                    layout_items.append(proportional_items[index].to_layout_item(
+                        sampled_result.actual_box,
+                        sampled_result.rotated_degrees,
+                        sampled_result.opening_box,
+                        reservation_no,
+                        measure.latency_str()
+                    ))
+                else:
+                    reservation_no = index
+                    self._logger.error('Dropping item: samplings({0}). Failed to reserve position. rotated_degrees ({1}), resize({2} -> {3}) ({4})'.format(
+                        sampled_result.sampling_total,
+                        item_size.size_to_string(),
+                        sampled_result.new_size.size_to_string(),
+                        measure.latency_str()
+                    ))
+
             else:
                 self._logger.info('Dropping item: samplings({0}). {1} resize({2} -> {3}) ({4})'.format(
                     sampled_result.sampling_total,

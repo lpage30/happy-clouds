@@ -26,8 +26,9 @@ dependencies = [
 Homepage = "https://github.com/lpage30/happy-clouds"
 
 [project.scripts]
+generate_anyitemcloud = "anyitemcloud.clis.generate_cli:generate"
+layout_anyitemcloud = "anyitemcloud.clis.layout_cli:layout"
 generate_imagecloud = "imagecloud.clis.generate_cli:generate"
-layout_imagecloud = "imagecloud.clis.layout_cli:layout"
 generate_textcloud = "textcloud.clis.generate_cli:generate"
 generate_textimagecloud = "textimagecloud.clis.generate_cli:generate"
 show_all_text_fonts = "textcloud.util.fonts:show_all_fonts"

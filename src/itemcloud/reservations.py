@@ -89,17 +89,18 @@ class Reservations(object):
     def reservation_map(self) -> ReservationMapType:
         return self._reservation_map
 
-    def reserve_opening(self, name: str, reservation_no: int, opening: Box) -> None:
+    def reserve_opening(self, name: str, reservation_no: int, opening: Box) -> bool:
         if not(self._map_box.contains(opening)):
             self.logger.error("BAD OPENING: reserve_opening reservation_map{0} cannot contain opening{1}".format(
                 self._map_box.box_to_string(), opening.box_to_string()
             ))
-            return
+            return False
         self.logger.debug("RESERVED: reserve_opening reservation({0}) opening{1}".format(reservation_no, opening.box_to_string()))
         for row in range(opening.upper, opening.lower):
             for col in range(opening.left, opening.right):
                 self._reservation_map[row, col] = reservation_no
         self._reservations.append(Reservation(name, reservation_no, opening))
+        return True
 
     def sample_to_find_unreserved_opening(
         self,

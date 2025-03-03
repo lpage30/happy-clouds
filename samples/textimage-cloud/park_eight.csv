@@ -1,2 +1,0 @@
-name,text,font_name_path,min_font_size,font_size,max_font_size,text_layout,text_stroke_width,text_anchor,text_align,foreground_color,background_color,image_filepath,transparency_percent
-park_number_8,NUMBER EIGHT,Skia,16.0,83.25,20.0,0,2,lt,center,#ffffff,,./textimage-cloud/park_eight.png,0.25

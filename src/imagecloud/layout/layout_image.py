@@ -15,7 +15,7 @@ class LayoutImage(LayoutItem):
         rotated_degrees: int | None,
         reservation_box: Box,        
         reservation_no: int,
-        latency_str: str = ''
+        latency_str: str
     ) -> None:
         super().__init__(
             name,
@@ -23,7 +23,8 @@ class LayoutImage(LayoutItem):
             rotated_degrees,
             reservation_box,
             reservation_no,
-            latency_str
+            latency_str,
+            LayoutImage.__name__
         )
     
     @property
@@ -72,7 +73,8 @@ class LayoutImage(LayoutItem):
         rotated_degrees: int,
         reservation_box: Box,        
         reservation_no: int,
-        latency_str: str
+        latency_str: str,
+        _subclass_type_name: str
     ) -> LayoutItem:
         return LayoutImage(
             name,

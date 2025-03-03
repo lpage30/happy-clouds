@@ -43,6 +43,9 @@ This is a data cloud to render weighted text in a single 'Image' based cloud.
 This is a data cloud to render weighted text as water mark in weighted image in a single 'Image' based cloud.
 [TextImageCloud readme](src/textimagecloud/readme.md)
 
+### AnyItemCloud
+This is a data cloud to render any mix of weighted items (image/text/text-image) in a single cloud
+[AnyItemCloud readme](src/anyitemcloud/readme.md)
 
 ### Future other clouds
 * web-based fetch or function that produces some form of image. Perhaps report, perhaps geo-location, etc...

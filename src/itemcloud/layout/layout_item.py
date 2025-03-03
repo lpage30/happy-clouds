@@ -23,6 +23,7 @@ create_layout_item_f = Callable[
         Box, #reservation_box
         int, #reservation_no
         str, #item_latency
+        str, #item_subclass_type_name
     ],
     "LayoutItem"
 ]
@@ -34,7 +35,9 @@ class LayoutItem(ABC):
         rotated_degrees: int | None,
         reservation_box: Box,        
         reservation_no: int,
-        latency_str: str = ''
+        latency_str: str,
+        subclass_type_name: str
+
     ) -> None:
         
         self._name = name
@@ -44,6 +47,7 @@ class LayoutItem(ABC):
         self._reservation_no = reservation_no
         self._reservation_color = None
         self._latency_str = latency_str
+        self._subclass_type_name = subclass_type_name
     
     @property
     def name(self) -> str:
@@ -106,7 +110,8 @@ class LayoutItem(ABC):
             layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_WIDTH: self.reservation_box.width,
             layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT: self.reservation_box.height,
             layout_defaults.LAYOUT_ITEM_RESERVATION_NO: self.reservation_no,
-            layout_defaults.LAYOUT_ITEM_LATENCY: self._latency_str
+            layout_defaults.LAYOUT_ITEM_LATENCY: self._latency_str,
+            layout_defaults.LAYOUT_ITEM_TYPE: self._subclass_type_name
         }
 
     @abstractmethod
@@ -139,7 +144,7 @@ class LayoutItem(ABC):
         row: Dict[str,Any],
         row_no: int,
         layout_directory: str,
-        create_layout: create_layout_item_f
+        create_layout_item: create_layout_item_f
     ) -> "LayoutItem":
         validate_row(row, [
             layout_defaults.LAYOUT_ITEM_POSITION_X,
@@ -168,13 +173,14 @@ class LayoutItem(ABC):
             )
         )
         item_filepath = to_existing_filepath(row[layout_defaults.LAYOUT_ITEM_FILEPATH], layout_directory)
-        item = create_layout(
+        item = create_layout_item(
             os.path.splitext(os.path.basename(item_filepath))[0],
             placement_box,
             get_value_or_default(layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES, row, 0, int),
             reservation_box,
             get_value_or_default(layout_defaults.LAYOUT_ITEM_RESERVATION_NO, row, row_no, int),
-            get_value_or_default(layout_defaults.LAYOUT_ITEM_LATENCY,'')
+            get_value_or_default(layout_defaults.LAYOUT_ITEM_LATENCY,''),
+            get_value_or_default(layout_defaults.LAYOUT_ITEM_TYPE, '')
         )
         item.load_item(item_filepath)
         return item

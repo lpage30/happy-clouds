@@ -30,6 +30,14 @@
             "args": "-i ./textimagecloud-import.csv -output_directory ./textimage-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./textimage-cloud/generate-log.debug.txt -total_threads 64 -verbose"
         },
         {
+            "name": "samples-generate_anyitemcloud",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "anyitemcloud.clis.generate_cli",
+            "cwd": "${workspaceFolder}/samples",
+            "args": "-i ./anyitemcloud-import.csv -output_directory ./anyitem-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./anyitem-cloud/generate-log.debug.txt -total_threads 64 -verbose"
+        },
+        {
             "name": "generate_imagecloud",
             "type": "debugpy",
             "request": "launch",
