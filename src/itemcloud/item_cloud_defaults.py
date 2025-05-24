@@ -1,5 +1,6 @@
 
 from itemcloud.size import ResizeType
+from itemcloud.util.search import SEARCH_PATTERNS
 DEFAULT_CLOUD_SIZE = '400,200'
 DEFAULT_STEP_SIZE = '1'
 DEFAULT_ROTATION_INCREMENT = '90'
@@ -14,6 +15,10 @@ DEFAULT_MAX_ITEMS = '200'
 DEFAULT_RESIZE_TYPE = 'MAINTAIN_ASPECT_RATIO'
 DEFAULT_SCALE = '1.0'
 DEFAULT_TOTAL_THREADS = '1'
+DEFAULT_SEARCH_PATTERN = 'NONE'
+
+SEARCH_PATTERN_HELP = '''Search for openings using a pattern: https://i.ytimg.com/vi/8rXv-0gg-ZY/maxresdefault.jpg
+{0}'''.format('|'.join(SEARCH_PATTERNS))
 MAX_ITEM_SIZE_HELP = '''Maximum item size for the largest item.
 If None, height of the item is used.
 '''

@@ -3,8 +3,14 @@
 # cython: wraparound=False
 cimport cython
 from libc.limits cimport INT_MAX
-from libc.math cimport round, pi, sin, cos, abs
+from libc.math cimport round, abs
 from cython.parallel cimport parallel, prange
+from itemcloud.native.math cimport (
+    RotationProperties,
+    create_rotation_properties,
+    rotate_point_x,
+    rotate_point_y
+)
 cdef extern from "stdio.h":
     int snprintf(char *str, size_t size, const char *format, ...) noexcept nogil
 from itemcloud.native.size cimport create_size
@@ -20,6 +26,9 @@ cdef Box create_box(int left, int upper, int right, int lower) noexcept nogil:
     self.right = right
     self.lower = lower
     return self
+
+cdef Box[::1] create_box_array(int length) noexcept:
+    return cython.view.array(shape=(length,), itemsize=sizeof(Box), format="i i i i")
 
 cdef const char* box_to_string(Box self) noexcept nogil:
     cdef char bbuf[64]
@@ -93,9 +102,7 @@ cdef Point create_point(int x, int y) noexcept nogil:
     return r
 
 cdef Box rotate(Box self, int degrees, RotateDirection direction) noexcept nogil:
-    cdef double radians
-    cdef double cosine
-    cdef double sine
+    cdef RotationProperties properties = create_rotation_properties(degrees, direction)
     cdef int i
     cdef Point pts[4]
     cdef Point rotated_pts[4]
@@ -106,10 +113,6 @@ cdef Box rotate(Box self, int degrees, RotateDirection direction) noexcept nogil
 
     if degrees <= 0:
         return self
-
-    radians = degrees * (pi / 180) 
-    cosine = cos(radians)
-    sine = sin(radians)
     origin = create_point(<int>round((self.right - self.left) / 2), <int>round((self.lower - self.upper) / 2))
     pts[0] = create_point(self.left, self.upper)
     pts[1] = create_point(self.right, self.upper)
@@ -117,35 +120,17 @@ cdef Box rotate(Box self, int degrees, RotateDirection direction) noexcept nogil
     pts[3] = create_point(self.left, self.lower)
 
     rotated_box = create_box(INT_MAX,INT_MAX,0,0)
-    if RotateDirection.CLOCKWISE == direction:
-        for i in range(4):
-            #    [ cos(degrees)   sin(degrees) ]
-            #    [ -sin(degrees)  cos(degrees) ]
-            rotated_pts[i].x = <int>round(origin.x + cosine * (pts[i].x - origin.x) + sine * (pts[i].y - origin.y))
-            rotated_pts[i].y = <int>round(origin.y - sine *(pts[i].x - origin.x) + cosine * (pts[i].y - origin.y))
-            if rotated_pts[i].x < 0:
-                needs_adjustment_to_positive = 1
-                if rotated_pts[i].x < adjust_to_positive.x:
-                    adjust_to_positive.x = rotated_pts[i].x
-            if rotated_pts[i].y < 0:
-                needs_adjustment_to_positive = 1
-                if rotated_pts[i].y < adjust_to_positive.y:
-                    adjust_to_positive.y = rotated_pts[i].y
-    else:
-        for i in range(4):
-            #    [ cos(degrees)  -sin(degrees) ]
-            #    [ sin(degrees)   cos(degrees) ]
-            rotated_pts[i].x = <int>round(origin.x + cosine * (pts[i].x - origin.x) - sine * (pts[i].y - origin.y))
-            rotated_pts[i].y = <int>round(origin.y + sine *(pts[i].x - origin.x) + cosine * (pts[i].y - origin.y))
-            if rotated_pts[i].x < 0:
-                needs_adjustment_to_positive = 1
-                if rotated_pts[i].x < adjust_to_positive.x:
-                    adjust_to_positive.x = rotated_pts[i].x
-            if rotated_pts[i].y < 0:
-                needs_adjustment_to_positive = 1
-                if rotated_pts[i].y < adjust_to_positive.y:
-                    adjust_to_positive.y = rotated_pts[i].y
-                
+    for i in range(4):
+        rotated_pts[i].x = rotate_point_x(properties, origin.x, origin.y, pts[i].x, pts[i].y)
+        rotated_pts[i].y = rotate_point_y(properties, origin.x, origin.y, pts[i].x, pts[i].y)
+        if rotated_pts[i].x < 0:
+            needs_adjustment_to_positive = 1
+            if rotated_pts[i].x < adjust_to_positive.x:
+                adjust_to_positive.x = rotated_pts[i].x
+        if rotated_pts[i].y < 0:
+            needs_adjustment_to_positive = 1
+            if rotated_pts[i].y < adjust_to_positive.y:
+                adjust_to_positive.y = rotated_pts[i].y
     
     if 1 == needs_adjustment_to_positive:
         # adjust points so they are in positive territory
@@ -177,6 +162,7 @@ cdef Box rotate(Box self, int degrees, RotateDirection direction) noexcept nogil
 
     return rotated_box
 
+
 def native_create_box(
     left: int,
     upper: int,
@@ -195,3 +181,17 @@ def native_rotate_box(
         direction = RotateDirection.COUNTERCLOCKWISE
 
     return rotate(box, degrees, direction)
+
+def native_create_box_array(length: int): # return native_Box[::1]
+    return create_box_array(length)
+
+def native_set_box_element(array: Box[::1], index: int, box: Box): # return none
+    cdef int i = index
+    array[i] = box
+
+def native_box_array_length(array: Box[::1]): # return shape[0]
+    return array.shape[0]
+
+def native_get_box_element(array: Box[::1], index: int): # return native box
+    cdef int i = index
+    return array[i]

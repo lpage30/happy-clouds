@@ -8,11 +8,10 @@ from itemcloud.native.reservations import (
     native_maximize_existing_reservation
 )
 from itemcloud.logger.base_logger import BaseLogger
-from itemcloud.util.random import random_in_range
+from itemcloud.util.search import SearchProperties
 ReservationMapDataType = np.uint32
 ReservationMapType = np.ndarray[ReservationMapDataType, ReservationMapDataType]
 PositionBufferType = np.ndarray[ReservationMapDataType]
-
 
 
 class Reservation:
@@ -20,6 +19,7 @@ class Reservation:
         self.name = name
         self.no = no
         self.box = box
+
 
 class SampledUnreservedOpening(object):
     
@@ -88,6 +88,10 @@ class Reservations(object):
     @property
     def reservation_map(self) -> ReservationMapType:
         return self._reservation_map
+    
+    @property
+    def reservation_area(self) -> Box:
+        return self._map_box
 
     def reserve_opening(self, name: str, reservation_no: int, opening: Box) -> bool:
         if not(self._map_box.contains(opening)):
@@ -109,7 +113,8 @@ class Reservations(object):
         margin: int,
         resize_type: ResizeType,
         step_size: int,
-        rotation_increment: int
+        rotation_increment: int,
+        search_properties: SearchProperties
     ) -> SampledUnreservedOpening:
         native_SampledUnreservedOpening = native_sample_to_find_unreserved_opening(
             self._native_reservations,
@@ -121,7 +126,7 @@ class Reservations(object):
             resize_type.value,
             step_size,
             rotation_increment,
-            random_in_range
+            search_properties.to_native()
         )
         return SampledUnreservedOpening.from_native(native_SampledUnreservedOpening)
     

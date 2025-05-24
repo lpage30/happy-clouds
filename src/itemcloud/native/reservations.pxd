@@ -3,6 +3,7 @@
 # cython: wraparound=False
 from itemcloud.native.size cimport Size, ResizeType
 from itemcloud.native.box cimport Box
+from itemcloud.native.search cimport SearchProperties
 
 ctypedef struct Reservations:
     int num_threads
@@ -30,6 +31,12 @@ cdef const char* reservations_to_string(
     Reservations self
 ) noexcept nogil
 
+cdef int is_unreserved(
+    Reservations self,
+    unsigned int[:,:] self_reservation_map,
+    Box party_size
+) noexcept nogil
+
 cdef SampledUnreservedOpening sample_to_find_unreserved_opening(
     Reservations self,
     unsigned int[:,:] self_reservation_map,
@@ -40,5 +47,5 @@ cdef SampledUnreservedOpening sample_to_find_unreserved_opening(
     ResizeType resize_type,
     int step_size,
     int rotation_increment,
-    random_in_range_f
+    SearchProperties search_properties
 )  noexcept nogil

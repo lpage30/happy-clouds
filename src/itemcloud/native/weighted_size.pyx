@@ -13,7 +13,7 @@ from itemcloud.native.size cimport (
     sampled_resize_closest_to_area
 )
 
-cdef struct WeightedSize:
+ctypedef struct WeightedSize:
     float weight
     Size size
 

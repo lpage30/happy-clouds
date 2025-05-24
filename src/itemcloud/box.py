@@ -1,6 +1,14 @@
 from enum import Enum
+from typing import List
 from itemcloud.size import Size
-from itemcloud.native.box import native_create_box, native_rotate_box
+from itemcloud.native.box import (
+    native_create_box,
+    native_rotate_box,
+    native_create_box_array,
+    native_set_box_element,
+    native_box_array_length,
+    native_get_box_element
+)
 
 class RotateDirection(Enum):
     COUNTERCLOCKWISE = -1
@@ -119,3 +127,15 @@ class Box:
 
 def to_box(bbox: tuple[int, int, int, int]) -> Box:
     return Box(bbox[0], bbox[1], bbox[2], bbox[3])
+
+def to_native_box_array(boxes: List[Box]): # native_box_array
+    native_box_array = native_create_box_array(len(boxes))
+    for i in range(len(boxes)):
+        native_set_box_element(native_box_array, i, boxes[i].to_native())
+    return native_box_array
+
+def from_native_box_array(native_box_array) -> List[Box]:
+    result: List[Box] = list()
+    for i in range(native_box_array_length(native_box_array)):
+        result.append(Box.from_native(native_get_box_element(native_box_array, i)))
+    return result

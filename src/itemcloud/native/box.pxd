@@ -2,18 +2,16 @@
 # cython: boundscheck=False
 # cython: wraparound=False
 from itemcloud.native.size cimport Size
+from itemcloud.native.math cimport (randint, RotateDirection)
 
-cdef struct Box:
+ctypedef struct Box:
     int left
     int upper
     int right
     int lower
 
-cdef enum RotateDirection:
-    COUNTERCLOCKWISE = -1
-    CLOCKWISE = 1
-
 cdef Box create_box(int left, int upper, int right, int lower) noexcept nogil
+
 cdef const char* box_to_string(Box self) noexcept nogil
 cdef int box_area(Box self) noexcept nogil
 cdef Size size(Box self) noexcept nogil
@@ -27,3 +25,9 @@ cdef Box add_margin(Box self, int margin) noexcept nogil
 cdef Box remove_margin(Box self, int margin) noexcept nogil
 
 cdef Box rotate(Box self, int degrees, RotateDirection direction) noexcept nogil
+
+cdef Box[::1] create_box_array(int length) noexcept
+
+cdef inline Box randomly_pick_one(Box[::1] boxes) noexcept nogil:
+    return boxes[randint(boxes.shape[0], -1)]
+

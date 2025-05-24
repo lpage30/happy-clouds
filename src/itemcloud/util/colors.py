@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from PIL import ImagePalette, ImageColor
+from PIL import ImagePalette
 from enum import Enum
 from typing import List
 import colorsys

@@ -1,7 +1,7 @@
 # cython: language_level=3
 # cython: boundscheck=False
 # cython: wraparound=False
-from itemcloud.native.box cimport RotateDirection
+from itemcloud.native.math cimport RotateDirection
 
 cdef enum ResizeType:
     NO_RESIZE_TYPE = -1
@@ -10,7 +10,7 @@ cdef enum ResizeType:
 
 cdef ResizeType to_resize_type(int t) noexcept nogil
 
-cdef struct Size:
+ctypedef struct Size:
     int width
     int height
 

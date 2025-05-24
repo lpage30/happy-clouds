@@ -9,60 +9,66 @@
             "name": "samples-generate_imagecloud",
             "type": "debugpy",
             "request": "launch",
-            "module": "imagecloud.clis.generate_cli",
+            "module": "clis.cli_functions",
             "cwd": "${workspaceFolder}/samples",
-            "args": "-i ./imagecloud-import.csv -output_directory ./image-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./image-cloud/generate-log.debug.txt -total_threads 64 -verbose",
+            "args": "generate imagecloud -i ./imagecloud-import.csv -output_directory ./image-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./image-cloud/generate-log.debug.txt -total_threads 64 -verbose",
         },
         {
             "name": "samples-generate_textcloud",
             "type": "debugpy",
             "request": "launch",
-            "module": "textcloud.clis.generate_cli",
+            "module": "clis.cli_functions",
             "cwd": "${workspaceFolder}/samples",
-            "args": "-i ./textcloud-import.csv -output_directory ./text-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./text-cloud/generate-log.debug.txt -total_threads 64 -verbose"
+            "args": "generate textcloud -i ./textcloud-import.csv -output_directory ./text-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./text-cloud/generate-log.debug.txt -total_threads 64 -verbose"
         },
         {
             "name": "samples-generate_textimagecloud",
             "type": "debugpy",
             "request": "launch",
-            "module": "textimagecloud.clis.generate_cli",
+            "module": "clis.cli_functions",
             "cwd": "${workspaceFolder}/samples",
-            "args": "-i ./textimagecloud-import.csv -output_directory ./textimage-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./textimage-cloud/generate-log.debug.txt -total_threads 64 -verbose"
+            "args": "generate textimagecloud -i ./textimagecloud-import.csv -output_directory ./textimage-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./textimage-cloud/generate-log.debug.txt -total_threads 64 -verbose"
         },
         {
-            "name": "samples-generate_anyitemcloud",
+            "name": "samples-generate_mixeditemcloud",
             "type": "debugpy",
             "request": "launch",
-            "module": "anyitemcloud.clis.generate_cli",
+            "module": "clis.cli_functions",
             "cwd": "${workspaceFolder}/samples",
-            "args": "-i ./anyitemcloud-import.csv -output_directory ./anyitem-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./anyitem-cloud/generate-log.debug.txt -total_threads 64 -verbose"
+            "args": "generate mixeditemcloud -i ./mixeditemcloud-import.csv -output_directory ./mixeditem-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./mixeditem-cloud/generate-log.debug.txt -total_threads 64 -verbose"
         },
         {
             "name": "generate_imagecloud",
             "type": "debugpy",
             "request": "launch",
-            "module": "imagecloud.clis.generate_cli",
-            "args": "${command:pickArgs}",
+            "module": "clis.cli_functions",
+            "args": "generate imagecloud ${command:pickArgs}",
         },
         {
             "name": "layout_imagecloud",
             "type": "debugpy",
             "request": "launch",
-            "module": "imagecloud.clis.layout_cli",
-            "args": "${command:pickArgs}",
+            "module": "clis.cli_functions",
+            "args": "layout imagecloud ${command:pickArgs}",
         },
         {
             "name": "generate_textcloud",
             "type": "debugpy",
             "request": "launch",
-            "module": "textcloud.clis.generate_cli",
-            "args": "${command:pickArgs}",
+            "module": "clis.cli_functions",
+            "args": "generate textcloud ${command:pickArgs}",
         },
         {
             "name": "show_all_text_fonts",
             "type": "debugpy",
             "request": "launch",
-            "module": "textcloud.util.fonts"
+            "module": "itemcloud.util.fonts"
         },
+        {
+            "name": "cloud_usage_md",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "itemcloud.cli_support.cloud_generation_types"
+        }
     ]
 }

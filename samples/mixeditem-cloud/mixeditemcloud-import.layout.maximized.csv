@@ -1,0 +1,16 @@
+layout_max_items,layout_min_item_size_width,layout_min_item_size_height,layout_item_step,layout_item_rotation_increment,layout_resize_type,layout_scale,layout_margin,layout_name,layout_total_threads,layout_latency,layout_canvas_name,layout_canvas_mode,layout_canvas_background_color,layout_canvas_size_width,layout_canvas_size_height,layout_canvas_reservation_map_csv_filepath,layout_contour_mask_image_filepath,layout_contour_width,layout_contour_color,layout_item_filepath,layout_item_position_x,layout_item_position_y,layout_item_size_width,layout_item_size_height,layout_item_rotated_degrees,layout_item_reserved_position_x,layout_item_reserved_position_y,layout_item_reserved_size_width,layout_item_reserved_size_height,layout_item_reservation_no,layout_item_latency,layout_item_type
+200,50,50,1,90,MAINTAIN_ASPECT_RATIO,1.0,1,mixeditemcloud-import.layout.maximized,64,000H_00M_05S_102MS,mixeditemcloud-import.maximized,RGBA,,2814,705,./mixeditem-cloud/mixeditemcloud-import.maximized.reservation_map.csv,,0.0,black,./mixeditem-cloud/park_seven.csv,656,189,704,443,0,657,190,702,441,1,000H_00M_00S_000MS,LayoutTextImage
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/2.csv,-1,299,245,19,0,0,300,243,17,2,000H_00M_00S_000MS,LayoutText
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/10.csv,242,244,416,74,0,243,245,414,72,3,000H_00M_00S_001MS,LayoutText
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/park_eleven.csv,1358,100,642,532,0,1359,101,640,530,4,000H_00M_00S_000MS,LayoutTextImage
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/park_one.csv,1998,99,706,533,0,1999,100,704,531,5,000H_00M_00S_000MS,LayoutTextImage
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/park_eight.csv,-1,316,659,316,0,0,317,657,314,6,000H_00M_00S_000MS,LayoutTextImage
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/park_three.png,244,1,403,243,0,243,0,405,245,7,000H_09M_03S_930MS,LayoutImage
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/5.csv,-1,630,2705,75,0,0,631,2703,73,8,000H_00M_00S_030MS,LayoutText
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/park_six.png,647,-1,441,192,0,648,0,439,190,9,000H_00M_00S_000MS,LayoutImage
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/park_nine.csv,-1,-1,245,302,90,0,0,243,300,10,000H_00M_00S_000MS,LayoutTextImage
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/13.csv,1358,-1,390,103,0,1359,0,388,101,11,000H_00M_00S_001MS,LayoutText
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/park_four.png,1086,-1,274,192,0,1087,0,272,190,12,000H_00M_00S_102MS,LayoutImage
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/park_twelve.png,2702,-1,113,312,90,2703,0,111,310,13,000H_00M_00S_003MS,LayoutImage
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/park_fourteen.png,2702,309,113,396,90,2703,310,111,394,14,000H_00M_00S_010MS,LayoutImage
+,,,,,,,,,,,,,,,,,,,,./mixeditem-cloud/15.csv,1746,-1,958,102,0,1747,0,956,100,15,000H_00M_00S_048MS,LayoutText

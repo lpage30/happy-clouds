@@ -12,7 +12,7 @@ cdef extern from "stdarg.h":
     int vsnprintf(char *str, unsigned int size, const char *format, va_list ap) noexcept nogil
 cdef BaseLogger g_logger
 cdef object g_py_log
-cdef char* format_var_args(LoggerLevel level, const char* format_str, va_list args) noexcept nogil:
+cdef char* format_var_args(LoggerLevel level, const char* format_str, va_list args = NULL) noexcept nogil:
     cdef char fbuf[512]
     cdef int size = vsnprintf(NULL, 0, format_str, args) + 1
     vsnprintf(fbuf, size, format_str, args)
@@ -48,7 +48,7 @@ cdef void set_logger(int level, object callback) noexcept nogil:
 
 cdef void log_error(const char* format, ...) noexcept nogil:
     global g_logger
-    cdef va_list args
+    cdef va_list args = NULL
     cdef char* result
     if LoggerLevel.ERROR < g_logger.level:
         return
@@ -62,7 +62,7 @@ cdef void log_error(const char* format, ...) noexcept nogil:
 
 cdef void log_warning(const char* format, ...) noexcept nogil:
     global g_logger
-    cdef va_list args
+    cdef va_list args = NULL
     cdef char* result
     if LoggerLevel.WARNING < g_logger.level:
         return
@@ -75,7 +75,7 @@ cdef void log_warning(const char* format, ...) noexcept nogil:
 
 cdef void log_info(const char* format, ...) noexcept nogil:
     global g_logger
-    cdef va_list args
+    cdef va_list args = NULL
     cdef char* result
     if LoggerLevel.INFO < g_logger.level:
         return
@@ -88,7 +88,7 @@ cdef void log_info(const char* format, ...) noexcept nogil:
 
 cdef void log_debug(const char* format, ...) noexcept nogil:
     global g_logger
-    cdef va_list args
+    cdef va_list args = NULL
     cdef char* result
     if LoggerLevel.DEBUG < g_logger.level:
         return

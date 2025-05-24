@@ -5,14 +5,15 @@ from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.util.parsers import (parse_to_float, parse_to_int)
 from itemcloud.reservations import (Reservations, SampledUnreservedOpening)
+from itemcloud.util.search import SearchPattern, SearchProperties
 from itemcloud.util.time_measure import TimeMeasure
-from itemcloud.layout.layout import (
+from itemcloud.layout.base.layout import (
     LayoutContour,
     LayoutCanvas,
     Layout
 )
-from itemcloud.layout.layout_item import LayoutItem
-from itemcloud.containers.weighted_item import (
+from itemcloud.layout.base.layout_item import LayoutItem
+from itemcloud.containers.base.weighted_item import (
     WeightedItem,
     resize_items_to_proportionally_fit,
     sort_by_weight
@@ -79,23 +80,24 @@ class ItemCloud(object):
         background_color is None.
     """
     def __init__(self,
-                 logger: BaseLogger,
-                 mask: Image.Image | None = None,
-                 size: Size | None = None,
-                 background_color: str | None = None,
-                 max_items: int | None = None,
-                 max_item_size: Size | None = None,
-                 min_item_size: Size | None = None,
-                 item_step: int | None = None,
-                 item_rotation_increment: int | None = None,
-                 resize_type: ResizeType | None = None,
-                 scale: float | None = None,
-                 contour_width: float | None = None,
-                 contour_color: str | None = None,
-                 margin: int | None = None,
-                 mode: str | None = None,
-                 name: str | None = None,
-                 total_threads: int | None = None
+        logger: BaseLogger,
+        mask: Image.Image | None = None,
+        size: Size | None = None,
+        background_color: str | None = None,
+        max_items: int | None = None,
+        max_item_size: Size | None = None,
+        min_item_size: Size | None = None,
+        item_step: int | None = None,
+        item_rotation_increment: int | None = None,
+        resize_type: ResizeType | None = None,
+        scale: float | None = None,
+        contour_width: float | None = None,
+        contour_color: str | None = None,
+        margin: int | None = None,
+        mode: str | None = None,
+        name: str | None = None,
+        total_threads: int | None = None,
+        search_pattern: SearchPattern | None = None
     ) -> None:
         self._mask: np.ndarray | None = np.array(mask) if mask is not None else None
         self._size = size if size is not None else Size.parse(item_cloud_defaults.DEFAULT_CLOUD_SIZE)
@@ -116,6 +118,7 @@ class ItemCloud(object):
         self._mode = mode if mode is not None else item_cloud_defaults.DEFAULT_MODE
         self._name = name if name is not None else 'itemcloud'
         self._total_threads = total_threads if total_threads is not None else parse_to_int(item_cloud_defaults.DEFAULT_TOTAL_THREADS)
+        self._search_pattern = search_pattern if search_pattern is not None else SearchPattern[item_cloud_defaults.DEFAULT_SEARCH_PATTERN]
         self.layout_: Layout | None = None
 
     @property
@@ -228,6 +231,7 @@ class ItemCloud(object):
             layout = self.layout_
         self.layout_ = layout
         reservations = Reservations.create_reservations(layout.canvas.reservation_map, self._logger)
+
         new_items: list[LayoutItem] = list()
         
         total_items = len(layout.items)
@@ -330,6 +334,7 @@ class ItemCloud(object):
                              "got %d." % len(proportional_items))
         
         reservations = Reservations(self._logger, ObjectCloud_size, self._total_threads)
+        search_properties = SearchProperties.start(reservations.reservation_area, self._search_pattern)
 
         layout_items: list[LayoutItem] = list()
 
@@ -392,7 +397,8 @@ class ItemCloud(object):
                 self._margin,
                 self._resize_type,
                 self._item_step,
-                self._item_rotation_increment
+                self._item_rotation_increment,
+                search_properties
             )
             measure.stop()
             if sampled_result.found:
@@ -412,6 +418,7 @@ class ItemCloud(object):
                         reservation_no,
                         measure.latency_str()
                     ))
+                    search_properties = search_properties.next(sampled_result.opening_box)
                 else:
                     reservation_no = index
                     self._logger.error('Dropping item: samplings({0}). Failed to reserve position. rotated_degrees ({1}), resize({2} -> {3}) ({4})'.format(
@@ -457,7 +464,8 @@ class ItemCloud(object):
             self._margin,
             self._name + '.layout',
             self._total_threads,
-            generation_measure.latency_str()
+            generation_measure.latency_str(),
+            self._search_pattern
         )
         return self.layout_
 
@@ -480,30 +488,3 @@ class ItemCloud(object):
         else:
             raise ValueError("Got mask of invalid shape: %s" % f'mask({mask.shape[0]},{mask.shape[1]},{mask.shape[2]})')
         return boolean_mask
-
-    @staticmethod
-    def create(
-        layout: Layout,
-        logger: BaseLogger
-    ):
-        result = ItemCloud(
-            logger,
-            layout.contour.mask,
-            layout.canvas.size,
-            layout.canvas.background_color,
-            layout.max_items,
-            None,
-            layout.min_item_size,
-            layout.item_step,
-            layout.item_rotation_increment,
-            layout.resize_type,
-            layout.scale,
-            layout.contour.width,
-            layout.contour.color,
-            layout.margin,
-            layout.canvas.mode,
-            layout.canvas.name
-        )
-        result.layout_ = layout
-        return result
-    

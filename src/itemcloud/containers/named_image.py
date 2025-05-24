@@ -3,7 +3,7 @@ from typing import (Dict, Any)
 from PIL import Image
 from itemcloud.size import Size
 from itemcloud.util.parsers import to_unused_filepath, validate_row
-from itemcloud.containers.named_item import NamedItem
+from itemcloud.containers.base.named_item import NamedItem
 from itemcloud.logger.base_logger import BaseLogger
 
 class NamedImage(NamedItem):
