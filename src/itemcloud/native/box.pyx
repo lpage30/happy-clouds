@@ -28,6 +28,8 @@ cdef Box create_box(int left, int upper, int right, int lower) noexcept nogil:
     return self
 
 cdef Box[::1] create_box_array(int length) noexcept:
+    if length <= 0:
+        return cython.view.array(shape=(1,), itemsize=sizeof(Box), format="i i i i")[:0]
     return cython.view.array(shape=(length,), itemsize=sizeof(Box), format="i i i i")
 
 cdef const char* box_to_string(Box self) noexcept nogil:
