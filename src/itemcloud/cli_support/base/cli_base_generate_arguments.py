@@ -9,7 +9,7 @@ from itemcloud.item_cloud import ItemCloud
 import itemcloud.item_cloud_defaults as item_cloud_defaults
 import itemcloud.cli_support.base.cli_helpers as cli_helpers
 from itemcloud.cli_support.base.cli_base_arguments import CLIBaseArguments
-from itemcloud.util.search import (
+from itemcloud.util.search_types import (
     SEARCH_PATTERNS,
     SearchPattern,
     is_search_pattern

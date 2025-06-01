@@ -1,6 +1,6 @@
 
 from itemcloud.size import ResizeType
-from itemcloud.util.search import SEARCH_PATTERNS
+from itemcloud.util.search_types import SEARCH_PATTERNS
 DEFAULT_CLOUD_SIZE = '400,200'
 DEFAULT_STEP_SIZE = '1'
 DEFAULT_ROTATION_INCREMENT = '90'

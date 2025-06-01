@@ -3,7 +3,7 @@ from itemcloud.box import (
     Box,
     to_native_box_array
 )
-from itemcloud.util.search import (
+from itemcloud.util.search_types import (
     RelativeDistance,
     RelativePosition,
     SearchPattern

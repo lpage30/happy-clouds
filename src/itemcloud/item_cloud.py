@@ -5,7 +5,7 @@ from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.util.parsers import (parse_to_float, parse_to_int)
 from itemcloud.box_reservations import (BoxReservations, SampledUnreservedBoxOpening)
-from itemcloud.util.search import SearchPattern
+from itemcloud.util.search_types import SearchPattern
 from itemcloud.util.box_search import BoxSearchProperties
 from itemcloud.util.time_measure import TimeMeasure
 from itemcloud.layout.base.layout import (

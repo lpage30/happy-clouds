@@ -2,7 +2,7 @@
 # cython: boundscheck=False
 # cython: wraparound=False
 cimport cython
-from itemcloud.native.search cimport (
+from itemcloud.native.search_types cimport (
     RelativePosition,
     RelativeDistance,
     SearchPattern,

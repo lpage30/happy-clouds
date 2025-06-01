@@ -3,7 +3,7 @@
 # cython: wraparound=False
 from itemcloud.native.box cimport Box
 from itemcloud.native.math cimport distance
-from itemcloud.native.search cimport RelativePosition, RelativeDistance, SearchPattern
+from itemcloud.native.search_types cimport RelativePosition, RelativeDistance, SearchPattern
 
 cdef int box_center_x(Box self) noexcept nogil
 

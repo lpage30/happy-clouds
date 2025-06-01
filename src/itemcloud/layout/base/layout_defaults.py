@@ -1,6 +1,6 @@
 from itemcloud.size import RESIZE_TYPES
 from itemcloud.item_cloud_defaults import MODE_TYPES
-from itemcloud.util.search import SEARCH_PATTERNS
+from itemcloud.util.search_types import SEARCH_PATTERNS
 LAYOUT_MAX_ITEMS = 'layout_max_items'
 LAYOUT_MAX_ITEMS_HELP = '<integer>'
 LAYOUT_MIN_ITEM_SIZE_WIDTH = 'layout_min_item_size_width'

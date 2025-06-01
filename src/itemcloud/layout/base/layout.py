@@ -1,7 +1,7 @@
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.containers.named_image import NamedImage
 from itemcloud.size import (Size, ResizeType)
-from itemcloud.util.search import SearchPattern
+from itemcloud.util.search_types import SearchPattern
 from itemcloud.box_reservations import (
     BoxReservations,
     ReservationMapType, 
