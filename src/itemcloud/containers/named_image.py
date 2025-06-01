@@ -1,6 +1,6 @@
 import os
 from typing import (Dict, Any)
-from PIL import Image
+from itemcloud.image_item import ImageItem
 from itemcloud.size import Size
 from itemcloud.util.parsers import to_unused_filepath, validate_row
 from itemcloud.containers.base.named_item import NamedItem
@@ -8,7 +8,7 @@ from itemcloud.logger.base_logger import BaseLogger
 
 class NamedImage(NamedItem):
     
-    def __init__(self, image: Image.Image, name: str | None = None, original_image: Image.Image | None = None) -> None:
+    def __init__(self, image: ImageItem, name: str | None = None, original_image: ImageItem | None = None) -> None:
         NamedItem.__init__(self, name, image.width, image.height)
         self._original_image = original_image if original_image is not None else image
         self._image = image
@@ -21,7 +21,7 @@ class NamedImage(NamedItem):
         )
 
     @property
-    def image(self) -> Image.Image:
+    def image(self) -> ImageItem:
         return self._image
 
     def resize(self, size: Size) -> "NamedImage":
@@ -40,7 +40,7 @@ class NamedImage(NamedItem):
         size: Size | None = None,
         logger: BaseLogger | None = None,
         as_watermark: bool = False
-    ) -> Image.Image:
+    ) -> ImageItem:
         new_image = self.image
         if rotated_degrees is not None and 0 < rotated_degrees:
             if logger:
@@ -68,7 +68,7 @@ class NamedImage(NamedItem):
     @staticmethod
     def load_item(image_filepath: str) -> "NamedImage":
         name = os.path.splitext(os.path.basename(image_filepath))[0]
-        image = Image.open(image_filepath)
+        image = ImageItem.open(image_filepath)
         return NamedImage(image, name)
 
     @staticmethod

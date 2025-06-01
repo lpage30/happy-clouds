@@ -1,6 +1,6 @@
 import csv
-from PIL import Image
 from typing import Dict, Any
+from itemcloud.image_item import ImageItem
 from itemcloud.containers.base.named_item import NamedItem
 from itemcloud.util.parsers import (
     to_unused_filepath,
@@ -62,13 +62,13 @@ class NamedText(NamedItem):
 
     def draw_on_image(
         self,
-        image: Image.Image,
+        image: ImageItem,
         rotated_degrees: int | None = None,
         size: Size | None = None,
         logger: BaseLogger | None = None,
         as_watermark: bool = False,
         xy: tuple[float, float] | None = None,
-    ) -> Image.Image:
+    ) -> ImageItem:
         return self.font.draw_on_image(
             self.text,
             image,
@@ -86,7 +86,7 @@ class NamedText(NamedItem):
         size: Size | None = None,
         logger: BaseLogger | None = None,
         as_watermark: bool = False
-    ) -> Image.Image:
+    ) -> ImageItem:
         return self.font.to_image(
             self.text,
             self.foreground_color,

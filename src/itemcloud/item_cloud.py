@@ -1,6 +1,6 @@
-from PIL import Image
 import warnings
 import numpy as np
+from itemcloud.image_item import ImageItem
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.util.parsers import (parse_to_float, parse_to_int)
@@ -81,7 +81,7 @@ class ItemCloud(object):
     """
     def __init__(self,
         logger: BaseLogger,
-        mask: Image.Image | None = None,
+        mask: ImageItem | None = None,
         size: Size | None = None,
         background_color: str | None = None,
         max_items: int | None = None,
@@ -99,7 +99,7 @@ class ItemCloud(object):
         total_threads: int | None = None,
         search_pattern: SearchPattern | None = None
     ) -> None:
-        self._mask: np.ndarray | None = np.array(mask) if mask is not None else None
+        self._mask: np.ndarray | None = mask.to_nparray() if mask is not None else None
         self._size = size if size is not None else Size.parse(item_cloud_defaults.DEFAULT_CLOUD_SIZE)
         self._background_color = background_color if background_color is not None else item_cloud_defaults.DEFAULT_BACKGROUND_COLOR
         self._max_items = max_items if max_items is not None else parse_to_int(item_cloud_defaults.DEFAULT_MAX_ITEMS)

@@ -1,11 +1,11 @@
 import csv
-from PIL import Image
 from typing import (Dict, Any)
 from itemcloud.util.parsers import (
     to_unused_filepath,
     validate_row,
     get_value_or_default
 )
+from itemcloud.image_item import ImageItem
 from itemcloud.containers.base.named_item import NamedItem
 from itemcloud.containers.named_text import NamedText
 from itemcloud.containers.named_image import (
@@ -53,7 +53,7 @@ class NamedTextImage(NamedItem):
         rotated_degrees: int | None = None,
         size: Size | None = None,
         logger: BaseLogger | None = None
-    ) -> Image.Image:
+    ) -> ImageItem:
         image = self._image.to_image(
             rotated_degrees,
             size,

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from PIL import Image
+from itemcloud.image_item import ImageItem
 from itemcloud.size import Size
 from itemcloud.logger.base_logger import BaseLogger
 
@@ -20,7 +20,7 @@ class NamedItem(Size):
         size: Size | None = None,
         logger: BaseLogger | None = None,
         as_watermark: bool = False
-    ) -> Image.Image:
+    ) -> ImageItem:
         pass
 
     @abstractmethod

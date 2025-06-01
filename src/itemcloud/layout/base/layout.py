@@ -20,10 +20,11 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import io
 import os
-from PIL import Image, ImageFilter
+from PIL import ImageFilter
 from typing import Any, Dict
 import csv
 import traceback
+from itemcloud.image_item import ImageItem
 from itemcloud.util.colors import (
     Color,
     ColorSource,
@@ -83,7 +84,7 @@ class LayoutCanvas:
         return self._reservation_colors
     
     def to_image(self, scale: float = 1.0) -> NamedImage:
-        image = Image.new(
+        image = ImageItem.new(
             self.mode, 
             self.size.scale(scale).image_tuple,
             self.background_color
@@ -91,7 +92,7 @@ class LayoutCanvas:
         return NamedImage(image, self.name)
     
     def to_reservation_image(self) -> NamedImage:
-        image = Image.new(
+        image = ImageItem.new(
             'P',
             (self.reservation_map.shape[1], self.reservation_map.shape[0])
         )
@@ -172,10 +173,10 @@ class LayoutContour:
         if self.mask == None or self.width == 0:
             return image
         
-        contour = Image.fromarray(self.mask.astype(np.uint8))
+        contour = ImageItem.fromarray(self.mask.astype(np.uint8))
         contour = contour.resize(image.image.size)
         contour = contour.filter(ImageFilter.FIND_EDGES)
-        contour = np.array(contour)
+        contour = contour.to_nparray()
 
         # make sure borders are not drawn before changing width
         contour[[0, -1], :] = 0
@@ -183,19 +184,19 @@ class LayoutContour:
 
         # use gaussian to change width, divide by 10 to give more resolution
         radius = self.width / 10
-        contour = Image.fromarray(contour)
+        contour = ImageItem.fromarray(contour)
         contour = contour.filter(ImageFilter.GaussianBlur(radius=radius))
-        contour = np.array(contour) > 0
+        contour = contour.to_nparray() > 0
         contour = np.dstack((contour, contour, contour))
 
         # color the contour
-        ret = np.array(image.image) * np.invert(contour)
+        ret = image.image.to_nparray() * np.invert(contour)
         if self.color != 'black':
-            color = Image.new(image.image.mode, image.image.size, self.color)
-            ret += np.array(color) * contour
+            color = ImageItem.new(image.image.mode, image.image.size, self.color)
+            ret += color.to_nparray() * contour
 
         return NamedImage(
-            Image.fromarray(ret),
+            ImageItem.fromarray(ret),
             image.name
         )
 
@@ -203,7 +204,7 @@ class LayoutContour:
         mask_filepath = ''
         if self.mask is not None:
             mask_filepath = to_unused_filepath(layout_directory, '{0}.contour_mask'.format(layout_name), 'png')
-            Image.fromarray(self.mask).save(mask_filepath)
+            ImageItem.fromarray(self.mask).save(mask_filepath)
 
         return {     
             layout_defaults.LAYOUT_CONTOUR_MASK_IMAGE_FILEPATH: mask_filepath,
@@ -223,9 +224,9 @@ class LayoutContour:
         ])
 
         return LayoutContour(
-            get_value_or_default(layout_defaults.LAYOUT_CONTOUR_MASK_IMAGE_FILEPATH, row, None, lambda v: np.array(
-                NamedImage.load(to_existing_filepath(v, layout_directory)).image
-            )),
+            get_value_or_default(layout_defaults.LAYOUT_CONTOUR_MASK_IMAGE_FILEPATH, row, None,
+                lambda v: NamedImage.load(to_existing_filepath(v, layout_directory)).image.to_nparray()
+            ),
             float(row[layout_defaults.LAYOUT_CONTOUR_WIDTH]),
             row[layout_defaults.LAYOUT_CONTOUR_COLOR]
         )
@@ -331,7 +332,7 @@ class Layout:
             ),
             *[item.to_legend_handle() for item in self.items]
         ]
-        plt.imshow(reservation_image.image)
+        reservation_image.image.plt_imshow()
         plt.legend(handles=legend_handles, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
         plt.axis('off')
         plt.grid(True)
@@ -339,7 +340,7 @@ class Layout:
         buf = io.BytesIO()
         plt.savefig(buf, format='png')
         buf.seek(0)
-        image = Image.open(buf)
+        image = ImageItem.open(buf)
         image.load()
         result = NamedImage(
             image,

@@ -1,5 +1,6 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import ImageDraw, ImageFont
 from typing import List
+from itemcloud.image_item import ImageItem
 from itemcloud.box import Box, RotateDirection
 from itemcloud.size import Size
 from itemcloud.util.random import random_in_range
@@ -152,11 +153,11 @@ class Font:
         self,
         text: str,
         font: ImageFont.FreeTypeFont,
-        image: Image.Image,
+        image: ImageItem,
         fg_color: Color | None,
         as_watermark: bool = False,
         xy: tuple[float, float] | None = None
-    ) -> Image.Image:
+    ) -> ImageItem:
         text_image = image
         text_rotation = 0
         if xy is None:
@@ -164,9 +165,9 @@ class Font:
         if as_watermark:
             box = get_text_box(text, font, self._attributes)
             text_rotation = box.rotate_until_wedged(Box(0,0, image.width, image.height))
-            text_image = Image.new('RGBA', box.size.image_tuple, (255,255,255,0))
+            text_image = ImageItem.new('RGBA', box.size.image_tuple, (255,255,255,0))
 
-        draw = ImageDraw.Draw(text_image)
+        draw = text_image.create_draw()
         if fg_color is not None:
             if '\n' in text:
                 draw.multiline_text(
@@ -217,21 +218,21 @@ class Font:
             if 0 < text_rotation:
                 text_image = text_image.rotate(-text_rotation, expand=1)
             text_image = text_image.resize(image.size)
-            return Image.alpha_composite(image, text_image)
+            return ImageItem.alpha_composite(image, text_image)
         
         return image
 
     def draw_on_image(
         self,
         text: str, 
-        image: Image.Image,
+        image: ImageItem,
         fg_color: Color | None, 
         rotated_degrees: int | None = None,
         size: Size | None = None,
         logger: BaseLogger | None = None,
         as_watermark: bool = False,
         xy: tuple[float, float] | None = None
-    ) -> Image.Image:
+    ) -> ImageItem:
 
         font = self.to_image_font(
             text,
@@ -258,7 +259,7 @@ class Font:
         logger: BaseLogger | None = None,
         as_watermark: bool = False,
         xy: tuple[float, float] | None = None,
-    )-> Image.Image:
+    )-> ImageItem:
 
         font = self.to_image_font(
             text,
@@ -270,9 +271,9 @@ class Font:
         box_size = get_text_box(text, font, self._attributes).size
 
         if not(as_watermark) and bg_color is not None:
-            result = Image.new("RGB", (box_size.width, box_size.height), bg_color.image_color)
+            result = ImageItem.new("RGB", (box_size.width, box_size.height), bg_color.image_color)
         else:
-            result = Image.new("RGBA", (box_size.width, box_size.height))
+            result = ImageItem.new("RGBA", (box_size.width, box_size.height))
 
         result = self.draw_with_font_on_image(
             text,

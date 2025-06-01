@@ -1,6 +1,7 @@
-from PIL import Image
 from typing import List
+
 from itemcloud.box import Box
+from itemcloud.image_item import ImageItem
 from itemcloud.util.colors import BLACK_COLOR, WHITE_COLOR
 from itemcloud.logger.base_logger import BaseLogger, LoggerLevel
 from itemcloud.size import Size
@@ -15,7 +16,7 @@ def show_all_fonts() -> None:
     logger = BaseLogger('ShowAllFonts', LoggerLevel.DEBUG)
     fs = FontSize(FontUsageCategory.MOBILE_TEXT_HEAVY, 32, 32)
     fa = FontTextAttributes()
-    images: List[Image.Image] = list()
+    images: List[ImageItem] = list()
     max_size: Size = Size(0,0)
     margin = 3
     fontNames = get_font_names()
@@ -37,7 +38,7 @@ def show_all_fonts() -> None:
             logger.debug("{0}/{1} fonts loaded...".format(index+1, total_fonts))
 
     logger.info('Rendering {0} fonts in 1 {1} x {2} image'.format(total_fonts, max_size.width, max_size.height))
-    image = Image.new(
+    image = ImageItem.new(
         'RGBA', 
         max_size.image_tuple,
         WHITE_COLOR.name

@@ -183,5 +183,4 @@ class CLIBaseArguments:
             metavar='<log-filepath>',
             type=lambda fp: cli_helpers.existing_dirpath_of_filepath(parser, fp),
             help='Optional, all output logging will also be written to this logfile'
-            
         )
