@@ -1,11 +1,15 @@
+import numpy as np
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.containers.named_image import NamedImage
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.util.search_types import SearchPattern
 from itemcloud.box_reservations import (
     BoxReservations,
-    ReservationMapType, 
-    ReservationMapDataType
+)
+from itemcloud.util.display_map import (
+    create_display_map,
+    DISPLAY_MAP_TYPE,
+    DISPLAY_NP_DATA_TYPE
 )
 from itemcloud.util.parsers import (
     field_exists,
@@ -15,7 +19,6 @@ from itemcloud.util.parsers import (
     to_unused_filepath,
     to_existing_filepath
 )
-import numpy as np
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import io
@@ -44,14 +47,14 @@ class LayoutCanvas:
         size: Size,
         mode: str,
         background_color: str | None,
-        reservation_map: ReservationMapType | None,
+        reservation_map: DISPLAY_MAP_TYPE | None,
         name: str | None = None
     ) -> None:
         self._name = name if name else 'itemcloud'
         self._size = size
         self._mode = mode
         self._background_color = background_color
-        self._reservation_map: ReservationMapType = reservation_map if reservation_map is not None else np.zeros(size, dtype=ReservationMapDataType)
+        self._reservation_map = reservation_map if reservation_map is not None else create_display_map(size)
         self._reservation_colors = [*generate_colors(ColorSource.PICKED, self._reservation_map.max() + 1)]
 
     
@@ -76,7 +79,7 @@ class LayoutCanvas:
         return self._background_color
     
     @property
-    def reservation_map(self) -> ReservationMapType:
+    def reservation_map(self) -> DISPLAY_MAP_TYPE:
         return self._reservation_map
     
     @property
@@ -139,7 +142,7 @@ class LayoutCanvas:
             get_value_or_default(layout_defaults.LAYOUT_CANVAS_BACKGROUND_COLOR, row, None),
             get_value_or_default(layout_defaults.LAYOUT_CANVAS_RESERVATION_MAP_FILEPATH, row, None, lambda v: np.loadtxt(
                 fname=to_existing_filepath(v, layout_directory),
-                dtype=ReservationMapDataType,
+                dtype=DISPLAY_NP_DATA_TYPE,
                 delimiter=','
             )),
             get_value_or_default(layout_defaults.LAYOUT_CANVAS_NAME, row, None),
@@ -290,7 +293,7 @@ class Layout:
     def items(self) -> list[LayoutItem]:
         return self._items
     
-    def reconstruct_reservation_map(self,logger: BaseLogger ) -> ReservationMapType:
+    def reconstruct_reservation_map(self,logger: BaseLogger ) -> DISPLAY_MAP_TYPE:
         return BoxReservations.create_reservation_map(
             logger,
             self.canvas.size,

@@ -3,6 +3,8 @@ from typing import Dict, Any, List
 from itemcloud.containers.named_text import (
     NamedText,
     TEXT_NAME,
+)
+from itemcloud.text_item import (
     TEXT_TEXT,
     TEXT_FONT_NAME_PATH,
     TEXT_MIN_FONT_SIZE,

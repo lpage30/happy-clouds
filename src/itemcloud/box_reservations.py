@@ -1,4 +1,3 @@
-import numpy as np
 from typing import List
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.box import Box
@@ -9,10 +8,11 @@ from itemcloud.native.box_reservations import (
 )
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.util.box_search import BoxSearchProperties
-ReservationMapDataType = np.uint32
-ReservationMapType = np.ndarray[ReservationMapDataType, ReservationMapDataType]
-PositionBufferType = np.ndarray[ReservationMapDataType]
-
+from itemcloud.util.display_map import(
+    create_display_buffer,
+    create_display_map,
+    DISPLAY_MAP_TYPE
+)
 
 class BoxReservation:
     def __init__(self, name: str, no: int, box: Box):
@@ -74,8 +74,8 @@ class BoxReservations(object):
 # NOTE: ND Array shape is of form: (height, width) https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.shape.html
 #       PIL Image shape is of form (width, height) https://pillow.readthedocs.io/en/stable/reference/Image.html
 
-        self._reservation_map: ReservationMapType = np.zeros(self._map_size.nd_shape, dtype=ReservationMapDataType)
-        self._position_buffer: PositionBufferType = np.zeros((self._buffer_length), dtype=ReservationMapDataType)
+        self._reservation_map = create_display_map(self._map_size.nd_shape)
+        self._position_buffer = create_display_buffer(self._buffer_length)
         self._native_reservations = native_create_box_reservations(
             self.num_threads,
             self._map_size.to_native_size(),
@@ -86,7 +86,7 @@ class BoxReservations(object):
         )
 
     @property
-    def reservation_map(self) -> ReservationMapType:
+    def reservation_map(self) -> DISPLAY_MAP_TYPE:
         return self._reservation_map
     
     @property
@@ -139,13 +139,13 @@ class BoxReservations(object):
         return Box.from_native(native_box)
     
     @staticmethod
-    def create_reservations(reservation_map: ReservationMapType, logger: BaseLogger):
+    def create_reservations(reservation_map: DISPLAY_MAP_TYPE, logger: BaseLogger):
         result = BoxReservations(logger)
         result._map_size = Size(reservation_map.shape[1], reservation_map.shape[0])
         result._map_box = Box(0, 0, result._map_size.width, result._map_size.height)
         result._buffer_length = result._map_size.area
         result._reservation_map = reservation_map
-        result._position_buffer = np.zeros((result._buffer_length), dtype=ReservationMapDataType)
+        result._position_buffer = create_display_buffer(result._buffer_length)
         result._native_reservations = native_create_box_reservations(
             result.num_threads,
             result._map_size.to_native_size(),
@@ -158,7 +158,7 @@ class BoxReservations(object):
         
         
     @staticmethod
-    def create_reservation_map(logger: BaseLogger, map_size: Size, reservations: list[Box]) -> ReservationMapType:
+    def create_reservation_map(logger: BaseLogger, map_size: Size, reservations: list[Box]) -> DISPLAY_MAP_TYPE:
         reserver = BoxReservations(logger, map_size)
         for i in range(len(reservations)):
             reserver.reserve_opening('', i+1, reservations[i])
