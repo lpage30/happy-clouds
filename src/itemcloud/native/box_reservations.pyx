@@ -40,7 +40,7 @@ from itemcloud.native.base_logger cimport (
     log_error,
     log_py
 )
-from itemcloud.native.search cimport (SearchProperties, search)
+from itemcloud.native.box_search cimport (BoxSearchProperties, search)
 
 #NOTE: PIL Image shape is of form (width, height) https://pillow.readthedocs.io/en/stable/reference/Image.html
 
@@ -63,13 +63,13 @@ g_directions[1] = Direction.UP_DIRECTION
 g_directions[2] = Direction.RIGHT_DIRECTION
 g_directions[3] = Direction.DOWN_DIRECTION
 
-cdef Reservations create_reservations(
+cdef BoxReservations create_box_reservations(
     int num_threads,
     Size map_size,
     Box map_box,
     int buffer_length,
 ) noexcept nogil:
-    cdef Reservations self
+    cdef BoxReservations self
     self.num_threads = num_threads
     self.map_size = map_size
     self.map_box = map_box
@@ -77,17 +77,17 @@ cdef Reservations create_reservations(
     return self
 
 cdef const char* reservations_to_string(
-    Reservations self
+    BoxReservations self
 ) noexcept nogil:
     cdef char buf[128]
     snprintf(buf, 128,
-        "Reservations[Size(%d,%d), num_threads=%d]",
+        "BoxReservations[Size(%d,%d), num_threads=%d]",
         self.map_size.width, self.map_size.height, self.num_threads
     )
     return buf
 
 cdef int is_unreserved(
-    Reservations self,
+    BoxReservations self,
     unsigned int[:,:] self_reservation_map,
     Box party_size
 ) noexcept nogil:
@@ -98,7 +98,7 @@ cdef int is_unreserved(
     return 1
 
 cdef Box[::1] find_openings(
-    Reservations self, 
+    BoxReservations self, 
     unsigned int[:,:] self_reservation_map,
     unsigned int[:] self_position_buffer,
     Size size
@@ -138,8 +138,8 @@ cdef Box[::1] find_openings(
 
     return result
 
-cdef SampledUnreservedOpening sample_to_find_unreserved_opening(
-    Reservations self,
+cdef SampledUnreservedBoxOpening sample_to_find_unreserved_opening(
+    BoxReservations self,
     unsigned int[:,:] self_reservation_map,
     unsigned int[:] self_position_buffer,
     Size max_party_size,
@@ -148,14 +148,14 @@ cdef SampledUnreservedOpening sample_to_find_unreserved_opening(
     ResizeType resize_type,
     int step_size,
     int rotation_increment,
-    SearchProperties search_properties
+    BoxSearchProperties search_properties
 )  noexcept nogil:
 
     cdef Size new_size = max_party_size
     cdef Size resized_size = max_party_size
     cdef int shrink_step_size = -1 * step_size
     cdef int rotated_degrees = 0
-    cdef SampledUnreservedOpening result
+    cdef SampledUnreservedBoxOpening result
     cdef Box[::1] openings
     cdef int sampling_count = 0
     cdef int rotate = 1
@@ -212,7 +212,7 @@ cdef SampledUnreservedOpening sample_to_find_unreserved_opening(
     return result
 
 cdef Box _find_expanded_box(
-    Reservations self,
+    BoxReservations self,
     unsigned int[:,:] self_reservation_map,
     Box box,
     int direction: int
@@ -259,7 +259,7 @@ cdef Box _find_expanded_box(
     return result
 
 cdef Box maximize_existing_reservation(
-    Reservations self, 
+    BoxReservations self, 
     unsigned int[:,:] self_reservation_map,
     Box existing_reservation
 ):
@@ -281,7 +281,7 @@ cdef Box maximize_existing_reservation(
     return result
 
 
-def native_create_reservations(
+def native_create_box_reservations(
     int num_threads,
     native_map_size,
     native_map_box,
@@ -289,16 +289,16 @@ def native_create_reservations(
     unsigned int[:,:] reservation_map,
     unsigned int[:] position_buffer
 ):
-    cdef Reservations native_reservations = create_reservations(
+    cdef BoxReservations native_box_reservations = create_box_reservations(
         num_threads,
         native_map_size,
         native_map_box,
         buffer_length,
     )
-    return native_reservations
+    return native_box_reservations
 
 def native_sample_to_find_unreserved_opening(
-    native_reservations,
+    native_box_reservations,
     unsigned int[:,:] reservation_map,
     unsigned int[:] position_buffer,
     native_max_party_size,
@@ -307,10 +307,10 @@ def native_sample_to_find_unreserved_opening(
     resize_type: int,
     step_size: int,
     rotation_increment: int,
-    search_properties: SearchProperties
+    search_properties: BoxSearchProperties
 ): # return native_sampledunreservedopening
     return sample_to_find_unreserved_opening(
-        native_reservations,
+        native_box_reservations,
         reservation_map,
         position_buffer,
         native_max_party_size,
@@ -323,20 +323,20 @@ def native_sample_to_find_unreserved_opening(
     )
 
 def native_maximize_existing_reservation(
-    native_reservations,
+    native_box_reservations,
     unsigned int[:,:] reservation_map,
     native_existing_reservation
 ): # return native_box
-    return maximize_existing_reservation(native_reservations, reservation_map, native_existing_reservation)
+    return maximize_existing_reservation(native_box_reservations, reservation_map, native_existing_reservation)
 
 
 def native_count_lost_reserved_slots(
-    native_reservations,
+    native_box_reservations,
     unsigned int[:,:] reservation_map,
     int reservation_no,
     native_reservation_box,
 ): # return int
-    cdef Reservations reservations = native_reservations
+    cdef BoxReservations reservations = native_box_reservations
     cdef Box reservation = native_reservation_box
     cdef lost = 0
     cdef int row = 0

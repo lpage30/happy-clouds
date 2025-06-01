@@ -3,16 +3,16 @@
 # cython: wraparound=False
 from itemcloud.native.size cimport Size, ResizeType
 from itemcloud.native.box cimport Box
-from itemcloud.native.search cimport SearchProperties
+from itemcloud.native.box_search cimport BoxSearchProperties
 
-ctypedef struct Reservations:
+ctypedef struct BoxReservations:
     int num_threads
     Size map_size
     Box map_box
     int buffer_length
 
 
-cdef struct SampledUnreservedOpening:
+cdef struct SampledUnreservedBoxOpening:
     int found
     int sampling_total
     Size new_size
@@ -20,7 +20,7 @@ cdef struct SampledUnreservedOpening:
     Box actual_box
     int rotated_degrees
 
-cdef Reservations create_reservations(
+cdef BoxReservations create_box_reservations(
     int num_threads,
     Size map_size,
     Box map_box,
@@ -28,17 +28,17 @@ cdef Reservations create_reservations(
 ) noexcept nogil
 
 cdef const char* reservations_to_string(
-    Reservations self
+    BoxReservations self
 ) noexcept nogil
 
 cdef int is_unreserved(
-    Reservations self,
+    BoxReservations self,
     unsigned int[:,:] self_reservation_map,
-    Box party_size
+    Box party_sizes
 ) noexcept nogil
 
-cdef SampledUnreservedOpening sample_to_find_unreserved_opening(
-    Reservations self,
+cdef SampledUnreservedBoxOpening sample_to_find_unreserved_opening(
+    BoxReservations self,
     unsigned int[:,:] self_reservation_map,
     unsigned int[:] self_position_buffer,
     Size max_party_size,
@@ -47,5 +47,5 @@ cdef SampledUnreservedOpening sample_to_find_unreserved_opening(
     ResizeType resize_type,
     int step_size,
     int rotation_increment,
-    SearchProperties search_properties
+    BoxSearchProperties search_properties
 )  noexcept nogil

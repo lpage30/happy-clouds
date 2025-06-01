@@ -2,8 +2,8 @@ from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.containers.named_image import NamedImage
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.util.search import SearchPattern
-from itemcloud.reservations import (
-    Reservations,
+from itemcloud.box_reservations import (
+    BoxReservations,
     ReservationMapType, 
     ReservationMapDataType
 )
@@ -291,7 +291,7 @@ class Layout:
         return self._items
     
     def reconstruct_reservation_map(self,logger: BaseLogger ) -> ReservationMapType:
-        return Reservations.create_reservation_map(
+        return BoxReservations.create_reservation_map(
             logger,
             self.canvas.size,
             [item.reservation_box for item in self.items]

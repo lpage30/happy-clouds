@@ -4,8 +4,9 @@ from itemcloud.image_item import ImageItem
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.util.parsers import (parse_to_float, parse_to_int)
-from itemcloud.reservations import (Reservations, SampledUnreservedOpening)
-from itemcloud.util.search import SearchPattern, SearchProperties
+from itemcloud.box_reservations import (BoxReservations, SampledUnreservedBoxOpening)
+from itemcloud.util.search import SearchPattern
+from itemcloud.util.box_search import BoxSearchProperties
 from itemcloud.util.time_measure import TimeMeasure
 from itemcloud.layout.base.layout import (
     LayoutContour,
@@ -230,7 +231,7 @@ class ItemCloud(object):
             self._check_generated()
             layout = self.layout_
         self.layout_ = layout
-        reservations = Reservations.create_reservations(layout.canvas.reservation_map, self._logger)
+        reservations = BoxReservations.create_reservations(layout.canvas.reservation_map, self._logger)
 
         new_items: list[LayoutItem] = list()
         
@@ -333,8 +334,8 @@ class ItemCloud(object):
             raise ValueError("We need at least 1 item to plot a ItemCloud, "
                              "got %d." % len(proportional_items))
         
-        reservations = Reservations(self._logger, ObjectCloud_size, self._total_threads)
-        search_properties = SearchProperties.start(reservations.reservation_area, self._search_pattern)
+        reservations = BoxReservations(self._logger, ObjectCloud_size, self._total_threads)
+        search_properties = BoxSearchProperties.start(reservations.reservation_area, self._search_pattern)
 
         layout_items: list[LayoutItem] = list()
 
@@ -391,7 +392,7 @@ class ItemCloud(object):
 
             self._logger.info('Finding position in ItemCloud')
             
-            sampled_result: SampledUnreservedOpening = reservations.sample_to_find_unreserved_opening(
+            sampled_result: SampledUnreservedBoxOpening = reservations.sample_to_find_unreserved_opening(
                 item_size,
                 self._min_item_size,
                 self._margin,

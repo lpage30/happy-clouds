@@ -2,26 +2,26 @@ import numpy as np
 from typing import List
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.box import Box
-from itemcloud.native.reservations import (
-    native_create_reservations,
+from itemcloud.native.box_reservations import (
+    native_create_box_reservations,
     native_sample_to_find_unreserved_opening,
     native_maximize_existing_reservation
 )
 from itemcloud.logger.base_logger import BaseLogger
-from itemcloud.util.search import SearchProperties
+from itemcloud.util.box_search import BoxSearchProperties
 ReservationMapDataType = np.uint32
 ReservationMapType = np.ndarray[ReservationMapDataType, ReservationMapDataType]
 PositionBufferType = np.ndarray[ReservationMapDataType]
 
 
-class Reservation:
+class BoxReservation:
     def __init__(self, name: str, no: int, box: Box):
         self.name = name
         self.no = no
         self.box = box
 
 
-class SampledUnreservedOpening(object):
+class SampledUnreservedBoxOpening(object):
     
     def __init__(
         self, 
@@ -40,26 +40,26 @@ class SampledUnreservedOpening(object):
         self.rotated_degrees = rotated_degrees
     
     @staticmethod
-    def from_native(native_sampledunreservedopening):
-        if 0 != native_sampledunreservedopening['found']:
-            return SampledUnreservedOpening(
+    def from_native(native_sampledunreservedboxopening):
+        if 0 != native_sampledunreservedboxopening['found']:
+            return SampledUnreservedBoxOpening(
                 True,
-                native_sampledunreservedopening['sampling_total'],
-                Size.from_native(native_sampledunreservedopening['new_size']),
-                Box.from_native(native_sampledunreservedopening['opening_box']),
-                Box.from_native(native_sampledunreservedopening['actual_box']),
-                native_sampledunreservedopening['rotated_degrees']
+                native_sampledunreservedboxopening['sampling_total'],
+                Size.from_native(native_sampledunreservedboxopening['new_size']),
+                Box.from_native(native_sampledunreservedboxopening['opening_box']),
+                Box.from_native(native_sampledunreservedboxopening['actual_box']),
+                native_sampledunreservedboxopening['rotated_degrees']
             )
         else:
-            return  SampledUnreservedOpening(
+            return  SampledUnreservedBoxOpening(
                 False,
-                native_sampledunreservedopening['sampling_total'],
-                Size.from_native(native_sampledunreservedopening['new_size']),
+                native_sampledunreservedboxopening['sampling_total'],
+                Size.from_native(native_sampledunreservedboxopening['new_size']),
             )
 
 
 # extrapolated from https://github.com/amueller/word_cloud/blob/main/wordcloud/wordcloud.py
-class Reservations(object):
+class BoxReservations(object):
     def __init__(self,
                  logger: BaseLogger,
                  map_size: Size = Size(0,0),
@@ -70,13 +70,13 @@ class Reservations(object):
         self._map_size = map_size
         self._map_box = Box(0, 0, self._map_size.width, self._map_size.height)
         self._buffer_length = self._map_size.area * 2 # x,y for eqch point in 2d area
-        self._reservations: List[Reservation] = list()
+        self._reservations: List[BoxReservation] = list()
 # NOTE: ND Array shape is of form: (height, width) https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.shape.html
 #       PIL Image shape is of form (width, height) https://pillow.readthedocs.io/en/stable/reference/Image.html
 
         self._reservation_map: ReservationMapType = np.zeros(self._map_size.nd_shape, dtype=ReservationMapDataType)
         self._position_buffer: PositionBufferType = np.zeros((self._buffer_length), dtype=ReservationMapDataType)
-        self._native_reservations = native_create_reservations(
+        self._native_reservations = native_create_box_reservations(
             self.num_threads,
             self._map_size.to_native_size(),
             self._map_box.to_native(),
@@ -103,7 +103,7 @@ class Reservations(object):
         for row in range(opening.upper, opening.lower):
             for col in range(opening.left, opening.right):
                 self._reservation_map[row, col] = reservation_no
-        self._reservations.append(Reservation(name, reservation_no, opening))
+        self._reservations.append(BoxReservation(name, reservation_no, opening))
         return True
 
     def sample_to_find_unreserved_opening(
@@ -114,9 +114,9 @@ class Reservations(object):
         resize_type: ResizeType,
         step_size: int,
         rotation_increment: int,
-        search_properties: SearchProperties
-    ) -> SampledUnreservedOpening:
-        native_SampledUnreservedOpening = native_sample_to_find_unreserved_opening(
+        search_properties: BoxSearchProperties
+    ) -> SampledUnreservedBoxOpening:
+        native_SampledUnreservedBoxOpening = native_sample_to_find_unreserved_opening(
             self._native_reservations,
             self._reservation_map,
             self._position_buffer,
@@ -128,7 +128,7 @@ class Reservations(object):
             rotation_increment,
             search_properties.to_native()
         )
-        return SampledUnreservedOpening.from_native(native_SampledUnreservedOpening)
+        return SampledUnreservedBoxOpening.from_native(native_SampledUnreservedBoxOpening)
     
     def maximize_existing_reservation(self, existing_reservation: Box) -> Box:
         native_box = native_maximize_existing_reservation(
@@ -140,13 +140,13 @@ class Reservations(object):
     
     @staticmethod
     def create_reservations(reservation_map: ReservationMapType, logger: BaseLogger):
-        result = Reservations(logger)
+        result = BoxReservations(logger)
         result._map_size = Size(reservation_map.shape[1], reservation_map.shape[0])
         result._map_box = Box(0, 0, result._map_size.width, result._map_size.height)
         result._buffer_length = result._map_size.area
         result._reservation_map = reservation_map
         result._position_buffer = np.zeros((result._buffer_length), dtype=ReservationMapDataType)
-        result._native_reservations = native_create_reservations(
+        result._native_reservations = native_create_box_reservations(
             result.num_threads,
             result._map_size.to_native_size(),
             result._map_box.to_native(),
@@ -159,7 +159,7 @@ class Reservations(object):
         
     @staticmethod
     def create_reservation_map(logger: BaseLogger, map_size: Size, reservations: list[Box]) -> ReservationMapType:
-        reserver = Reservations(logger, map_size)
+        reserver = BoxReservations(logger, map_size)
         for i in range(len(reservations)):
             reserver.reserve_opening('', i+1, reservations[i])
         return reserver._reservation_map

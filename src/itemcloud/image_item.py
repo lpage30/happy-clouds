@@ -3,11 +3,13 @@ from typing import Any, IO, Literal
 from collections.abc import Sequence
 import matplotlib.pyplot as plt
 import numpy as np
+from itemcloud.util.image_display_map import img_to_display_matrix
 
 
 class ImageItem:
     def __init__(self, image: Image.Image) -> None:
         self._image = image
+        self._display_matrix = img_to_display_matrix(image)
 
     @property
     def width(self) -> int:
