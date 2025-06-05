@@ -1,7 +1,8 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 import os
 import matplotlib.patches as mpatches
-from typing import Any, Dict, Callable
+from typing import Any, Dict
 from itemcloud.box import Box
 from itemcloud.size import Size
 from itemcloud.util.colors import Color
@@ -15,18 +16,6 @@ from itemcloud.util.parsers import (
 )
 import itemcloud.layout.base.layout_defaults as layout_defaults
 
-create_layout_item_f = Callable[
-    [
-        str, #name
-        Box, #placement_box
-        int, #rotated_degrees
-        Box, #reservation_box
-        int, #reservation_no
-        str, #item_latency
-        str, #item_subclass_type_name
-    ],
-    "LayoutItem"
-]
 class LayoutItem(ABC):
     def __init__(
         self,
@@ -132,7 +121,7 @@ class LayoutItem(ABC):
         pass
 
     @abstractmethod
-    def to_reserved_item(self, placement_box: Box, rotated_degrees: int, reservation_box: Box, latency_str: str) -> "LayoutItem":
+    def to_reserved_item(self, placement_box: Box, rotated_degrees: int, reservation_box: Box, latency_str: str) -> LayoutItem:
         pass
 
     @staticmethod
@@ -145,7 +134,7 @@ class LayoutItem(ABC):
         row_no: int,
         layout_directory: str,
         create_layout_item: create_layout_item_f
-    ) -> "LayoutItem":
+    ) -> LayoutItem:
         validate_row(row, [
             layout_defaults.LAYOUT_ITEM_POSITION_X,
             layout_defaults.LAYOUT_ITEM_POSITION_Y,

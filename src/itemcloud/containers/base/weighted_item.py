@@ -1,9 +1,11 @@
-from abc import ABC, abstractmethod
+from __future__ import annotations
 from typing import Callable, List
 from itemcloud.size import (
     ResizeType,
     Size,
 )
+from itemcloud.item_factory import create_layout_item, create_weighted_item
+from itemcloud.containers.base.item import Item
 from itemcloud.containers.base.named_item import NamedItem
 from itemcloud.layout.base.layout_item import LayoutItem
 from itemcloud.box import Box
@@ -14,12 +16,10 @@ from itemcloud.native.weighted_size import (
 )
 class WeightedItem(NamedItem):
     weight: float
-    def __init__(self, weight: float, name: str, width: int, height: int) -> None:
-        NamedItem.__init__(self, name, width, height)
+    def __init__(self, weight: float, name: str, item: Item) -> None:
+        NamedItem.__init__(self, name, item)
         self.weight = weight
 
-
-    @abstractmethod
     def to_layout_item(
         self,
         placement_box: Box,
@@ -28,17 +28,20 @@ class WeightedItem(NamedItem):
         reservation_no: int,
         latency_str: str
     ) -> LayoutItem:
-        pass
+        return create_layout_item(self.type, self.name, placement_box, rotated_degrees, reservation_box, reservation_no, latency_str )
     
-    @abstractmethod
     def to_fitted_weighted_item(
         self, 
         weight: float,
         width: int,
         height: int
-    ) -> "WeightedItem":
-        pass
-        
+    ) -> WeightedItem:
+        return create_weighted_item(
+            weight,
+            self.item.resize_item((width, height))
+        )
+
+ITEM_WEIGHT = 'weight'
 def to_native_weighted_size(weighted_item: WeightedItem):
     return native_create_weighted_size(weighted_item.weight, weighted_item.to_native_size())
 

@@ -26,3 +26,6 @@ cdef RotationProperties create_rotation_properties(int degrees, RotateDirection 
 cdef int rotate_point_x(RotationProperties properties, int origin_x, int origin_y, int point_x, int point_y) noexcept nogil
 
 cdef int rotate_point_y(RotationProperties properties, int origin_x, int origin_y, int point_x, int point_y) noexcept nogil
+
+cdef int rounded_division(int numerator, int denominator) noexcept nogil
+

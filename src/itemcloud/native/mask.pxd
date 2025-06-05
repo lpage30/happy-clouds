@@ -28,5 +28,9 @@ cdef int write_to_target(
     int target_row,
     int target_col,
     unsigned int mask_id
-) noexcept
+) noexcept nogil
 
+cdef void write_to_margined_mask(
+    unsigned int[:,:] mask,
+    unsigned int[:,:] margined_mask
+) noexcept nogil

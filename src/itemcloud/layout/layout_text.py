@@ -5,7 +5,6 @@ from itemcloud.containers.named_image import NamedImage
 from itemcloud.box import Box
 from itemcloud.size import Size
 
-
 class LayoutText(LayoutItem):
 
     def __init__(
@@ -63,21 +62,3 @@ class LayoutText(LayoutItem):
         )
         item._original_text = self.original_text
         return item
-
-def create_layout_text(
-    name: str,
-    placement_box: Box,
-    rotated_degrees: int,
-    reservation_box: Box,        
-    reservation_no: int,
-    latency_str: str,
-    _subclass_type_name: str
-) -> LayoutItem:
-    return LayoutText(
-        name,
-        placement_box,
-        rotated_degrees,
-        reservation_box,
-        reservation_no,
-        latency_str
-    )

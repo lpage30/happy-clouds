@@ -45,6 +45,11 @@ cdef int rotate_point_y(RotationProperties properties, int origin_x, int origin_
         #    [ sin(degrees)   cos(degrees) ]
         return <int>round(origin_y + properties.sine *(point_x - origin_x) + properties.cosine * (point_y - origin_y))
 
+cdef int rounded_division(int numerator, int denominator) noexcept nogil:
+    cdef double n = numerator
+    cdef double d = denominator
+    return <int>round(n/d)
+
 
 
 

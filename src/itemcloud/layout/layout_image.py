@@ -64,21 +64,3 @@ class LayoutImage(LayoutItem):
         )
         item._original_image = self._original_image
         return item
-
-def create_layout_image(
-    name: str,
-    placement_box: Box,
-    rotated_degrees: int,
-    reservation_box: Box,        
-    reservation_no: int,
-    latency_str: str,
-    _subclass_type_name: str
-) -> LayoutItem:
-    return LayoutImage(
-        name,
-        placement_box,
-        rotated_degrees,
-        reservation_box,
-        reservation_no,
-        latency_str
-    )

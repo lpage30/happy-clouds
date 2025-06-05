@@ -9,36 +9,45 @@ from itemcloud.util.display_map import (
     DISPLAY_MAP_TYPE,
     size_to_display_mask
 )
-from itemcloud.image_item import (
+from itemcloud.containers.base.image_item import (
     ImageItem
 )
+from itemcloud.containers.base.item import (
+    Item,
+    ItemType
+)
 from itemcloud.logger.base_logger import BaseLogger
+from itemcloud.box import RotateDirection
 from itemcloud.util.parsers import (
-    to_unused_filepath,
     get_value_or_default,
     get_complex_value_or_default,
     validate_row,
-    field_exists
+    field_exists,
+    to_unused_filepath
 )
-class TextItem:
+class TextItem(Item):
     def __init__(
-            self,
-            text: str,
-            font: Font,
-            foreground_color: Color | None,
-            background_color: Color | None,
-            version_stack: List[TextItem] = list()
-        ) -> None:
-            self.text = text
-            self.font = font
-            box_size = self.font.to_box(text)
-            self.width = box_size.width
-            self.height = box_size.height
-            self.foreground_color = foreground_color
-            self.background_color = background_color
-            self._versions = version_stack
+        self,
+        text: str,
+        font: Font,
+        foreground_color: Color | None,
+        background_color: Color | None,
+        version_stack: List[TextItem] = list()
+    ) -> None:
+        self._text = text
+        self._font = font
+        box_size = self._font.to_box(text)
+        self._width = box_size.width
+        self._height = box_size.height
+        self._foreground_color = foreground_color
+        self._background_color = background_color
+        self._versions = version_stack
+        self.reset_display_mask()
 
-    # ImageItem-specific properties/methods
+    @property
+    def type(self) -> ItemType:
+        return ItemType.TEXT
+
     @property
     def display_mask(self) -> DISPLAY_MAP_TYPE:
         return self._display_mask
@@ -46,7 +55,19 @@ class TextItem:
     @property
     def version_count(self) -> int:
         return len(self._versions)
-    
+
+    @property
+    def width(self) -> int:
+        return self._width
+
+    @property
+    def height(self) -> int:
+        return self._height
+
+    @property
+    def size(self) -> tuple[int, int]:
+        return (self._width, self._height)
+
     def all_versions(self) -> List[TextItem]:
         versions = self._versions.copy()
         versions.append(self)
@@ -61,36 +82,69 @@ class TextItem:
         reset_version = self.get_version(versionNo)
         if reset_version is None:
             return False
-        self.text = reset_version.text
-        self.font = reset_version.font
-        self.width = reset_version.width
-        self.height = reset_version.height
-        self.foreground_color = reset_version.foreground_color
-        self.background_color = reset_version.background_color
+        self._text = reset_version.text
+        self._font = reset_version.font
+        self._width = reset_version.width
+        self._height = reset_version.height
+        self._foreground_color = reset_version.foreground_color
+        self._background_color = reset_version.background_color
         self._versions = reset_version.version_stack
         self.reset_display_mask()
         return True    
 
+    def reset_to_original_version(self) -> bool:
+        return self.reset_to_version()
+
     def reset_display_mask(self) -> None:
-        self._display_mask = size_to_display_mask((self.width, self.height))        
+        self._display_mask = size_to_display_mask((self._width, self._height))        
 
 
     def resize(self, size: Size) -> TextItem:
         if self.is_equal(size):
             return self
-        new_font = self.font.find_best_fit(self.text, size)
+        new_font = self._font.find_best_fit(self._text, size)
         result = TextItem(
-            self.text,
+            self._text,
             new_font,
-            self.foreground_color,
-            self.background_color,
+            self._foreground_color,
+            self._background_color,
             self.all_versions()
         )
-        text_box = new_font.to_box(self.text)
+        text_box = new_font.to_box(self._text)
         result.width = text_box.width
         result.height = text_box.height
         result.reset_display_mask()     
         return result    
+    
+    def rotate(self, angle: float) -> TextItem:
+        font = self._font.to_image_font(
+            self._text,
+            angle,
+            self.size
+        )
+        return TextItem(
+            self._text,
+            font,
+            self._foreground_color,
+            self._background_color,
+            self.all_versions()
+        )
+    def copy(self) -> TextItem:
+        return TextItem(
+            self._text,
+            self._font,
+            self._foreground_color,
+            self._background_color
+        )
+
+    def resize_item(self, size: tuple[int, int]) -> Item:
+        return self.resize(Size(size[0], size[1]))
+
+    def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
+        return self.rotate(angle if direction == RotateDirection.CLOCKWISE else -1.0 * angle)
+
+    def copy_item(self) -> Item:
+        return self.copy()
 
     def draw_on_image(
         self,
@@ -101,10 +155,10 @@ class TextItem:
         as_watermark: bool = False,
         xy: tuple[float, float] | None = None,
     ) -> ImageItem:
-        return self.font.draw_on_image(
-            self.text,
+        return self._font.draw_on_image(
+            self._text,
             image,
-            self.foreground_color,
+            self._foreground_color,
             rotated_degrees,
             size,
             logger,
@@ -119,10 +173,10 @@ class TextItem:
         logger: BaseLogger | None = None,
         as_watermark: bool = False
     ) -> ImageItem:
-        return self.font.to_image(
-            self.text,
-            self.foreground_color,
-            self.background_color,
+        return self._font.to_image(
+            self._text,
+            self._foreground_color,
+            self._background_color,
             rotated_degrees,
             size,
             logger,
@@ -131,18 +185,26 @@ class TextItem:
     
     def to_csv_row(self) -> Dict[str, Any]:
         return {
-            TEXT_TEXT: self.text,
-            TEXT_FONT_NAME_PATH: self.font.font_name,
-            TEXT_MIN_FONT_SIZE: self.font.min_font_size,
-            TEXT_FONT_SIZE: self.font.font_size,
-            TEXT_MAX_FONT_SIZE: self.font.max_font_size,
-            TEXT_LAYOUT: self.font.layout,
-            TEXT_STROKE_WIDTH: self.font.stroke_width if not None else '',
-            TEXT_ANCHOR: self.font.anchor,
-            TEXT_ALIGN: self.font.align,
-            TEXT_FOREGROUND_COLOR: self.foreground_color.name,
-            TEXT_BACKGROUND_COLOR: self.background_color.name if self.background_color is not None else ''
+            TEXT_TEXT: self._text,
+            TEXT_FONT_NAME_PATH: self._font.font_name,
+            TEXT_MIN_FONT_SIZE: self._font.min_font_size,
+            TEXT_FONT_SIZE: self._font.font_size,
+            TEXT_MAX_FONT_SIZE: self._font.max_font_size,
+            TEXT_LAYOUT: self._font.layout,
+            TEXT_STROKE_WIDTH: self._font.stroke_width if not None else '',
+            TEXT_ANCHOR: self._font.anchor,
+            TEXT_ALIGN: self._font.align,
+            TEXT_FOREGROUND_COLOR: self._foreground_color.name,
+            TEXT_BACKGROUND_COLOR: self._background_color.name if self._background_color is not None else ''
         }
+
+    def write_row(self, name: str, directory: str, row: Dict[str, Any]) -> str:
+        csv_filepath = to_unused_filepath(directory, name, 'csv')
+        with open(csv_filepath, 'w') as file:
+            csv_writer = csv.DictWriter(file, fieldnames=list(row.keys()))
+            csv_writer.writeheader()
+            csv_writer.writerow(row)
+        return csv_filepath        
 
 
     @staticmethod
@@ -193,6 +255,10 @@ class TextItem:
             result.reset_display_mask()     
 
         return result
+
+    @staticmethod
+    def load_item(row: Dict[str, Any]) -> Item:
+        return TextItem.load(row)
 
 TEXT_TEXT = 'text'
 TEXT_FONT_NAME_PATH = 'font_name_path'

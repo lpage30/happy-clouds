@@ -1,10 +1,9 @@
-import csv
+from __future__ import annotations
 from typing import Dict, Any, List
 from itemcloud.containers.named_text import (
-    NamedText,
-    TEXT_NAME,
+    NamedText
 )
-from itemcloud.text_item import (
+from itemcloud.containers.base.text_item import (
     TEXT_TEXT,
     TEXT_FONT_NAME_PATH,
     TEXT_MIN_FONT_SIZE,
@@ -16,12 +15,10 @@ from itemcloud.text_item import (
     TEXT_ANCHOR,
     TEXT_ALIGN,
 )
-from itemcloud.containers.base.weighted_item import WeightedItem
-from itemcloud.layout.base.layout_item import LayoutItem
-from itemcloud.box import Box
+from itemcloud.containers.base.named_item import ITEM_NAME
+from itemcloud.containers.base.weighted_item import WeightedItem, ITEM_WEIGHT
 from itemcloud.size import Size
 from itemcloud.util.parsers import validate_row
-from itemcloud.layout.layout_text import LayoutText
 
 class WeightedText(WeightedItem, NamedText):
     
@@ -33,56 +30,10 @@ class WeightedText(WeightedItem, NamedText):
         NamedText.__init__(self, namedText.name, namedText.text, namedText.font, namedText.foreground_color, namedText.background_color)
         WeightedItem.__init__(self, weight, self.name, self.width, self.height)
         
-    def to_layout_item(
-        self,
-        placement_box: Box,
-        rotated_degrees: int,
-        reservation_box: Box,        
-        reservation_no: int,
-        latency_str: str
-    ) -> LayoutItem:
-        named_text: NamedText = self
-        item =  LayoutText(
-            self.name,
-            placement_box,
-            rotated_degrees,
-            reservation_box,
-            reservation_no,
-            latency_str
-        )
-        item._original_text = named_text
-        return item
-        
-    
-    def to_fitted_weighted_item(
-        self,
-        weight: float,
-        width: int,
-        height: int
-    ) -> "WeightedItem":
-        return WeightedText(
-            weight,
-            self.resize(Size(width, height))
-        )
 
-    def to_csv_row(self) -> Dict[str, Any]:
-        combined = NamedText.to_csv_row(self) | { WEIGHTED_TEXT_WEIGHT: self.weight }
-        csv_row = {}
-        for field in WEIGHTED_TEXT_HEADERS:
-            csv_row[field] = combined[field]
-        return csv_row
-
-    @staticmethod
-    def load(row: Dict[str, Any]) -> "WeightedText":
-        validate_row(row, [WEIGHTED_TEXT_WEIGHT])
-        return WeightedText(
-            float(row[WEIGHTED_TEXT_WEIGHT]),
-            NamedText.load(row)
-        )
-
-WEIGHTED_TEXT_NAME = TEXT_NAME
+WEIGHTED_TEXT_NAME = ITEM_NAME
 WEIGHTED_TEXT_NAME_HELP = '<name>'
-WEIGHTED_TEXT_WEIGHT = 'weight'
+WEIGHTED_TEXT_WEIGHT = ITEM_WEIGHT
 WEIGHTED_TEXT_WEIGHT_HELP = '<float>'
 WEIGHTED_TEXT_TEXT = TEXT_TEXT
 WEIGHTED_TEXT_TEXT_HELP = 'text|phrase|prose'
