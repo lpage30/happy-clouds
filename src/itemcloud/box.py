@@ -1,3 +1,4 @@
+from __future__ import annotations
 from enum import Enum
 from typing import List
 from itemcloud.size import Size
@@ -30,10 +31,15 @@ class Box:
     
     @property
     def width(self) -> int:
-        return self.size.width
+        return self.right - self.left
     @property
     def height(self) -> int:
-        return self.size.height
+        return self.lower - self.upper
+    
+    @property
+    def size(self) -> Size:
+        return Size(self.width, self.height)
+    
     # see definition of 'box': https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.paste
 
     @property
@@ -44,14 +50,14 @@ class Box:
     def area(self) -> int:
         return self.size.area
     
-    def scale(self, scale: float) -> "Box":
+    def scale(self, scale: float) -> Box:
         return Box(
             int(round(self.left * scale)),
             int(round(self.upper * scale)),
             int(round(self.right * scale)),
             int(round(self.lower * scale))
         )
-    def copy_box(self) -> "Box":
+    def copy_box(self) -> Box:
         return Box(
             self.left,
             self.upper,
@@ -73,7 +79,7 @@ class Box:
     def box_to_string(self) -> str:
         return f'Box({self.left}, {self.upper}, {self.right}, {self.lower})'
     
-    def remove_margin(self, margin: int) -> "Box":
+    def remove_margin(self, margin: int) -> Box:
         padding = int(round(margin/2))
         return Box(
             self.left + padding,
@@ -82,7 +88,7 @@ class Box:
             self.lower - padding
         )
     
-    def is_wedged(self, bounding: "Box") -> bool:
+    def is_wedged(self, bounding: Box) -> bool:
         # a box is wedged when it is twisted so it hits its bounding box
         return (
             self.upper <= bounding.upper or
@@ -91,11 +97,18 @@ class Box:
             self.right >= bounding.right
         )
 
-    def rotate(self, degrees: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> "Box":
+    def resize(self, size: tuple[int, int]) -> Box:
+        return Box(
+            self.left,
+            self.upper,
+            self.left + size[0],
+            self.upper + size[1]
+        )
+    def rotate(self, degrees: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Box:
         native_box = native_rotate_box(self.to_native(), degrees, direction.value)
         return Box.from_native(native_box)
     
-    def rotate_until_wedged(self, bounding: "Box", direction: RotateDirection = RotateDirection.CLOCKWISE) -> float:
+    def rotate_until_wedged(self, bounding: Box, direction: RotateDirection = RotateDirection.CLOCKWISE) -> float:
         result = 0
         rotation_increment = 5
         box = self.copy_box()
@@ -117,7 +130,7 @@ class Box:
         )
     
     @staticmethod
-    def from_native(native_box) -> "Box":
+    def from_native(native_box) -> Box:
         return Box(
             native_box['left'],
             native_box['upper'],

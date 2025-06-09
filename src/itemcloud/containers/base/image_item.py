@@ -1,5 +1,4 @@
 from __future__ import annotations
-import csv
 import os
 from PIL import Image, ImageDraw, ImageFilter, ImagePalette, _typing
 from typing import Any, Dict, IO, List, Literal
@@ -10,11 +9,12 @@ from itemcloud.containers.base.item import (Item, ItemType)
 from itemcloud.box import RotateDirection 
 from itemcloud.util.display_map import (
     DISPLAY_MAP_TYPE,
-    img_to_display_mask
+    img_to_display_map
 )
 from itemcloud.size import Size
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.util.parsers import validate_row, to_unused_filepath
+from itemcloud.item_factory import (load_rows, write_rows)
 
 
 def to_filepath_parts(filepath: str) -> Dict[str, str]:
@@ -37,15 +37,15 @@ class ImageItem(Item):
         self._image = image
         self._filepath = filepath
         self._versions = version_stack
-        self._display_mask = img_to_display_mask(image)
+        self._display_map = img_to_display_map(image)
 
     @property
     def type(self) -> ItemType:
         return ItemType.IMAGE
 
     @property
-    def display_mask(self) -> DISPLAY_MAP_TYPE:
-        return self._display_mask
+    def display_map(self) -> DISPLAY_MAP_TYPE:
+        return self._display_map
 
     @property
     def filepath(self) -> str:
@@ -86,7 +86,7 @@ class ImageItem(Item):
         self._image = reset_version._image
         self._filepath = reset_version._filepath
         self._versions = reset_version._versions
-        self._display_mask = reset_version._display_mask
+        self._display_map = reset_version._display_map
         return True    
 
     def reset_to_original_version(self) -> Item:
@@ -263,21 +263,12 @@ class ImageItem(Item):
         image_filepath = to_unused_filepath(directory, name, 'png')
         self._image.save(image_filepath, 'png')
         row[IMAGE_FILEPATH] = image_filepath
-        csv_filepath = to_unused_filepath(directory, name, 'csv')
-        with open(csv_filepath, 'w') as file:
-            csv_writer = csv.DictWriter(file, fieldnames=list(row.keys()))
-            csv_writer.writeheader()
-            csv_writer.writerow(row)
-        return csv_filepath        
+        return write_rows(self.to_write_item_filename(directory, name), [row])
 
     @staticmethod
-    def load_image(row: Dict[str, Any]) -> ImageItem:
+    def load_row(row: Dict[str, Any]) -> Item:
         validate_row(row, [IMAGE_FILEPATH])
         return ImageItem.open(row[IMAGE_FILEPATH])
-
-    @staticmethod
-    def load_item(row: Dict[str, Any]) -> Item:
-        return ImageItem.load_image(row)
 
 
 IMAGE_FILEPATH = 'image_filepath'

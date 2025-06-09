@@ -1,12 +1,17 @@
 from PIL import Image
 import numpy as np
 from enum import Enum
-from itemcloud.native.mask import native_write_to_margined_mask
+from itemcloud.box import Box
+from itemcloud.native.display_map import (
+    native_write_to_margined_item,
+    native_write_to_target,
+    native_find_expanded_box
+)
 DISPLAY_NP_DATA_TYPE = np.uint32
 DISPLAY_MAP_TYPE = np.ndarray[DISPLAY_NP_DATA_TYPE, DISPLAY_NP_DATA_TYPE]
 DISPLAY_BUFFER_TYPE = np.ndarray[DISPLAY_NP_DATA_TYPE]
 
-class MaskFillType(Enum):
+class MapFillType(Enum):
     TRANSPARENT = 0
     OPAQUE = 1
 
@@ -32,9 +37,9 @@ def has_transparency(img: Image.Image) -> bool:
 def is_transparent(img_pixel) -> bool:
     return len(img_pixel) == 4 and 0 == img_pixel[3]
 
-def img_to_display_mask(img: Image.Image, mask_fill_type: MaskFillType = MaskFillType.TRANSPARENT) -> DISPLAY_MAP_TYPE:
+def img_to_display_map(img: Image.Image, map_fill_type: MapFillType = MapFillType.TRANSPARENT) -> DISPLAY_MAP_TYPE:
     result = create_display_map((img.width, img.height), 1)
-    if mask_fill_type == MaskFillType.TRANSPARENT:
+    if map_fill_type == MapFillType.TRANSPARENT:
         if has_transparency(img):
             pixels = img.load()
             for x in range(img.width):
@@ -43,16 +48,24 @@ def img_to_display_mask(img: Image.Image, mask_fill_type: MaskFillType = MaskFil
                         result[x,y] = 0
     return result
 
-def size_to_display_mask(size: tuple[int, int]) -> DISPLAY_MAP_TYPE:
+def size_to_display_map(size: tuple[int, int]) -> DISPLAY_MAP_TYPE:
     return create_display_map(size, 1)
 
-def add_margin_to_display_mask(mask: DISPLAY_MAP_TYPE, margin: int, mask_fill_type: MaskFillType) -> DISPLAY_MAP_TYPE:
-    result = create_display_map((mask.shape[0] + margin, mask.shape[1] + margin), mask_fill_type.value)
-    if mask_fill_type == MaskFillType.TRANSPARENT:
-        native_write_to_margined_mask(mask, result)
+def add_margin_to_display_map(item: DISPLAY_MAP_TYPE, margin: int, map_fill_type: MapFillType = MapFillType.TRANSPARENT) -> DISPLAY_MAP_TYPE:
+    result = create_display_map((item.shape[0] + margin, item.shape[1] + margin), map_fill_type.value)
+    if map_fill_type == MapFillType.TRANSPARENT:
+        native_write_to_margined_item(item, result)
     return result
 
-def overlay_display_masks(mask1: DISPLAY_MAP_TYPE, mask2: DISPLAY_MAP_TYPE, return_size: tuple[int, int]) -> DISPLAY_MAP_TYPE:
+def write_display_map(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, target_location: Box, item_value: int):
+    native_write_to_target(item, target, target_location.upper, target_location.left, item_value)
     
+class Direction(Enum):
+    LEFT = 0
+    UP = 1
+    RIGHT = 2
+    DOWN = 3
 
 
+def find_expanded_box(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, box: Box, direction: Direction) -> Box:
+    return Box.from_native(native_find_expanded_box(item, target, box, direction))

@@ -26,6 +26,9 @@ def to_unused_filepath(directory: str, name: str, suffix: str) -> str:
         result = '{0}.{1}.{2}'.format(filepath_prefix, version, suffix)
     return result
 
+def filepath_to_name(filepath: str) -> str:
+    return os.path.splitext(os.path.basename(filepath))[0]
+
 def is_empty(value: str | None) -> bool:
     return value in ['', None]
 

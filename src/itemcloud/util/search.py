@@ -8,13 +8,13 @@ from itemcloud.util.search_types import (
     RelativePosition,
     SearchPattern
 )
-from itemcloud.native.box_search import (
+from itemcloud.native.search import (
     native_start_search,
     native_search,
     native_next_search
 )
 
-class BoxSearchProperties:
+class SearchProperties:
     def __init__(
         self,
         area: Box,
@@ -44,21 +44,21 @@ class BoxSearchProperties:
             self.to_native()
         ))
 
-    def next(self, last_found: Box) -> 'BoxSearchProperties':
-        return BoxSearchProperties.from_native(native_next_search(
+    def next(self, last_found: Box) -> 'SearchProperties':
+        return SearchProperties.from_native(native_next_search(
             last_found.to_native(),
             self.to_native()
         ))
 
     @staticmethod
-    def start(area: Box, pattern: SearchPattern) -> 'BoxSearchProperties':
-        return BoxSearchProperties.from_native(native_start_search(
+    def start(area: Box, pattern: SearchPattern) -> 'SearchProperties':
+        return SearchProperties.from_native(native_start_search(
             area.to_native(),
             pattern.name
         ))
 
     @staticmethod
-    def from_native(native_box_search_properties) -> 'BoxSearchProperties':
+    def from_native(native_box_search_properties) -> 'SearchProperties':
         pattern: SearchPattern
         positions: List[RelativePosition] = list()
         distance: RelativeDistance
@@ -75,7 +75,7 @@ class BoxSearchProperties:
                 if pos.value == native_pos:
                     positions.append(pos)
         
-        return BoxSearchProperties(
+        return SearchProperties(
             Box.from_native(native_box_search_properties['area']),
             int(native_box_search_properties['origin_x']),
             int(native_box_search_properties['origin_y']),

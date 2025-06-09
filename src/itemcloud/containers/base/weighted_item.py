@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Callable, List
+from typing import Any, Dict
 from itemcloud.size import (
     ResizeType,
     Size,
@@ -9,6 +9,8 @@ from itemcloud.containers.base.item import Item
 from itemcloud.containers.base.named_item import NamedItem
 from itemcloud.layout.base.layout_item import LayoutItem
 from itemcloud.box import Box
+from itemcloud.box import RotateDirection
+from itemcloud.item_factory import create_weighted_item, load_rows
 from itemcloud.native.weighted_size import (
     native_create_weighted_size,
     native_create_weighted_size_array,
@@ -20,6 +22,20 @@ class WeightedItem(NamedItem):
         NamedItem.__init__(self, name, item)
         self.weight = weight
 
+    def resize_item(self, size: tuple[int, int]) -> Item:
+        return create_weighted_item(self.weight, super().resize_item(size))
+
+    def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
+        return create_weighted_item(self.weight, super().rotate_item(angle, direction))
+
+    def copy_item(self) -> Item:
+        return create_weighted_item(self.weight, super().copy_item())
+
+    def to_csv_row(self) -> Dict[str, Any]:
+        return {
+            ITEM_WEIGHT: self.weight,
+        }.update(super().to_csv_row())
+
     def to_layout_item(
         self,
         placement_box: Box,
@@ -28,7 +44,7 @@ class WeightedItem(NamedItem):
         reservation_no: int,
         latency_str: str
     ) -> LayoutItem:
-        return create_layout_item(self.type, self.name, placement_box, rotated_degrees, reservation_box, reservation_no, latency_str )
+        return create_layout_item(self.type, self.name, placement_box, rotated_degrees, reservation_box, reservation_no, latency_str, self )
     
     def to_fitted_weighted_item(
         self, 
@@ -41,7 +57,18 @@ class WeightedItem(NamedItem):
             self.item.resize_item((width, height))
         )
 
+    @staticmethod
+    def load_row(row: Dict[str, Any]) -> Item:
+        return create_weighted_item(row[ITEM_WEIGHT], NamedItem.load_row(row))
+
+    @staticmethod
+    def load_item(filepath: str) -> NamedItem:
+        row = load_rows(filepath)[0]
+        return WeightedItem.load_row(row)
+
 ITEM_WEIGHT = 'weight'
+
+
 def to_native_weighted_size(weighted_item: WeightedItem):
     return native_create_weighted_size(weighted_item.weight, weighted_item.to_native_size())
 
@@ -75,10 +102,3 @@ def resize_items_to_proportionally_fit(
         result.append(from_native_weighted_size(weighted_items[i], native_weighted_size_array[i]))
     return result
     
-
-load_weighted_items_f = Callable[
-    [
-        str, #csv_filepath
-    ],
-    List[WeightedItem]
-]

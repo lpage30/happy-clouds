@@ -1,5 +1,4 @@
 from __future__ import annotations
-import csv
 from typing import List, Dict, Any
 from itemcloud.size import Size
 from itemcloud.util.colors import (Color, NamedColor, pick_color, ColorSource)
@@ -7,7 +6,7 @@ from itemcloud.util.fonts import (Font, FontName, FontSize, FontTextAttributes,p
 from itemcloud.util.font_categories import (FontTypeCategories, FontUsageCategory)
 from itemcloud.util.display_map import (
     DISPLAY_MAP_TYPE,
-    size_to_display_mask
+    size_to_display_map
 )
 from itemcloud.containers.base.image_item import (
     ImageItem
@@ -25,6 +24,7 @@ from itemcloud.util.parsers import (
     field_exists,
     to_unused_filepath
 )
+from itemcloud.item_cloud import write_rows
 class TextItem(Item):
     def __init__(
         self,
@@ -42,15 +42,15 @@ class TextItem(Item):
         self._foreground_color = foreground_color
         self._background_color = background_color
         self._versions = version_stack
-        self.reset_display_mask()
+        self.reset_display_map()
 
     @property
     def type(self) -> ItemType:
         return ItemType.TEXT
 
     @property
-    def display_mask(self) -> DISPLAY_MAP_TYPE:
-        return self._display_mask
+    def display_map(self) -> DISPLAY_MAP_TYPE:
+        return self._display_map
 
     @property
     def version_count(self) -> int:
@@ -89,14 +89,14 @@ class TextItem(Item):
         self._foreground_color = reset_version.foreground_color
         self._background_color = reset_version.background_color
         self._versions = reset_version.version_stack
-        self.reset_display_mask()
+        self.reset_display_map()
         return True    
 
     def reset_to_original_version(self) -> bool:
         return self.reset_to_version()
 
-    def reset_display_mask(self) -> None:
-        self._display_mask = size_to_display_mask((self._width, self._height))        
+    def reset_display_map(self) -> None:
+        self._display_map = size_to_display_map((self._width, self._height))        
 
 
     def resize(self, size: Size) -> TextItem:
@@ -113,7 +113,7 @@ class TextItem(Item):
         text_box = new_font.to_box(self._text)
         result.width = text_box.width
         result.height = text_box.height
-        result.reset_display_mask()     
+        result.reset_display_map()     
         return result    
     
     def rotate(self, angle: float) -> TextItem:
@@ -199,16 +199,11 @@ class TextItem(Item):
         }
 
     def write_row(self, name: str, directory: str, row: Dict[str, Any]) -> str:
-        csv_filepath = to_unused_filepath(directory, name, 'csv')
-        with open(csv_filepath, 'w') as file:
-            csv_writer = csv.DictWriter(file, fieldnames=list(row.keys()))
-            csv_writer.writeheader()
-            csv_writer.writerow(row)
-        return csv_filepath        
+        return write_rows(self.to_write_item_filename(directory, name), [row])
 
 
     @staticmethod
-    def load(row: Dict[str, Any]) -> TextItem:
+    def load_row(row: Dict[str, Any]) -> Item:
         validate_row(row, [TEXT_TEXT])
 
         font_name = get_value_or_default(
@@ -252,13 +247,10 @@ class TextItem(Item):
             text_box = result.font.to_box(result.text)
             result.width = text_box.width
             result.height = text_box.height
-            result.reset_display_mask()     
+            result.reset_display_map()     
 
         return result
 
-    @staticmethod
-    def load_item(row: Dict[str, Any]) -> Item:
-        return TextItem.load(row)
 
 TEXT_TEXT = 'text'
 TEXT_FONT_NAME_PATH = 'font_name_path'

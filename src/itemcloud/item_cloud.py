@@ -1,12 +1,13 @@
 import warnings
 import numpy as np
-from itemcloud.image_item import ImageItem
+from itemcloud.containers.base.image_item import ImageItem
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.util.parsers import (parse_to_float, parse_to_int)
-from itemcloud.box_reservations import (BoxReservations, SampledUnreservedBoxOpening)
+from itemcloud.reservations import (Reservations, SampledUnreservedOpening)
 from itemcloud.util.search_types import SearchPattern
-from itemcloud.util.box_search import BoxSearchProperties
+from itemcloud.util.search import SearchProperties
+from itemcloud.containers.base.item import Item
 from itemcloud.util.time_measure import TimeMeasure
 from itemcloud.layout.base.layout import (
     LayoutContour,
@@ -231,7 +232,7 @@ class ItemCloud(object):
             self._check_generated()
             layout = self.layout_
         self.layout_ = layout
-        reservations = BoxReservations.create_reservations(layout.canvas.reservation_map, self._logger)
+        reservations = Reservations.create_reservations(layout.canvas.reservation_map, self._logger)
 
         new_items: list[LayoutItem] = list()
         
@@ -243,43 +244,46 @@ class ItemCloud(object):
         maximized_count = 0
 
         for i in range(total_items - 1, -1, -1):
-            item: LayoutItem = layout.items[i]
+            layout_item: LayoutItem = layout.items[i]
             item_measure = TimeMeasure()
             item_measure.start()
-            self._logger.push_indent('item-{0}[{1}/{2}]'.format(item.name, total_items - i, total_items))
+            self._logger.push_indent('item-{0}[{1}/{2}]'.format(layout_item.name, total_items - i, total_items))
             self._logger.info('Maximizing...')
-            new_reservation_box = reservations.maximize_existing_reservation(item.reservation_box)
+            new_item, new_reservation_box = reservations.maximize_existing_reservation(layout_item.item, layout_item.reservation_box)
             item_measure.stop()
-            if item.reservation_box.equals(new_reservation_box):
+            if layout_item.reservation_box.equals(new_reservation_box):
                 self._logger.info('Already Maximized ({0})'.format(item_measure.latency_str()))
-                new_items.append(item)
+                new_items.append(layout_item)
                 self._logger.pop_indent()
                 continue
+
             self._logger.info('Maximized {0} -> {1} ({0})'.format(
-                item.reservation_box.size.size_to_string(),
+                layout_item.reservation_box.size.size_to_string(),
                 new_reservation_box.size.size_to_string(),
                 item_measure.latency_str()
             ))
-            margin = 2 * (item.reservation_box.left - item.placement_box.left)
-            if reservations.reserve_opening(item.name, item.reservation_no, new_reservation_box):
+            margin = 2 * (layout_item.reservation_box.left - layout_item.placement_box.left)
+            if reservations.reserve_opening(layout_item.name, layout_item.reservation_no, new_reservation_box, new_item.display_map):
+                
                 new_items.append(
-                    item.to_reserved_item(
+                    layout_item.to_reserved_item(
                         new_reservation_box.remove_margin(margin),
-                        item.rotated_degrees,
+                        layout_item.rotated_degrees,
                         new_reservation_box,
-                        item_measure.latency_str()
+                        item_measure.latency_str(),
+                        new_item
                     )
                 )
                 maximized_count += 1
                 self._logger.info('resized {0} -> {1}. ({2})'.format(
-                    item.reservation_box.box_to_string(),
+                    layout_item.reservation_box.box_to_string(),
                     new_reservation_box.box_to_string(),
                     item_measure.latency_str(),
                 ))
             else:
                 self._logger.error('Dropping new reservation. Failed to reserve maximized position. rotated_degrees ({1}), resize({2} -> {3}) ({4})'.format(
-                    item.rotated_degrees,
-                    item.reservation_box.box_to_string(),
+                    layout_item.rotated_degrees,
+                    layout_item.reservation_box.box_to_string(),
                     new_reservation_box.box_to_string(),
                     item_measure.latency_str(),
                 ))
@@ -334,8 +338,8 @@ class ItemCloud(object):
             raise ValueError("We need at least 1 item to plot a ItemCloud, "
                              "got %d." % len(proportional_items))
         
-        reservations = BoxReservations(self._logger, ObjectCloud_size, self._total_threads)
-        search_properties = BoxSearchProperties.start(reservations.reservation_area, self._search_pattern)
+        reservations = Reservations(self._logger, ObjectCloud_size, self._total_threads)
+        search_properties = SearchProperties.start(reservations.reservation_area, self._search_pattern)
 
         layout_items: list[LayoutItem] = list()
 
@@ -377,11 +381,11 @@ class ItemCloud(object):
         generation_measure.start()
         for index in range(total):
             weight = proportional_items[index].weight
-            item_size: Size = proportional_items[index]
+            item: Item = proportional_items[index].item
             name = proportional_items[index].name
             measure = TimeMeasure()
             measure.start()
-            self._logger.push_indent('image-{0}[{1}/{2}]'.format(name, index + 1, total))
+            self._logger.push_indent('{0}-{1}[{2}/{3}]'.format(item.type.name, name, index + 1, total))
 
             if weight == 0:
                 self._logger.info('Dropping 0 weight'.format(
@@ -392,8 +396,8 @@ class ItemCloud(object):
 
             self._logger.info('Finding position in ItemCloud')
             
-            sampled_result: SampledUnreservedBoxOpening = reservations.sample_to_find_unreserved_opening(
-                item_size,
+            sampled_result: SampledUnreservedOpening = reservations.sample_to_find_unreserved_opening(
+                item,
                 self._min_item_size,
                 self._margin,
                 self._resize_type,
@@ -406,12 +410,13 @@ class ItemCloud(object):
                 self._logger.info('Found position: samplings({0}), rotated_degrees ({1}), resize({2}->{3}) ({4})'.format(
                     sampled_result.sampling_total,
                     sampled_result.rotated_degrees,
-                    item_size.size_to_string(),
-                    sampled_result.new_size.size_to_string(),
+                    item.size_to_string(),
+                    sampled_result.new_item.size_to_string(),
                     measure.latency_str()
                 ))
                 reservation_no = index + 1
-                if reservations.reserve_opening(name, reservation_no, sampled_result.opening_box):
+                if reservations.reserve_opening(name, reservation_no, sampled_result.opening_box, sampled_result.new_item.display_map):
+                    proportional_items[index].item = sampled_result.new_item
                     layout_items.append(proportional_items[index].to_layout_item(
                         sampled_result.actual_box,
                         sampled_result.rotated_degrees,
@@ -424,8 +429,8 @@ class ItemCloud(object):
                     reservation_no = index
                     self._logger.error('Dropping item: samplings({0}). Failed to reserve position. rotated_degrees ({1}), resize({2} -> {3}) ({4})'.format(
                         sampled_result.sampling_total,
-                        item_size.size_to_string(),
-                        sampled_result.new_size.size_to_string(),
+                        item.size_to_string(),
+                        sampled_result.size_to_string(),
                         measure.latency_str()
                     ))
 
@@ -433,8 +438,8 @@ class ItemCloud(object):
                 self._logger.info('Dropping item: samplings({0}). {1} resize({2} -> {3}) ({4})'.format(
                     sampled_result.sampling_total,
                     'Item resized too small' if sampled_result.new_size.is_less_than(self._min_item_size) else '',
-                    item_size.size_to_string(),
-                    sampled_result.new_size.size_to_string(),
+                    item.size_to_string(),
+                    sampled_result.new_item.size_to_string(),
                     measure.latency_str()
                 ))
                 

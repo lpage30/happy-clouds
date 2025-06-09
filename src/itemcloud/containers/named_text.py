@@ -13,7 +13,6 @@ class NamedText(NamedItem):
         text: TextItem
     ) -> None:
         super().__init__(name, text)
-        self._text = text
 
     def draw_on_image(
         self,
@@ -24,7 +23,7 @@ class NamedText(NamedItem):
         as_watermark: bool = False,
         xy: tuple[float, float] | None = None,
     ) -> ImageItem:
-        return self._text.draw_on_image(
+        return self.item.draw_on_image(
             image,
             rotated_degrees,
             size,
@@ -32,7 +31,7 @@ class NamedText(NamedItem):
             as_watermark,
             xy
         )
-    
+
 
 TEXT_HEADERS = [
     ITEM_NAME,

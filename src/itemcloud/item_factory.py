@@ -1,4 +1,5 @@
-from typing import Any, Dict
+import csv
+from typing import Any, Dict, List
 from itemcloud.util.parsers import field_exists
 from itemcloud.box import Box
 from itemcloud.containers.base.item import ItemType, Item
@@ -33,19 +34,6 @@ def get_item_type(row: Dict[str, Any]) -> ItemType:
         raise ValueError('Unable to resolve row to ItemType {0}'.format(row.__str__()))
 
 
-def load_item(row: Dict[str, Any]) -> Item:
-    type = get_item_type(row)
-    match type:
-        case ItemType.IMAGE:
-            return ImageItem.load_item(row)
-        case ItemType.TEXT:
-            return TextItem.load_item(row)
-        case ItemType.TEXTIMAGE:
-            return TextImageItem.load_item(row)
-        case _:
-            raise ValueError(f"unsupported ItemType {type}")
-
-
 def create_named_item(name: str, item: Item) -> NamedItem:
     match item.type:
         case ItemType.IMAGE:
@@ -55,7 +43,7 @@ def create_named_item(name: str, item: Item) -> NamedItem:
         case ItemType.TEXTIMAGE:
             return NamedTextImage(name, item)
         case _:
-            raise ValueError(f"unsupported ItemType {item.type}")
+            raise ValueError(f"unsupported ItemType {item.type.name}")
 
 
 def create_weighted_item(weight: float, named_item: NamedItem) -> WeightedItem:
@@ -67,29 +55,41 @@ def create_weighted_item(weight: float, named_item: NamedItem) -> WeightedItem:
         case ItemType.TEXTIMAGE:
             return WeightedTextImage(weight, named_item)
         case _:
-            raise ValueError(f"unsupported ItemType {named_item.type}")
+            raise ValueError(f"unsupported ItemType {named_item.type.name}")
 
 def create_layout_item(
-    type: ItemType,
     name: str,
     placement_box: Box,
     rotated_degrees: int | None,
     reservation_box: Box,        
     reservation_no: int,
-    latency_str: str
+    latency_str: str,
+    item: Item
 ) -> LayoutItem:
+    match item.type:
+        case ItemType.IMAGE:
+            return LayoutImage(name, placement_box, rotated_degrees, reservation_box, reservation_no, latency_str, item)
+        case ItemType.TEXT:
+            return LayoutText(name, placement_box, rotated_degrees, reservation_box, reservation_no, latency_str, item)
+        case ItemType.TEXTIMAGE:
+            return LayoutTextImage(name, placement_box, rotated_degrees, reservation_box, reservation_no, latency_str, item)
+        case _:
+            raise ValueError(f"unsupported ItemType {type.name}")
+
+def load_item_row(row: Dict[str, Any]) -> Item:
+    type = get_item_type(row)
     match type:
         case ItemType.IMAGE:
-            return LayoutImage(name, placement_box, rotated_degrees, reservation_box, reservation_no, latency_str)
+            return ImageItem.load_row(row)
         case ItemType.TEXT:
-            return LayoutText(name, placement_box, rotated_degrees, reservation_box, reservation_no, latency_str)
+            return TextItem.load_row(row)
         case ItemType.TEXTIMAGE:
-            return LayoutTextImage(name, placement_box, rotated_degrees, reservation_box, reservation_no, latency_str)
+            return TextImageItem.load_row(row)
         case _:
-            raise ValueError(f"unsupported ItemType {type}")
+            raise ValueError(f"unsupported ItemType {type.name}")
 
-def load_named_item(row: Dict[str, Any]) -> NamedItem:
-    item = load_item(row)
+def load_named_item_row(row: Dict[str, Any]) -> NamedItem:
+    item = load_item_row(row)
     match item.type:
         case ItemType.IMAGE:
             return NamedImage(item, item.name)
@@ -98,10 +98,10 @@ def load_named_item(row: Dict[str, Any]) -> NamedItem:
         case ItemType.TEXTIMAGE:
             return NamedTextImage(item.name, item)
         case _:
-            raise ValueError(f"unsupported ItemType {item.type}")
+            raise ValueError(f"unsupported ItemType {item.type.name}")
 
-def load_weighted_item(row: Dict[str, Any]) -> WeightedItem:
-    named_item = load_named_item(row)
+def load_weighted_item_row(row: Dict[str, Any]) -> WeightedItem:
+    named_item = load_named_item_row(row)
     weight = float(row[ITEM_WEIGHT])
     match named_item.type:
         case ItemType.IMAGE:
@@ -111,4 +111,34 @@ def load_weighted_item(row: Dict[str, Any]) -> WeightedItem:
         case ItemType.TEXTIMAGE:
             return WeightedTextImage(weight, named_item)
         case _:
-            raise ValueError(f"unsupported ItemType {item.type}")
+            raise ValueError(f"unsupported ItemType {item.type.name}")
+
+def load_rows(csv_filepath: str) -> List[Dict[str, Any]]:
+    try:
+        result: List[Dict[str, Any]] = list()
+        with open(csv_filepath, 'r', encoding='utf-8-sig') as file:    
+            csv_reader = csv.DictReader(file)
+            for row in csv_reader:
+                result.append(row)
+        return result
+    except Exception as e:
+        raise Exception(str(e))
+
+def write_rows(csv_filepath: str, rows: List[Dict[str,Any]]) -> str:
+    field_names = {}
+    for row in rows:
+        field_names = sorted(field_names.update(set(row.keys())))
+    field_names = list(field_names)
+    empty_row = dict.fromkeys(field_names)
+    try:
+        with open(csv_filepath, 'w') as file:
+            csv_writer = csv.DictWriter(file, fieldnames=field_names)
+            csv_writer.writeheader()
+            for row in rows:
+                record = dict()
+                record.update(empty_row)
+                record.update(row)
+                csv_writer.writerow(dict(sorted(record.entries())))
+        return csv_filepath        
+    except Exception as e:
+        raise Exception(str(e))

@@ -11,7 +11,7 @@ from itemcloud.util.colors import RGBAColor
 from itemcloud.box import RotateDirection 
 from itemcloud.util.display_map import (
     DISPLAY_MAP_TYPE,
-    img_to_display_mask
+    img_to_display_map
 )
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.util.parsers import get_value_or_default
@@ -42,15 +42,15 @@ class TextImageItem(Item):
         if self.height < text.height:
             self._height = text.height
         self._combined_image = self.to_image()
-        self._display_mask = self._combined_image.display_mask()
+        self._display_map = self._combined_image.display_map()
 
     @property
     def type(self) -> ItemType:
         return ItemType.TEXTIMAGE
 
     @property
-    def display_mask(self) -> DISPLAY_MAP_TYPE:
-        return self._display_mask
+    def display_map(self) -> DISPLAY_MAP_TYPE:
+        return self._display_map
 
     @property
     def version_count(self) -> int:
@@ -90,14 +90,14 @@ class TextImageItem(Item):
         self._width = reset_version._width
         self._height = reset_version._height
         self._combined_image = reset_version._combined_image
-        self.reset_display_mask()
+        self.reset_display_map()
         return True    
 
     def reset_to_original_version(self) -> bool:
         return self.reset_to_version()
 
-    def reset_display_mask(self) -> None:
-        self._display_mask = img_to_display_mask(self._combined_image)        
+    def reset_display_map(self) -> None:
+        self._display_map = img_to_display_map(self._combined_image)        
 
     def resize(self, size: Size) -> TextImageItem:
         return TextImageItem(
@@ -165,16 +165,13 @@ class TextImageItem(Item):
         return self._image.write_row(name, directory, row)
 
     @staticmethod
-    def load(row: Dict[str, Any]) -> TextImageItem:
-        image = ImageItem.load_image(row)
-        text = TextItem.load(row)
+    def load_row(row: Dict[str, Any]) -> Item:
+        image = ImageItem.load_row(row)
+        text = TextItem.load_row(row)
         return TextImageItem(
             image,
             text,
             get_value_or_default(TEXT_TRANSPARENCY_PERCENT, row, 1.0, float)
         )
-    @staticmethod
-    def load_item(row: Dict[str, Any]) -> Item:
-        return TextImageItem.load(row)
-
+    
 TEXT_TRANSPARENCY_PERCENT = 'transparency_percent'

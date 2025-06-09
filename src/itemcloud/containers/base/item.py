@@ -7,13 +7,14 @@ from itemcloud.box import RotateDirection
 from itemcloud.size import Size
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.containers.base.image_item import ImageItem
+from itemcloud.util.parsers import to_unused_filepath
 
 class ItemType(Enum):
     IMAGE = 1
     TEXT = 2
     TEXTIMAGE = 3
 
-class Item(ABC):
+class Item(Size):
 
     @abstractmethod
     @property
@@ -22,7 +23,7 @@ class Item(ABC):
 
     @abstractmethod
     @property
-    def display_mask(self) -> DISPLAY_MAP_TYPE:
+    def display_map(self) -> DISPLAY_MAP_TYPE:
         pass
 
     @abstractmethod
@@ -76,13 +77,19 @@ class Item(ABC):
         pass
 
     @abstractmethod
+    def to_write_item_filename(self, name: str, directory: str) -> str:
+        return to_unused_filepath(directory, name, 'csv')
+    
+    @abstractmethod
     def write_row(self, name: str, directory: str, row: Dict[str, Any]) -> str:
         pass
     
+    def to_native_size
     @staticmethod
     @abstractmethod
-    def load_item(row: Dict[str, Any]) -> Item:
+    def load_row(row: Dict[str, Any]) -> Item:
         pass
+
 
 
 
