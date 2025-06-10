@@ -1,5 +1,5 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, Dict
 from enum import Enum
 from itemcloud.util.display_map import DISPLAY_MAP_TYPE
@@ -16,33 +16,33 @@ class ItemType(Enum):
 
 class Item(Size):
 
-    @abstractmethod
     @property
+    @abstractmethod
     def type(self) -> ItemType:
         pass 
 
-    @abstractmethod
     @property
+    @abstractmethod
     def display_map(self) -> DISPLAY_MAP_TYPE:
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def version_count(self) -> int:
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def width(self) -> int:
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def height(self) -> int:
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def size(self) -> tuple[int, int]:
         pass
 
@@ -84,7 +84,6 @@ class Item(Size):
     def write_row(self, name: str, directory: str, row: Dict[str, Any]) -> str:
         pass
     
-    def to_native_size
     @staticmethod
     @abstractmethod
     def load_row(row: Dict[str, Any]) -> Item:
