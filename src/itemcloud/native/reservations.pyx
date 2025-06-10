@@ -15,6 +15,16 @@ from itemcloud.native.display_map cimport (
     display_map_box,
     display_map_size
 )
+from itemcloud.native.size cimport (
+    Size,
+    create_size,
+    size_area
+)
+from itemcloud.native.box cimport (
+    Box,
+    create_box,
+    create_box_array
+)
 
 cdef int _is_unreserved(
     Reservations self,
@@ -30,7 +40,8 @@ cdef int _is_unreserved(
     )
 
 cdef Box[::1] find_openings(
-    Reservations self, 
+    Reservations self,
+    DISPLAY_BUFFER_TYPE self_position_buffer,
     DISPLAY_MAP_TYPE self_reservation_map,
     DISPLAY_MAP_TYPE party,    
 ) noexcept nogil:
@@ -99,9 +110,7 @@ def native_create_reservations(
     int num_threads,
     native_map_size,
     native_map_box,
-    int buffer_length,
-    DISPLAY_MAP_TYPE reservation_map,
-    unsigned int[:] position_buffer
+    int buffer_length
 ):
     cdef Reservations native_reservations = create_reservations(
         num_threads,
@@ -111,21 +120,15 @@ def native_create_reservations(
     )
     return native_reservations
 
-def native_maximize_existing_reservation(
-    native_reservations,
-    DISPLAY_MAP_TYPE reservation_map,
-    native_existing_reservation
-): # return native_box
-    return maximize_existing_reservation(native_reservations, reservation_map, native_existing_reservation)
-
-
 def native_find_openings(
     Reservations self, 
+    DISPLAY_BUFFER_TYPE self_position_buffer,
     DISPLAY_MAP_TYPE self_reservation_map,
     DISPLAY_MAP_TYPE party
 ):
     return find_openings(
         self,
+        self_position_buffer,
         self_reservation_map,
         party,
     )

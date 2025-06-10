@@ -4,9 +4,9 @@
 # distutils: language = c++
 # distutils: extra_compile_args = -std=c++11
 cimport cython
-from itemcloud.native.box cimpot Box, size
+from itemcloud.native.box cimport Box, size, contains
 from itemcloud.native.math cimport rounded_division
-from itemcloud.native.size cimport Size, size_to_rows, size_to_cols
+from itemcloud.native.size cimport Size
 
 cdef int is_outside_target(
     DISPLAY_MAP_TYPE item,
@@ -106,7 +106,7 @@ cdef void write_to_margined_item(
         for col in range(margined_cols):
             if get_map_cell(margined_item, row + padding, col) == 1:
                 for i in range(padding):
-                    set_map_cell(margined_item[row + i, col, 1);
+                    set_map_cell(margined_item, row + i, col, 1);
                 break_rows = 1
             if get_map_cell(margined_item, row, col + padding) == 1:
                 for i in range(padding):
@@ -118,11 +118,11 @@ cdef void write_to_margined_item(
     break_rows = 0
     for row in range(margined_rows - 1, 0, -1):
         for col in range(margined_cols - 1, 0, -1):
-            if get_map_cell(margined_item[row - padding, col) == 1:
+            if get_map_cell(margined_item, row - padding, col) == 1:
                 for i in range(padding):
-                    set_map_cell(margined_item[row - i, col, 1);
+                    set_map_cell(margined_item, row - i, col, 1);
                 break_rows = 1
-            if get_map_cell(margined_item[row, col - padding) == 1:
+            if get_map_cell(margined_item, row, col - padding) == 1:
                 for i in range(padding):
                     set_map_cell(margined_item, row, col - i, 1);
                 break
@@ -136,6 +136,7 @@ cdef Box find_expanded_box(
     Direction direction
 ) noexcept nogil:
     cdef Box target_box = display_map_box(target)
+    cdef Size target_size = size(target_box)
     cdef Box item_window = display_map_box(item)
     cdef Box edge = create_box(box.left, box.upper, box.right, box.lower)
     cdef Box result = create_box(box.left, box.upper, box.right, box.lower)
@@ -155,7 +156,7 @@ cdef Box find_expanded_box(
         edge = create_box(box.left, box.upper, box.right, box.upper)
         for row in range(edge.upper - 1, -1, -1):
             edge.upper = row
-            if 0 == contains(self.map_box, edge):
+            if 0 == contains(target_box, edge):
                 break
             elif 0 != can_fit_on_target(item, target, edge, item_window):
                 result.upper = edge.upper
@@ -163,10 +164,10 @@ cdef Box find_expanded_box(
     elif Direction.RIGHT == direction: # right
         edge = create_box(box.right, box.upper, box.right, box.lower)
         item_window = display_map_box(item)
-        item_window.left = item.right - 1
-        for col in range(edge.right + 1, self.map_size.width):
+        item_window.left = item_window.right - 1
+        for col in range(edge.right + 1, target_size.width):
             edge.right = col
-            if 0 == contains(self.map_box, edge):
+            if 0 == contains(target_box, edge):
                 break
             elif 0 != can_fit_on_target(item, target, edge, item_window):
                 result.right = edge.right
@@ -174,10 +175,10 @@ cdef Box find_expanded_box(
     elif Direction.DOWN == direction: # Down
         edge = create_box(box.left, box.lower, box.right, box.lower)
         item_window = display_map_box(item)
-        item_window.upper = item.lower - 1
-        for row in range(edge.lower + 1, self.map_size.height):
+        item_window.upper = item_window.lower - 1
+        for row in range(edge.lower + 1, target_size.height):
             edge.lower = row
-            if 0 == contains(self.map_box, edge):
+            if 0 == contains(target_box, edge):
                 break
             elif 0 != can_fit_on_target(item, target, edge, item_window):
                 result.lower = edge.lower

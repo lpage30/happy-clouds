@@ -74,8 +74,6 @@ class Reservations(object):
             self._map_size.to_native_size(),
             self._map_box.to_native(),
             self._buffer_length,
-            self._reservation_map,
-            self._position_buffer
         )
 
     @property
@@ -180,6 +178,7 @@ class Reservations(object):
         return from_native_box_array(
             native_find_openings(
                 self._native_reservations,
+                self._position_buffer,
                 self._reservation_map,
                 item
             )
@@ -196,9 +195,7 @@ class Reservations(object):
             result.num_threads,
             result._map_size.to_native_size(),
             result._map_box.to_native(),
-            result._buffer_length,
-            result._reservation_map,
-            result._position_buffer
+            result._buffer_length
         )
         return result
                 

@@ -1,7 +1,7 @@
 # cython: language_level=3
 # cython: boundscheck=False
 # cython: wraparound=False
-from itemcloud.native.display_map cimport DISPLAY_MAP_TYPE
+from itemcloud.native.display_map cimport DISPLAY_MAP_TYPE, DISPLAY_BUFFER_TYPE
 from itemcloud.native.size cimport Size, ResizeType
 from itemcloud.native.box cimport Box
 
@@ -20,7 +20,8 @@ cdef Reservations create_reservations(
 
 
 cdef Box[::1] find_openings(
-    Reservations self, 
+    Reservations self,
+    DISPLAY_BUFFER_TYPE self_position_buffer,
     DISPLAY_MAP_TYPE self_reservation_map,
     DISPLAY_MAP_TYPE party
 ) noexcept nogil
