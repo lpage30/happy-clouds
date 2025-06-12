@@ -5,7 +5,8 @@ from typing import Any, Dict, IO, List, Literal
 from collections.abc import Sequence
 import matplotlib.pyplot as plt
 import numpy as np
-from itemcloud.containers.base.item import (Item, ItemType)
+from itemcloud.containers.base.item_types import ItemType, IMAGE_FILEPATH
+from itemcloud.containers.base.item import Item
 from itemcloud.box import RotateDirection 
 from itemcloud.util.display_map import (
     DISPLAY_MAP_TYPE,
@@ -14,7 +15,7 @@ from itemcloud.util.display_map import (
 from itemcloud.size import Size
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.util.parsers import validate_row, to_unused_filepath
-from itemcloud.item_factory import (load_rows, write_rows)
+from itemcloud.util.csv_utils import write_rows
 
 
 def to_filepath_parts(filepath: str) -> Dict[str, str]:
@@ -271,4 +272,3 @@ class ImageItem(Item):
         return ImageItem.open(row[IMAGE_FILEPATH])
 
 
-IMAGE_FILEPATH = 'image_filepath'

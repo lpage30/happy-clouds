@@ -27,8 +27,8 @@ class WeightedText(WeightedItem, NamedText):
         weight: float,
         namedText: NamedText
     ) -> None:
-        NamedText.__init__(self, namedText.name, namedText.text, namedText.font, namedText.foreground_color, namedText.background_color)
-        WeightedItem.__init__(self, weight, self.name, self.width, self.height)
+        NamedText.__init__(self, namedText.name, namedText.item)
+        WeightedItem.__init__(self, weight, namedText.name, namedText.item)
         
 
 WEIGHTED_TEXT_NAME = ITEM_NAME

@@ -1,9 +1,13 @@
 from __future__ import annotations
+from itemcloud.containers.base.item_factory import load_item_row
 from itemcloud.containers.base.item import Item
+from itemcloud.containers.base.item_types import ITEM_NAME
 from itemcloud.containers.base.image_item import ImageItem
-from itemcloud.containers.base.item import Item, ItemType
+from itemcloud.containers.base.item_types import ItemType
+from itemcloud.containers.base.item import Item
 from itemcloud.util.display_map import DISPLAY_MAP_TYPE
-from itemcloud.item_factory import load_item_row, load_rows, create_named_item
+from itemcloud.util.csv_utils import load_rows
+from itemcloud.containers.base.item_factory import create_named_item
 from itemcloud.box import RotateDirection
 
 from itemcloud.size import Size
@@ -90,7 +94,6 @@ class NamedItem(Item):
         row[ITEM_NAME] = name
         return self.write_row(name, directory, row)
     
-
     @staticmethod
     def load_row(row: Dict[str, Any]) -> Item:
         return create_named_item(row[ITEM_NAME], load_item_row(row))
@@ -98,8 +101,4 @@ class NamedItem(Item):
     @staticmethod
     def load_item(filepath: str) -> NamedItem:
         row = load_rows(filepath)[0]
-        return NamedItem.load_row(row)
-
-    
-ITEM_NAME = 'name'
-    
+        return NamedItem.load_row(row)    

@@ -1,18 +1,13 @@
 from __future__ import annotations
 from abc import abstractmethod
 from typing import Any, Dict
-from enum import Enum
+from itemcloud.containers.base.item_types import ItemType
 from itemcloud.util.display_map import DISPLAY_MAP_TYPE
 from itemcloud.box import RotateDirection
 from itemcloud.size import Size
 from itemcloud.logger.base_logger import BaseLogger
-from itemcloud.containers.base.image_item import ImageItem
 from itemcloud.util.parsers import to_unused_filepath
 
-class ItemType(Enum):
-    IMAGE = 1
-    TEXT = 2
-    TEXTIMAGE = 3
 
 class Item(Size):
 
@@ -65,7 +60,7 @@ class Item(Size):
         size: Size | None = None,
         logger: BaseLogger | None = None,
         as_watermark: bool = False
-    ) -> ImageItem:
+    ) -> "ImageItem":
         pass
 
     @abstractmethod
@@ -88,7 +83,3 @@ class Item(Size):
     @abstractmethod
     def load_row(row: Dict[str, Any]) -> Item:
         pass
-
-
-
-

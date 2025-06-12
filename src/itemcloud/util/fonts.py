@@ -1,6 +1,8 @@
-from PIL import ImageDraw, ImageFont
+
+from __future__ import annotations
+from PIL import ImageFont
 from typing import List
-from itemcloud.image_item import ImageItem
+from itemcloud.containers.base.image_item import ImageItem
 from itemcloud.box import Box, RotateDirection
 from itemcloud.size import Size
 from itemcloud.util.random import random_in_range
@@ -49,13 +51,13 @@ class FontTextAttributes:
         self.anchor = anchor if anchor is not None else ANCHOR
         self.align = align if align is not None else 'center'
 
-
 class Font:
     def __init__(self, font: FontName, size: FontSize, attributes: FontTextAttributes) -> None:
         self._font = font
         self._size = size
         self._attributes = attributes
         self._font_size = size.median_size
+        self._image_font = None
 
     @property
     def font_name(self) -> str:
@@ -93,13 +95,19 @@ class Font:
     def font_size(self, v: float) -> None:
         self._font_size = v
 
+    @property
+    def image_font(self) -> ImageFont.FreeTypeFont:
+        if self._image_font is None:
+            self._image_font = ImageFont.truetype(self.font_name, self.font_size)
+        return self._image_font
+
     def to_image_font(
         self,
         text: str | None = None, 
         rotated_degrees: int | None = None,
         size: Size | None = None,
         logger: BaseLogger | None = None
-    ) -> ImageFont.FreeTypeFont:
+    ) -> Font:
         f = self
         if text is not None and size is not None:
             fit_size = size
@@ -114,10 +122,11 @@ class Font:
                     fit_size.size_to_string()
                 ))
             f = self.find_best_fit(text, fit_size)
-        return ImageFont.truetype(f.font_name, f.font_size)
+        f._image_font = ImageFont.truetype(f.font_name, f.font_size)
+        return f
     
     def to_box(self, text: str) -> Box:
-        return get_text_box(text, self.to_image_font(), self._attributes)
+        return get_text_box(text, self.to_image_font().image_font, self._attributes)
 
     def find_best_fit(self, text: str, fit_size: Size) -> "Font":
         result: Font = Font(
@@ -239,7 +248,7 @@ class Font:
             rotated_degrees,
             size,
             logger
-        )
+        ).image_font
         return self.draw_with_font_on_image(
             text,
             font,
@@ -266,7 +275,7 @@ class Font:
             rotated_degrees,
             size,
             logger
-        )
+        ).image_font
 
         box_size = get_text_box(text, font, self._attributes).size
 
@@ -299,6 +308,8 @@ class Font:
             result = result.resize(size.image_tuple)
 
         return result
+
+    
 
 def get_font_sizes() -> List[FontSize]:
     return [

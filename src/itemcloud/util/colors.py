@@ -88,7 +88,7 @@ class Color(ABC):
         if 255 == self._transparency:
             return self._rgb
         else:
-            return (*self._rgb, self._transparency)
+            return (*self._rgb, int(self._transparency))
         
     @abstractmethod
     def to_transparent(self, transparency: float) -> "Color":

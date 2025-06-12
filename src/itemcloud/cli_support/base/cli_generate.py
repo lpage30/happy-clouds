@@ -1,7 +1,8 @@
 import numpy as np
-from typing import Callable, List
+from typing import List
 from itemcloud.item_cloud import ItemCloud
-from itemcloud.containers.weighted_mix import WeightedItem
+from itemcloud.containers.base.item_factory import load_weighted_items
+from itemcloud.containers.base.weighted_item import WeightedItem
 from itemcloud.layout.base.layout import Layout
 from itemcloud.cli_support.base.cli_base_generate_arguments import (
     CLIBaseGenerateArguments,
@@ -22,14 +23,13 @@ class CLIGenerateResult:
 
 def cli_generate(
     sys_args: List[str],
-    args: CLIBaseGenerateArguments,
-    load_items_f: Callable[[str], List[WeightedItem]]
+    args: CLIBaseGenerateArguments
 ) -> CLIGenerateResult:
     args.load()
     print('{0} {1}'.format(args.name, ' '.join(sys_args)))
     args.logger.info('{0} {1}'.format(args.name, ' '.join(sys_args)))
     args.logger.info('loading {0} ...'.format(args.input))
-    weighted_items: List[WeightedItem] = load_items_f(args.input)
+    weighted_items: List[WeightedItem] = load_weighted_items(args.input)
     total_items = len(weighted_items)
     args.logger.info('loaded {0} weights and items'.format(total_items))
 

@@ -8,6 +8,5 @@ class NamedTextImage(NamedItem):
         name: str,
         text_image: TextImageItem,
     ) -> None:
-        super().__init__(name, 0,0)
-        self._text_image = text_image
+        super().__init__(name, text_image)
     

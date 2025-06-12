@@ -1,12 +1,16 @@
 from __future__ import annotations
-from itemcloud.containers.base.weighted_item import WeightedItem, ITEM_WEIGHT
-from itemcloud.containers.named_image import (NamedImage, IMAGE_FILEPATH)
+from itemcloud.containers.base.item_types import (
+    IMAGE_FILEPATH,
+    ITEM_WEIGHT
+)
+from itemcloud.containers.base.weighted_item import WeightedItem
+from itemcloud.containers.named_image import NamedImage
 
 class WeightedImage(WeightedItem, NamedImage):
     
     def __init__(self, weight: float, namedImage: NamedImage) -> None:
-        NamedImage.__init__(self, namedImage.image, namedImage.name, namedImage._original_image)
-        WeightedItem.__init__(self, weight, self.name, self._image.width, self._image.height)
+        NamedImage.__init__(self, namedImage.item, namedImage.name)
+        WeightedItem.__init__(self, weight, namedImage.name, namedImage.item)
         
 
 WEIGHTED_IMAGE_WEIGHT = ITEM_WEIGHT

@@ -13,8 +13,8 @@ class WeightedTextImage(WeightedItem, NamedTextImage):
         weight: float,
         namedTextImage: NamedTextImage
     ) -> None:
-        NamedTextImage.__init__(self, namedTextImage.name, namedTextImage._text, namedTextImage._image, namedTextImage._watermark_transparency)
-        WeightedItem.__init__(self, weight, self.name, self.width, self.height)
+        NamedTextImage.__init__(self, namedTextImage.name, namedTextImage.item)
+        WeightedItem.__init__(self, weight, namedTextImage.name, namedTextImage.item)
 
 WEIGHTED_TEXT_IMAGE_HEADERS = [
     *WEIGHTED_TEXT_HEADERS,

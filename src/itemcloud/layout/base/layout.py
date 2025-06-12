@@ -27,17 +27,14 @@ from PIL import ImageFilter
 from typing import Any, Dict
 import csv
 import traceback
-from itemcloud.image_item import ImageItem
+from itemcloud.containers.base.image_item import ImageItem
 from itemcloud.util.colors import (
     Color,
     ColorSource,
     generate_colors,
     to_ImagePalette
 ) 
-from itemcloud.layout.base.layout_item import (
-    LayoutItem,
-    create_layout_item_f
-)
+from itemcloud.layout.base.layout_item import LayoutItem
 import itemcloud.layout.base.layout_defaults as layout_defaults
 import itemcloud.item_cloud_defaults as item_cloud_defaults
   
@@ -381,7 +378,7 @@ class Layout:
                 
         
     @staticmethod
-    def load(csv_filepath: str, create_layout_item: create_layout_item_f):
+    def load(csv_filepath: str):
         try:
             canvas: LayoutCanvas | None = None
             items: list[LayoutItem] = list()

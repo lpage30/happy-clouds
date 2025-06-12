@@ -7,8 +7,7 @@ from itemcloud.box import (
 )
 from itemcloud.native.reservations import (
     native_create_reservations,
-    native_find_openings,
-    native_maximize_existing_reservation
+    native_find_openings
 )
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.util.search import SearchProperties
@@ -111,13 +110,11 @@ class Reservations(object):
         rotated_degrees: float = 0.0
         original_size: Size = new_item
         shrink_step_size: int = -step_size
+        rotate = 0
         while True:
             sampling_count = sampling_count + 1
             party = add_margin_to_display_map(new_item.display_map, margin)
-            openings = self._find_unreserved_openings(
-                self,
-                party
-            )
+            openings = self._find_unreserved_openings(party)
             if 0 == (sampling_count % 500):
                 self.logger.debug(
                     f"sample_to_find_unreserved_opening sampling[${sampling_count}] rotated(${rotated_degrees}) ${original_size.size_to_string()} -> ${new_item.size_to_string()}\n"

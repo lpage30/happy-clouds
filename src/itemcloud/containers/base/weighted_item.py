@@ -4,13 +4,15 @@ from itemcloud.size import (
     ResizeType,
     Size,
 )
-from itemcloud.item_factory import create_layout_item, create_weighted_item
+from itemcloud.containers.base.item_factory import create_layout_item, create_weighted_item
 from itemcloud.containers.base.item import Item
+from itemcloud.containers.base.item_types import ITEM_WEIGHT
 from itemcloud.containers.base.named_item import NamedItem
 from itemcloud.layout.base.layout_item import LayoutItem
 from itemcloud.box import Box
 from itemcloud.box import RotateDirection
-from itemcloud.item_factory import create_weighted_item, load_rows
+from itemcloud.util.csv_utils import load_rows
+from itemcloud.containers.base.item_factory import create_weighted_item
 from itemcloud.native.weighted_size import (
     native_create_weighted_size,
     native_create_weighted_size_array,
@@ -54,7 +56,7 @@ class WeightedItem(NamedItem):
     ) -> WeightedItem:
         return create_weighted_item(
             weight,
-            self.item.resize_item((width, height))
+            self.resize_item((width, height))
         )
 
     @staticmethod
@@ -65,8 +67,6 @@ class WeightedItem(NamedItem):
     def load_item(filepath: str) -> NamedItem:
         row = load_rows(filepath)[0]
         return WeightedItem.load_row(row)
-
-ITEM_WEIGHT = 'weight'
 
 
 def to_native_weighted_size(weighted_item: WeightedItem):

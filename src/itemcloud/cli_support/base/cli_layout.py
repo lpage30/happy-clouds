@@ -1,7 +1,7 @@
 from typing import List
 from itemcloud.item_cloud import ItemCloud
 from itemcloud.layout.base.layout import (
-    Layout, create_layout_item_f
+    Layout
 )
 from itemcloud.cli_support.base.cli_base_layout_arguments import (
     CLIBaseLayoutArguments,
@@ -20,8 +20,7 @@ class CLILayoutResult:
 
 def cli_layout(
     sys_args: List[str],
-    args: CLIBaseLayoutArguments,
-    create_layout_item: create_layout_item_f
+    args: CLIBaseLayoutArguments
 ) -> CLILayoutResult:
     args.load()
     args.logger.info('{0} {1}'.format(args.name, ' '.join(sys_args)))

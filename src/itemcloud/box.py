@@ -20,18 +20,17 @@ class Box:
     upper: int
     right: int
     lower: int
-    size: Size
     
     def __init__(self, left: int, upper: int, right: int, lower: int) -> None:
         self.left = left
         self.upper = upper
         self.right = right
         self.lower = lower
-        self.size = Size(right - left, lower - upper)
     
     @property
     def width(self) -> int:
         return self.right - self.left
+
     @property
     def height(self) -> int:
         return self.lower - self.upper

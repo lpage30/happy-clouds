@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import Any, Dict, List
 from itemcloud.size import Size
-from itemcloud.containers.base.item import (Item, ItemType)
+from itemcloud.containers.base.item_types import ItemType
+from itemcloud.containers.base.item import Item
 from itemcloud.containers.base.image_item import (
     extend_filename,
     ImageItem
@@ -42,7 +43,7 @@ class TextImageItem(Item):
         if self.height < text.height:
             self._height = text.height
         self._combined_image = self.to_image()
-        self._display_map = self._combined_image.display_map()
+        self._display_map = self._combined_image.display_map
 
     @property
     def type(self) -> ItemType:
@@ -51,6 +52,10 @@ class TextImageItem(Item):
     @property
     def display_map(self) -> DISPLAY_MAP_TYPE:
         return self._display_map
+
+    @property
+    def name(self) -> str:
+        return self._image.name
 
     @property
     def version_count(self) -> int:
@@ -101,8 +106,8 @@ class TextImageItem(Item):
 
     def resize(self, size: Size) -> TextImageItem:
         return TextImageItem(
-            self._image.resize(size.width, size.height),
-            self._text.resize(size.width, size.height),
+            self._image.resize((size.width, size.height)),
+            self._text.resize(size),
             self._watermark_transparency,
             self.all_versions()
         )
@@ -112,8 +117,7 @@ class TextImageItem(Item):
             self._image.rotate(angle),
             self._text.rotate(angle),
             self._watermark_transparency,
-            self.all_versions(),
-            angle
+            self.all_versions()
         )
 
     def copy(self) -> TextImageItem:

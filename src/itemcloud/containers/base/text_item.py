@@ -11,20 +11,17 @@ from itemcloud.util.display_map import (
 from itemcloud.containers.base.image_item import (
     ImageItem
 )
-from itemcloud.containers.base.item import (
-    Item,
-    ItemType
-)
+from itemcloud.containers.base.item_types import ItemType, TEXT_TEXT
+from itemcloud.containers.base.item import Item
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.box import RotateDirection
 from itemcloud.util.parsers import (
     get_value_or_default,
     get_complex_value_or_default,
     validate_row,
-    field_exists,
-    to_unused_filepath
+    field_exists
 )
-from itemcloud.item_cloud import write_rows
+from itemcloud.util.csv_utils import write_rows
 class TextItem(Item):
     def __init__(
         self,
@@ -98,6 +95,13 @@ class TextItem(Item):
     def reset_display_map(self) -> None:
         self._display_map = size_to_display_map((self._width, self._height))        
 
+    @width.setter
+    def width(self, value: int) -> None:
+        self._width = value
+
+    @height.setter
+    def height(self, value: int) -> None:
+        self._height = value
 
     def resize(self, size: Size) -> TextItem:
         if self.is_equal(size):
@@ -120,7 +124,7 @@ class TextItem(Item):
         font = self._font.to_image_font(
             self._text,
             angle,
-            self.size
+            Size(self.size[0], self.size[1])
         )
         return TextItem(
             self._text,
@@ -252,7 +256,6 @@ class TextItem(Item):
         return result
 
 
-TEXT_TEXT = 'text'
 TEXT_FONT_NAME_PATH = 'font_name_path'
 TEXT_MIN_FONT_SIZE = 'min_font_size'
 TEXT_FONT_SIZE = 'font_size'
