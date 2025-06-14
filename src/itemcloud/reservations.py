@@ -20,9 +20,8 @@ from itemcloud.util.display_map import(
     Direction,
     find_expanded_box
 )
-from itemcloud.containers.base.item import (
-    Item
-)
+from itemcloud.util.time_measure import TimeMeasure
+from itemcloud.containers.base.item import Item
 
 class Reservation:
     def __init__(self, name: str, no: int, box: Box):
@@ -39,17 +38,18 @@ class SampledUnreservedOpening(object):
     opening_box: Box | None = None
     actual_box: Box | None = None
     rotated_degrees: int | None = None
+    measure: TimeMeasure = TimeMeasure()
     
     def log_sampling(self, logger: BaseLogger) -> None:
         if (1 == self.found or (0 == (self.sampling_total % 500))) and self.original_item is not None and self.new_item is not None:
             logger.debug(
-                f"sample_to_find_unreserved_opening sampling[{self.sampling_total}] rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
+                f"sample_to_find_unreserved_opening sampling[{self.sampling_total} {self.measure.latency_str()}] rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
             )
 
     def log_finding(self, logger: BaseLogger) -> None:
         if self.original_item is not None and self.new_item is not None:
             logger.debug(
-                f"{'FOUND:' if 1 == self.found else 'NOT FOUND:'} sample_to_find_unreserved_opening sampling[{self.sampling_total}] rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
+                f"{'FOUND:' if 1 == self.found else 'NOT FOUND:'} sample_to_find_unreserved_opening sampling[{self.sampling_total} {self.measure.latency_str()}] rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
             )
 
 # extrapolated from https://github.com/amueller/word_cloud/blob/main/wordcloud/wordcloud.py
@@ -112,6 +112,7 @@ class Reservations(object):
         result.original_item = item
         result.new_item = item
         unrotated_item: Item = item
+        result.measure.start()
         while True:
             result.sampling_total += 1
             party = add_margin_to_display_map(result.new_item.display_map, margin)
@@ -121,6 +122,7 @@ class Reservations(object):
             if result.found:
                 result.opening_box = search_properties.search(openings)
                 result.actual_box = result.opening_box.remove_margin(margin)
+                result.measure.stop()
                 result.log_finding(self.logger)
                 return result
 
@@ -141,6 +143,7 @@ class Reservations(object):
                 new_size = result.new_item.adjust(shrink_step_size, resize_type)
                 result.new_item = result.new_item.resize_item(new_size.nd_shape)
                 if result.new_item.is_less_than(min_party_size):
+                    result.measure.stop()
                     result.log_finding(self.logger)
                     return result
 
@@ -179,6 +182,7 @@ class Reservations(object):
                 item
             )
         )
+
     @staticmethod
     def create_reservations(reservation_map: DISPLAY_MAP_TYPE, logger: BaseLogger):
         result = Reservations(logger)
