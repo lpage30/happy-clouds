@@ -52,7 +52,7 @@ def size_to_display_map(size: tuple[int, int]) -> DISPLAY_MAP_TYPE:
     return create_display_map(size, 1)
 
 def add_margin_to_display_map(item: DISPLAY_MAP_TYPE, margin: int, map_fill_type: MapFillType = MapFillType.TRANSPARENT) -> DISPLAY_MAP_TYPE:
-    result = create_display_map((item.shape[0] + margin, item.shape[1] + margin), map_fill_type.value)
+    result = create_display_map((item.shape[0] + (margin * 2), item.shape[1] + (margin * 2)), map_fill_type.value)
     if map_fill_type == MapFillType.TRANSPARENT:
         native_write_to_margined_item(item, result)
     return result

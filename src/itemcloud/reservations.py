@@ -32,23 +32,25 @@ class Reservation:
 
 
 class SampledUnreservedOpening(object):
+    found: bool = False
+    sampling_total: int = 0
+    original_item: Item | None = None
+    new_item: Item | None = None
+    opening_box: Box | None = None
+    actual_box: Box | None = None
+    rotated_degrees: int | None = None
     
-    def __init__(
-        self, 
-        found: bool,
-        sampling_total: int,
-        new_item: Item,
-        opening_box: Box | None = None,
-        actual_box: Box | None = None,
-        rotated_degrees: int | None = None
-    ):
-        self.found = found
-        self.sampling_total = sampling_total
-        self.new_item = new_item
-        self.opening_box = opening_box
-        self.actual_box = actual_box
-        self.rotated_degrees = rotated_degrees
-    
+    def log_sampling(self, logger: BaseLogger) -> None:
+        if (1 == self.found or (0 == (self.sampling_total % 500))) and self.original_item is not None and self.new_item is not None:
+            logger.debug(
+                f"sample_to_find_unreserved_opening sampling[{self.sampling_total}] rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
+            )
+
+    def log_finding(self, logger: BaseLogger) -> None:
+        if self.original_item is not None and self.new_item is not None:
+            logger.debug(
+                f"{'FOUND:' if 1 == self.found else 'NOT FOUND:'} sample_to_find_unreserved_opening sampling[{self.sampling_total}] rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
+            )
 
 # extrapolated from https://github.com/amueller/word_cloud/blob/main/wordcloud/wordcloud.py
 class Reservations(object):
@@ -104,49 +106,46 @@ class Reservations(object):
         rotation_increment: int,
         search_properties: SearchProperties
     ) -> SampledUnreservedOpening:
-        new_item: Item = item
-        result: SampledUnreservedOpening
-        sampling_count: int = 0
-        rotated_degrees: float = 0.0
-        original_size: Size = new_item
+        result: SampledUnreservedOpening = SampledUnreservedOpening()
         shrink_step_size: int = -step_size
-        rotate = 0
+        rotate: bool = False
+        result.original_item = item
+        result.new_item = item
+        unrotated_item: Item = item
         while True:
-            sampling_count = sampling_count + 1
-            party = add_margin_to_display_map(new_item.display_map, margin)
-            openings = self._find_unreserved_openings(party)
-            if 0 == (sampling_count % 500):
-                self.logger.debug(
-                    f"sample_to_find_unreserved_opening sampling[${sampling_count}] rotated(${rotated_degrees}) ${original_size.size_to_string()} -> ${new_item.size_to_string()}\n"
-                )
+            result.sampling_total += 1
+            party = add_margin_to_display_map(result.new_item.display_map, margin)
+            openings = self._find_unreserved_openings(party)            
+            result.found = 0 < len(openings)
 
-            if 0 < len(openings):
-                result.found = 1
-                result.sampling_total = sampling_count
-                result.new_item = new_item
+            if result.found:
                 result.opening_box = search_properties.search(openings)
                 result.actual_box = result.opening_box.remove_margin(margin)
-                result.rotated_degrees = rotated_degrees
-                self.logger.debug(f"FOUND: sample_to_find_unreserved_opening sampling[${sampling_count}] ${new_item.size_to_string()} rotated_degrees(${rotated_degrees}) opening(${result.opening_box.box_to_string()}) actual(${result.actual_box.box_to_string()})\n")
+                result.log_finding(self.logger)
                 return result
 
-            # alternate states: 0 test -> 1 rotate -> 2 test -> (back to 1 if not yet at 360) 3 shrink size -> back to state 0 until we find 1 or shrink too-small
-            if 1 == rotate and 0 < rotation_increment:
-                rotated_degrees = rotated_degrees + rotation_increment
-                new_item = new_item.rotate_item(rotation_increment, RotateDirection.CLOCKWISE)
-                if 360 <= rotated_degrees + rotation_increment:
-                    rotate = 0
+            result.log_sampling(self.logger)
+
+            # Cycle: search -> shrink -> (search -> rotate)[until found or rotated 360] -> do cycle again with new shrink
+            # until found or shrank so small its below min size -> not found
+            if rotate and 0 < rotation_increment:
+                # cycle part: (search -> rotate)[until found or rotated 360]
+                result.rotated_degrees += rotation_increment
+                result.new_item = result.new_item.rotate_item(rotation_increment, RotateDirection.CLOCKWISE)
+                if 360 <= result.rotated_degrees + rotation_increment:
+                    rotate = False
             else:
-                rotated_degrees = 0
-                new_size = new_item.adjust(shrink_step_size, resize_type)
-                new_item = new_item.resize_item(new_size.nd_shape)
-                if new_size.is_less_than(min_party_size):
-                    result.found = 0
-                    result.sampling_total = sampling_count
-                    result.new_itm = new_item
-                    self.logger.debug(f"NOT FOUND - TOO SMALL: sample_to_find_unreserved_opening sampling[${sampling_count}] ${new_size.size_to_string()}\n")
+                # cycle part search -> shrink
+                result.new_item = unrotated_item
+                result.rotated_degrees = 0
+                new_size = result.new_item.adjust(shrink_step_size, resize_type)
+                result.new_item = result.new_item.resize_item(new_size.nd_shape)
+                if result.new_item.is_less_than(min_party_size):
+                    result.log_finding(self.logger)
                     return result
-                rotate = 1
+
+                unrotated_item = result.new_item
+                rotate = True
 
     def maximize_existing_reservation(self, item: Item, reservation: Box) -> tuple[Item, Box]:
         expansion_count: int = 0

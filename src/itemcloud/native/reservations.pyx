@@ -132,3 +132,17 @@ def native_find_openings(
         self_reservation_map,
         party,
     )
+
+
+def native_is_unreserved(
+    Reservations self,
+    DISPLAY_MAP_TYPE self_reservation_map,
+    DISPLAY_MAP_TYPE party,
+    Box test_area
+):
+    return _is_unreserved(
+        self,
+        self_reservation_map,
+        party,
+        test_area
+    )

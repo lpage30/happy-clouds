@@ -46,7 +46,15 @@ class WeightedItem(NamedItem):
         reservation_no: int,
         latency_str: str
     ) -> LayoutItem:
-        return create_layout_item(self.type, self.name, placement_box, rotated_degrees, reservation_box, reservation_no, latency_str, self )
+        return create_layout_item(
+            self.name,
+            placement_box,
+            rotated_degrees,
+            reservation_box,
+            reservation_no,
+            latency_str,
+            self
+        )
     
     def to_fitted_weighted_item(
         self, 
