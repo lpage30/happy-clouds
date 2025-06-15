@@ -27,5 +27,12 @@ cdef Size adjust(Size self, int step, ResizeType resize_type) noexcept nogil
 cdef Size sampled_resize_closest_to_area(Size self, int area, int step_size, ResizeType resize_type) noexcept nogil
 
 cdef Size rotate_size(Size self, int degrees, RotateDirection direction) noexcept nogil
+
+cdef inline int size_rows(Size self) noexcept nogil:
+    return self.height
+
+cdef inline int size_cols(Size self) noexcept nogil:
+    return self.width
+
     
     

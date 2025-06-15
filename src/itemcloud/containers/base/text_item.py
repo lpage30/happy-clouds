@@ -61,10 +61,6 @@ class TextItem(Item):
     def height(self) -> int:
         return self._height
 
-    @property
-    def size(self) -> tuple[int, int]:
-        return (self._width, self._height)
-
     def all_versions(self) -> List[TextItem]:
         versions = self._versions.copy()
         versions.append(self)
@@ -103,7 +99,7 @@ class TextItem(Item):
     def height(self, value: int) -> None:
         self._height = value
 
-    def resize(self, size: Size) -> TextItem:
+    def resize_item(self, size: Size) -> Item:
         if self.is_equal(size):
             return self
         new_font = self._font.find_best_fit(self._text, size)
@@ -120,11 +116,12 @@ class TextItem(Item):
         result.reset_display_map()     
         return result    
     
-    def rotate(self, angle: float) -> TextItem:
+    def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
+        angle = angle if RotateDirection.CLOCKWISE == direction else -angle
         font = self._font.to_image_font(
             self._text,
             angle,
-            Size(self.size[0], self.size[1])
+            self.item_size
         )
         return TextItem(
             self._text,
@@ -133,22 +130,14 @@ class TextItem(Item):
             self._background_color,
             self.all_versions()
         )
-    def copy(self) -> TextItem:
+
+    def copy_item(self) -> Item:
         return TextItem(
             self._text,
             self._font,
             self._foreground_color,
             self._background_color
         )
-
-    def resize_item(self, size: tuple[int, int]) -> Item:
-        return self.resize(Size(size[0], size[1]))
-
-    def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
-        return self.rotate(angle if direction == RotateDirection.CLOCKWISE else -1.0 * angle)
-
-    def copy_item(self) -> Item:
-        return self.copy()
 
     def draw_on_image(
         self,

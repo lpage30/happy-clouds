@@ -17,6 +17,12 @@ from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.util.parsers import validate_row, to_unused_filepath
 from itemcloud.util.csv_utils import write_rows
 
+def from_img_size(img: Image.Image) -> Size:
+    return Size(img.width, img.height)
+
+def to_img_size(size: Size) -> tuple[int, int]:
+    return (size.width, size.height)
+
 
 def to_filepath_parts(filepath: str) -> Dict[str, str]:
     return {
@@ -122,7 +128,7 @@ class ImageItem(Item):
                     new_image.width, new_image.height,
                     size.size_to_string()
                 ))
-            new_image = new_image.resize(size.image_tuple)
+            new_image = new_image.resize(to_img_size(size))
         if as_watermark:
             new_image = new_image.convert('RGBA')
         return new_image
@@ -146,8 +152,8 @@ class ImageItem(Item):
     def resize(self, size: tuple[int, int]) -> ImageItem:
         return ImageItem(self._image.resize(size), self.filepath, self.all_versions())
 
-    def resize_item(self, size: tuple[int, int]) -> Item:
-        return self.resize(size)
+    def resize_item(self, size: Size) -> Item:
+        return self.resize(to_img_size(size))
 
     def rotate(
         self,
@@ -170,12 +176,9 @@ class ImageItem(Item):
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
         return self.rotate(angle if direction == RotateDirection.CLOCKWISE else -1.0 * angle)
 
-    def copy(self) -> ImageItem:
-        return ImageItem(self._image, extend_filename(self.filepath, '-copy'))
-    
     def copy_item(self) -> Item:
-        return self.copy()
-    
+        return ImageItem(self._image, extend_filename(self.filepath, '-copy'))
+
     def convert(
         self,
         mode: str | None = None,

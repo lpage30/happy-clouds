@@ -5,7 +5,7 @@ from libc.math cimport round, abs, fmod, fmin, fmax
 cimport cython
 cdef extern from "stdio.h":
     int snprintf(char *str, size_t size, const char *format, ...) noexcept nogil
-from itemcloud.native.box cimport Box, RotateDirection, create_box, size, rotate
+from itemcloud.native.box cimport Box, RotateDirection, create_box, size_from_box, rotate
 from itemcloud.native.base_logger cimport (  
     log_debug,
     log_error,
@@ -146,7 +146,7 @@ def native_adjust(
 
 cdef Size rotate_size(Size self, int degrees, RotateDirection direction) noexcept nogil:
     cdef Box result_box = rotate(create_box(0,0, self.width, self.height), degrees, direction)
-    cdef Size result = size(result_box)
+    cdef Size result = size_from_box(result_box)
     if result.width <= 0 or result.height <= 0:
         log_error("BAD DIMENSIONS: rotate_size(Size(%d,%d),degrees(%d),direction(%d)) -> Size(%d,%d) (Box(%d,%d,%d,%d))",
             self.width, self.height, degrees, direction,

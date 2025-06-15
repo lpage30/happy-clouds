@@ -69,10 +69,6 @@ class TextImageItem(Item):
     def height(self) -> int:
         return self._height
 
-    @property
-    def size(self) -> tuple[int, int]:
-        return (self._width, self._height)
-
     def all_versions(self) -> List[TextItem]:
         versions = self._versions.copy()
         versions.append(self)
@@ -104,26 +100,26 @@ class TextImageItem(Item):
     def reset_display_map(self) -> None:
         self._display_map = img_to_display_map(self._combined_image)        
 
-    def resize(self, size: Size) -> TextImageItem:
+    def resize_item(self, size: Size) -> Item:
         return TextImageItem(
-            self._image.resize((size.width, size.height)),
-            self._text.resize(size),
+            self._image.resize_item(size),
+            self._text.resize_item(size),
             self._watermark_transparency,
             self.all_versions()
         )
 
-    def rotate(self, angle: float) -> TextImageItem:
+    def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
         return TextImageItem(
-            self._image.rotate(angle),
-            self._text.rotate(angle),
+            self._image.rotate_item(angle, direction),
+            self._text.rotate_item(angle, direction),
             self._watermark_transparency,
             self.all_versions()
         )
 
-    def copy(self) -> TextImageItem:
+    def copy_item(self) -> Item:
         return TextImageItem(
-            self._image.copy(),
-            self._text.copy(),
+            self._image.copy_item(),
+            self._text.copy_item(),
             self._watermark_transparency,
         )
 
@@ -148,16 +144,7 @@ class TextImageItem(Item):
         )
         image.filepath = extend_filename(self._image.filepath, 'text-image')
         return image
-    
-    def resize_item(self, size: tuple[int, int]) -> Item:
-        return self.resize(Size(size[0], size[1]))
-
-    def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
-        return self.rotate(angle if direction == RotateDirection.CLOCKWISE else -1.0 * angle)
-    
-    def copy_item(self) -> Item:
-        return self.copy()
-
+        
     def to_csv_row(self) -> Dict[str, Any]:
         return self._image.to_csv_row().update(
             self._text.to_csv_row()

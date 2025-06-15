@@ -12,8 +12,8 @@ cdef extern from "stdio.h":
     int snprintf(char *str, unsigned int size, const char *format, ...) noexcept nogil
 from itemcloud.native.display_map cimport (
     can_fit_on_target,
-    display_map_box,
-    display_map_size
+    from_displaymap_box,
+    from_displaymap_size
 )
 from itemcloud.native.size cimport (
     Size,
@@ -36,7 +36,7 @@ cdef int _is_unreserved(
         party,
         self_reservation_map,
         test_area,
-        display_map_box(party)
+        from_displaymap_box(party)
     )
 
 cdef Box[::1] find_openings(
@@ -46,7 +46,7 @@ cdef Box[::1] find_openings(
     DISPLAY_MAP_TYPE party,    
 ) noexcept nogil:
     cdef atomic[int] pos_count
-    cdef Size size = display_map_size(party)
+    cdef Size size = from_displaymap_size(party)
     cdef Size sub_map_size = create_size(self.map_size.width - size.width, self.map_size.height - size.height)
     cdef int total_positions = size_area(sub_map_size)
     cdef int p

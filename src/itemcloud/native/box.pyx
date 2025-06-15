@@ -37,20 +37,6 @@ cdef const char* box_to_string(Box self) noexcept nogil:
     snprintf(bbuf, 64, "Box(%d,%d,%d,%d)", self.left, self.upper, self.right, self.lower)
     return bbuf
 
-cdef int box_width(Box self) noexcept nogil:
-    return self.right - self.left
-
-cdef int box_height(Box self) noexcept nogil:
-    return self.lower - self.upper
-
-cdef int box_area(Box self) noexcept nogil:
-    return box_width(self) * box_height(self)
-
-cdef Size size(Box self) noexcept nogil:
-    return create_size(
-        box_width(self),
-        box_height(self)
-    )
 cdef int box_equals(Box self, Box other) noexcept nogil:
     if other.left == self.left and other.upper == self.upper and other.right == self.right and other.lower == self.lower:
         return 1

@@ -37,16 +37,15 @@ class Item(Size):
         pass
 
     @property
-    @abstractmethod
-    def size(self) -> tuple[int, int]:
-        pass
+    def item_size(self) -> Size:
+        return Size(self.width, self.height)
 
     @abstractmethod
     def reset_to_original_version(self) -> bool:
         pass
 
     @abstractmethod
-    def resize_item(self, size: tuple[int, int]) -> Item:
+    def resize_item(self, size: Size) -> Item:
         pass
 
     @abstractmethod

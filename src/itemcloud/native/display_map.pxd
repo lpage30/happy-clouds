@@ -4,67 +4,31 @@
 from itemcloud.native.size cimport Size, create_size
 from itemcloud.native.box cimport Box, create_box
 
+ctypedef (int, int) DISPLAY_MAP_SIZE_TYPE
 ctypedef unsigned int[:,:] DISPLAY_MAP_TYPE
 ctypedef unsigned int[:] DISPLAY_BUFFER_TYPE
 
-cdef inline int display_map_rows(DISPLAY_MAP_TYPE display_map) noexcept nogil:
-    return display_map.shape[0]
+cdef inline Size from_displaymap_size(DISPLAY_MAP_TYPE display_map) noexcept nogil:
+    return create_size(display_map.shape[1], display_map.shape[0]) # cols == width, rows == height
 
-cdef inline int display_map_cols(DISPLAY_MAP_TYPE display_map) noexcept nogil:
-    return display_map.shape[1]
+cdef inline DISPLAY_MAP_SIZE_TYPE to_displaymap_size(Size size) noexcept nogil:
+    cdef DISPLAY_MAP_SIZE_TYPE result = (size.height, size.width) # height == rows, width == cols
+    return result
 
-cdef inline int display_map_height(DISPLAY_MAP_TYPE display_map) noexcept nogil:
-    return display_map.shape[0]
+cdef inline int box_top_corner_row(Box box) noexcept nogil:
+    return box.upper
 
-cdef inline int display_map_width(DISPLAY_MAP_TYPE display_map) noexcept nogil:
-    return display_map.shape[1]
+cdef inline int box_bottom_corner_row(Box box) noexcept nogil:
+    return box.lower
 
-cdef inline Box display_map_box(DISPLAY_MAP_TYPE display_map) noexcept nogil:
-    return create_box(0, 0, display_map_cols(display_map), display_map_rows(display_map))
+cdef inline int box_top_corner_col(Box box) noexcept nogil:
+    return box.left
 
-cdef inline Size display_map_size(
-    DISPLAY_MAP_TYPE display_map
-) noexcept nogil:
-    return create_size(
-        display_map_width(display_map),
-        display_map_height(display_map)
-    )
+cdef inline int box_bottom_corner_col(Box box) noexcept nogil:
+    return box.right
 
-cdef inline int size_rows(Size self) noexcept nogil:
-    return self.height
-
-cdef inline int size_cols(Size self) noexcept nogil:
-    return self.width
-
-cdef inline unsigned int get_map_cell(
-    DISPLAY_MAP_TYPE map,
-    int row,
-    int col
-) noexcept nogil:
-    return map[row, col]
-
-cdef inline void set_map_cell(
-    DISPLAY_MAP_TYPE map,
-    int row,
-    int col,
-    unsigned int value
-) noexcept nogil:
-    map[row, col] = value
-
-cdef inline unsigned int get_map_pt(
-    DISPLAY_MAP_TYPE map,
-    int x,
-    int y
-) noexcept nogil:
-    return map[y, x]
-
-cdef inline void set_map_pt(
-    DISPLAY_MAP_TYPE map,
-    int x,
-    int y,
-    unsigned int value
-) noexcept nogil:
-    map[y, x] = value
+cdef inline Box from_displaymap_box(DISPLAY_MAP_TYPE display_map) noexcept nogil:
+    return create_box(0,0, display_map.shape[1], display_map.shape[0]) # cols == width, rows == height
 
 cdef int is_outside_target(
     DISPLAY_MAP_TYPE item,
