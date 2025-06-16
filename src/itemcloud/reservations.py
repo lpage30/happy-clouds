@@ -24,10 +24,11 @@ from itemcloud.util.time_measure import TimeMeasure
 from itemcloud.containers.base.item import Item
 
 class Reservation:
-    def __init__(self, name: str, no: int, box: Box):
-        self.name = name
-        self.no = no
-        self.box = box
+    def __init__(self, name: str, no: int, box: Box, party: DISPLAY_MAP_TYPE):
+        self.reservation_name = name
+        self.reservation_no = no
+        self.reservation_box = box
+        self.reservation_party = party
 
 
 class SampledUnreservedOpening(object):
@@ -93,7 +94,7 @@ class Reservations(object):
             return False
         self.logger.debug("RESERVED: reserve_opening reservation({0}) opening{1}".format(reservation_no, opening.box_to_string()))
         write_display_map(party, self._reservation_map, opening, reservation_no)
-        self._reservations.append(Reservation(name, reservation_no, opening))
+        self._reservations.append(Reservation(name, reservation_no, opening, party))
         return True
 
     def sample_to_find_unreserved_opening(
@@ -200,8 +201,8 @@ class Reservations(object):
         return result
                 
     @staticmethod
-    def create_reservation_map(logger: BaseLogger, map_size: Size, reservations: list[Box]) -> DISPLAY_MAP_TYPE:
+    def create_reservation_map(logger: BaseLogger, map_size: Size, reservations: list[Reservation]) -> DISPLAY_MAP_TYPE:
         reserver = Reservations(logger, map_size)
-        for i in range(len(reservations)):
-            reserver.reserve_opening('', i+1, reservations[i])
+        for r in reservations:
+            reserver.reserve_opening(r.reservation_name, r.reservation_no, r.reservation_box, r.reservation_party)
         return reserver._reservation_map

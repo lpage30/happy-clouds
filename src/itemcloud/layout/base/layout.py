@@ -290,11 +290,11 @@ class Layout:
     def items(self) -> list[LayoutItem]:
         return self._items
     
-    def reconstruct_reservation_map(self,logger: BaseLogger ) -> DISPLAY_MAP_TYPE:
+    def reconstruct_reservation_map(self,logger: BaseLogger) -> DISPLAY_MAP_TYPE:
         return Reservations.create_reservation_map(
             logger,
             self.canvas.size,
-            [item.reservation_box for item in self.items]
+            self.items
         )
     
     def to_image(

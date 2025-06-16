@@ -199,7 +199,13 @@ cdef Box find_expanded_box(
 
     return margined_item
 
-
+def native_can_fit_on_target(
+    DISPLAY_MAP_TYPE item,
+    DISPLAY_MAP_TYPE target,
+    Box target_item_box,
+    Box item_window
+):
+    return can_fit_on_target(item, target, target_item_box, item_window)
 
 def native_write_to_margined_item(DISPLAY_MAP_TYPE item, DISPLAY_MAP_TYPE margined_item): # return nothing
     write_to_margined_item(item, margined_item)

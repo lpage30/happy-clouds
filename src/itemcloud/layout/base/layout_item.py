@@ -21,9 +21,10 @@ from itemcloud.box import RotateDirection
 from itemcloud.util.parsers import (
     filepath_to_name
 )
+from itemcloud.reservations import Reservation
 import itemcloud.layout.base.layout_defaults as layout_defaults
 
-class LayoutItem(Item):
+class LayoutItem(Item, Reservation):
     def __init__(
         self,
         name: str,
@@ -35,12 +36,10 @@ class LayoutItem(Item):
         item: Item,
 
     ) -> None:
-        
+        Reservation.__init__(name, reservation_no, reservation_box, item.display_map)
         self._name = name
         self._placement_box = placement_box
         self._rotated_degrees = rotated_degrees if rotated_degrees is not None else 0
-        self._reservation_box = reservation_box
-        self._reservation_no = reservation_no
         self._reservation_color = None
         self._latency_str = latency_str
         self._item = item
