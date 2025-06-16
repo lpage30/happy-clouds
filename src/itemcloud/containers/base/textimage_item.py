@@ -101,9 +101,25 @@ class TextImageItem(Item):
         self._display_map = img_to_display_map(self._combined_image)        
 
     def resize_item(self, size: Size) -> Item:
+        if self.item_size.is_equal(size):
+            return self
+        shrink = size.is_less_than(self.item_size)
+        new_image = self._image
+        new_text = self._text
+        if shrink:
+            if size.is_less_than(new_image.item_size):
+                new_image = new_image.resize_item(size)
+            if size.is_less_than(new_text.item_size):
+                new_text = new_text.resize_item(size)
+        else:
+            if new_image.item_size.is_less_than(size):
+                new_image = new_image.resize_item(size)
+            if new_text.item_size.is_less_than(size):
+                new_text = new_text.resize_item(size)
+
         return TextImageItem(
-            self._image.resize_item(size),
-            self._text.resize_item(size),
+            new_image,
+            new_text,
             self._watermark_transparency,
             self.all_versions()
         )
@@ -144,7 +160,10 @@ class TextImageItem(Item):
         )
         image.filepath = extend_filename(self._image.filepath, 'text-image')
         return image
-        
+
+    def show(self, title: str | None = None) -> None:
+        self.to_image().show(title)
+    
     def to_csv_row(self) -> Dict[str, Any]:
         return self._image.to_csv_row().update(
             self._text.to_csv_row()

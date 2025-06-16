@@ -13,8 +13,8 @@ DISPLAY_NP_DATA_TYPE = np.uint32
 DISPLAY_MAP_TYPE = np.ndarray[DISPLAY_NP_DATA_TYPE, DISPLAY_NP_DATA_TYPE]
 DISPLAY_BUFFER_TYPE = np.ndarray[DISPLAY_NP_DATA_TYPE]
 
-def from_displaymap_size(display_map: DISPLAY_MAP_TYPE) -> Size:
-    return Size(display_map.shape[1], display_map.shape[0]) # columns == width, rows == height
+def from_displaymap_size(display_map_shape: DISPLAY_MAP_SIZE_TYPE) -> Size:
+    return Size(display_map_shape[1], display_map_shape[0]) # columns == width, rows == height
 
 def to_displaymap_size(size: Size) -> DISPLAY_MAP_SIZE_TYPE:
     return (size.height, size.width) # height == rows, width == cols
@@ -61,7 +61,7 @@ def size_to_display_map(size: Size) -> DISPLAY_MAP_TYPE:
     return create_display_map(size, 1)
 
 def add_margin_to_display_map(item: DISPLAY_MAP_TYPE, margin: int, map_fill_type: MapFillType = MapFillType.TRANSPARENT) -> DISPLAY_MAP_TYPE:
-    result = create_display_map((item.shape[0] + (margin * 2), item.shape[1] + (margin * 2)), map_fill_type.value)
+    result = create_display_map(from_displaymap_size((item.shape[0] + (margin * 2), item.shape[1] + (margin * 2))), map_fill_type.value)
     if map_fill_type == MapFillType.TRANSPARENT:
         native_write_to_margined_item(item, result)
     return result

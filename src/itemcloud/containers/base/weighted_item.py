@@ -24,7 +24,7 @@ class WeightedItem(NamedItem):
         NamedItem.__init__(self, name, item)
         self.weight = weight
 
-    def resize_item(self, size: tuple[int, int]) -> Item:
+    def resize_item(self, size: Size) -> Item:
         return create_weighted_item(self.weight, super().resize_item(size))
 
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
@@ -64,7 +64,7 @@ class WeightedItem(NamedItem):
     ) -> WeightedItem:
         return create_weighted_item(
             weight,
-            self.resize_item((width, height))
+            self.resize_item(Size(width, height))
         )
 
     @staticmethod

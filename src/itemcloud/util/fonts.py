@@ -2,7 +2,7 @@
 from __future__ import annotations
 from PIL import ImageFont
 from typing import List
-from itemcloud.containers.base.image_item import ImageItem
+from itemcloud.containers.base.image_item import ImageItem, to_img_size
 from itemcloud.box import Box, RotateDirection
 from itemcloud.size import Size
 from itemcloud.util.random import random_in_range
@@ -126,7 +126,7 @@ class Font:
         return f
     
     def to_box(self, text: str) -> Box:
-        return get_text_box(text, self.to_image_font().image_font, self._attributes)
+        return get_text_box(text, self.to_image_font(text).image_font, self._attributes)
 
     def find_best_fit(self, text: str, fit_size: Size) -> "Font":
         result: Font = Font(
@@ -134,25 +134,19 @@ class Font:
             self._size,
             self._attributes
         )
+        step: float = 0.25
         result.font_size = self.font_size
         font_size = result.font_size
         box_size = result.to_box(text).size
         fit_area = fit_size.area
         box_area = box_size.area
-        increment = 0.25 if box_area < fit_area else -0.25
+        increment = step if box_area < fit_area else -step
         while True:
             result.font_size = font_size + increment
             box_size = result.to_box(text).size
             box_area = box_size.area
-            if (0 < increment and 
-                box_area < fit_area and 
-                box_size.width < fit_size.width and 
-                box_size.height < fit_size.height) or (
-                    increment < 0 and 
-                    fit_area < box_area and
-                    fit_size.width < box_size.width and
-                    fit_size.height < box_size.height):
-                font_size = result.font_size
+            if (0 < increment and box_area < fit_area) or (0 > increment and box_area > fit_area):
+                font_size = result.font_size # keep expanding or shrinking with new font_size
             else:
                 result.font_size = font_size
                 return result
@@ -174,7 +168,7 @@ class Font:
         if as_watermark:
             box = get_text_box(text, font, self._attributes)
             text_rotation = box.rotate_until_wedged(Box(0,0, image.width, image.height))
-            text_image = ImageItem.new('RGBA', box.size.image_tuple, (255,255,255,0))
+            text_image = ImageItem.new('RGBA', to_img_size(box.size), (255,255,255,0))
 
         draw = text_image.create_draw()
         if fg_color is not None:
@@ -280,9 +274,9 @@ class Font:
         box_size = get_text_box(text, font, self._attributes).size
 
         if not(as_watermark) and bg_color is not None:
-            result = ImageItem.new("RGB", (box_size.width, box_size.height), bg_color.image_color)
+            result = ImageItem.new("RGB", to_img_size(box_size), bg_color.image_color)
         else:
-            result = ImageItem.new("RGBA", (box_size.width, box_size.height))
+            result = ImageItem.new("RGBA", to_img_size(box_size))
 
         result = self.draw_with_font_on_image(
             text,
@@ -299,13 +293,13 @@ class Font:
             # always rotate clockwise (negative degrees)
             result = result.rotate(-rotated_degrees, expand=1)
                 
-        if size is not None and result.size != size.image_tuple:
+        if size is not None and result.item_size != size:
             if logger:
                 logger.info('Text Image Resizing ({0},{1}) -> {2}'.format(
                     result.width, result.height,
                     size.size_to_string()
                 ))
-            result = result.resize(size.image_tuple)
+            result = result.resize_item(size)
 
         return result
 

@@ -17,15 +17,19 @@ class TimeMeasure:
         stop = self._stop if self._stop is not None else datetime.datetime.now()
         return stop - self._start
     
+    def latency_ms(self) -> float:
+        return self.latency().total_seconds() * 1000.0
+
     def latency_str(self) -> str:
-        delta = self.latency()
-        minutes, seconds = divmod(delta.total_seconds(), 60)
-        hours, minutes = divmod(minutes, 60)
-        milliseconds = (seconds - int(seconds)) * 1000
-        return '{0:03}H_{1:02}M_{2:02}S_{3:03}MS'.format(
-            int(hours), 
-            int(minutes), 
-            int(seconds),
-            int(milliseconds)
-        )
-    
+        return format_ms_duration(self.latency_ms())
+
+def format_ms_duration(duration_ms: float) -> str:
+    seconds, milliseconds = divmod(duration_ms, 1000)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    return '{0:03}H_{1:02}M_{2:02}S_{3:03}MS'.format(
+        int(hours), 
+        int(minutes), 
+        int(seconds),
+        int(milliseconds)
+    )

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from itemcloud.containers.base.item_types import ItemType, IMAGE_FILEPATH
 from itemcloud.containers.base.item import Item
-from itemcloud.box import RotateDirection 
+from itemcloud.box import Box, RotateDirection 
 from itemcloud.util.display_map import (
     DISPLAY_MAP_TYPE,
     img_to_display_map
@@ -23,6 +23,11 @@ def from_img_size(img: Image.Image) -> Size:
 def to_img_size(size: Size) -> tuple[int, int]:
     return (size.width, size.height)
 
+def from_img_box(box: tuple[int, int, int, int]) -> Box:
+    return Box(box[0], box[1], box[2], box[3])
+
+def to_img_box(box: Box) -> tuple[int, int, int, int]:
+    return (box.left, box.upper, box.right, box.lower)
 
 def to_filepath_parts(filepath: str) -> Dict[str, str]:
     return {
@@ -122,7 +127,7 @@ class ImageItem(Item):
             # always rotate clockwise (negative degrees)
             new_image = new_image.rotate(-rotated_degrees, expand=1)
         
-        if size is not None and new_image.size != size.image_tuple:
+        if size is not None and new_image.size != to_img_size(size):
             if logger:
                 logger.info('Resizing Image ({0},{1}) -> {2}'.format(
                     new_image.width, new_image.height,
@@ -132,6 +137,9 @@ class ImageItem(Item):
         if as_watermark:
             new_image = new_image.convert('RGBA')
         return new_image
+
+    def show(self, title: str | None = None) -> None:
+        self._image.show(title)
 
     @property
     def width(self) -> int:
@@ -211,9 +219,6 @@ class ImageItem(Item):
     def load(self) -> Any | None:
         return self._image.load()
     
-    def show(self, title: str | None = None) -> None:
-        self._image.show(title)
-
     def paste(
         self,
         im: ImageItem | str | float | tuple[float, ...],

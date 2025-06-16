@@ -40,14 +40,10 @@ class NamedItem(Item):
     def height(self) -> int:
         return self._item.height
 
-    @property
-    def size(self) -> tuple[int, int]:
-        return self._item.size
-
     def reset_to_original_version(self) -> bool:
         return self._item.reset_to_original_version()
 
-    def resize_item(self, size: tuple[int, int]) -> Item:
+    def resize_item(self, size: Size) -> Item:
         return create_named_item(self._name, self._item.resize_item(size))
 
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
@@ -61,6 +57,10 @@ class NamedItem(Item):
         as_watermark: bool = False
     ) -> ImageItem:
         return self._item.to_image(rotated_degrees, size, logger, as_watermark)
+
+
+    def show(self, title: str | None = None) -> None:
+        self._item.show(title)
 
     def copy_item(self) -> Item:
         return create_named_item(

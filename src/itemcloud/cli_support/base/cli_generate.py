@@ -20,6 +20,25 @@ class CLIGenerateResult:
         self.cloud = cloud
         self.layout = layout
 
+def save_layout(
+    args: CLIBaseGenerateArguments,
+    layout: Layout
+) -> None:
+    reconstructed_reservation_map = layout.reconstruct_reservation_map(args.logger)
+    if not(np.array_equal(layout.canvas.reservation_map, reconstructed_reservation_map)):
+        args.logger.info('Warning reservations map from generation not same as reconstructed from imitemsages.')
+    
+    collage = layout.to_image(args.logger)
+
+    args.try_save_output(collage, None, layout)
+
+    if args.show_itemcloud_reservation_chart:
+        reservation_chart = layout.to_reservation_chart_image()
+        args.try_save_output(None, reservation_chart, None)
+        reservation_chart.show()
+
+    if args.show_itemcloud:
+        collage.show()
 
 def cli_generate(
     sys_args: List[str],
@@ -40,24 +59,16 @@ def cli_generate(
     ))
 
     layout = cloud.generate(weighted_items, cloud_expansion_step_size=args.cloud_expansion_step_size)
+    save_layout(
+        args,
+        layout
+    )
     if args.maximize_empty_space:
         args.logger.info('Maximizing {0} items: expanding them to fit their surrounding empty space.'.format(len(layout.items)))
         layout = cloud.maximize_empty_space(layout)
-
-    reconstructed_reservation_map = layout.reconstruct_reservation_map(args.logger)
-    if not(np.array_equal(layout.canvas.reservation_map, reconstructed_reservation_map)):
-        args.logger.info('Warning reservations map from generation not same as reconstructed from imitemsages.')
-    
-    collage = layout.to_image(args.logger)
-
-    args.try_save_output(collage, None, layout)
-
-    if args.show_itemcloud_reservation_chart:
-        reservation_chart = layout.to_reservation_chart_image()
-        args.try_save_output(None, reservation_chart, None)
-        reservation_chart.show()
-
-    if args.show_itemcloud:
-        collage.show()
+        save_layout(
+            args,
+            layout
+        )
 
     return CLIGenerateResult(weighted_items, cloud, layout)

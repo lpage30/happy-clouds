@@ -81,7 +81,7 @@ class LayoutItem(Item):
     def reset_to_original_version(self) -> bool:
         return self._item.reset_to_original_version()
 
-    def resize_item(self, size: tuple[int, int]) -> Item:
+    def resize_item(self, size: Size) -> Item:
         return create_layout_item(
             self.name,
             self.placement_box.resize(size),
@@ -112,6 +112,8 @@ class LayoutItem(Item):
     ) -> ImageItem:
         return self._item.to_image(rotated_degrees, size, logger, as_watermark)
         
+    def show(self, title: str | None = None) -> None:
+        self._item.show(title)
 
     def copy_item(self) -> Item:
         return create_layout_item(

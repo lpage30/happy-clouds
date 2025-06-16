@@ -40,10 +40,6 @@ class Box:
         return Size(self.width, self.height)
     
     # see definition of 'box': https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.paste
-
-    @property
-    def image_tuple(self) -> tuple[int, int, int, int]:
-        return (self.left, self.upper, self.right, self.lower)
     
     @property
     def area(self) -> int:
@@ -96,12 +92,12 @@ class Box:
             self.right >= bounding.right
         )
 
-    def resize(self, size: tuple[int, int]) -> Box:
+    def resize(self, size: Size) -> Box:
         return Box(
             self.left,
             self.upper,
-            self.left + size[0],
-            self.upper + size[1]
+            self.left + size.width,
+            self.upper + size.height
         )
     def rotate(self, degrees: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Box:
         native_box = native_rotate_box(self.to_native(), degrees, direction.value)

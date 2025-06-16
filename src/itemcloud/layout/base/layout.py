@@ -27,7 +27,7 @@ from PIL import ImageFilter
 from typing import Any, Dict
 import csv
 import traceback
-from itemcloud.containers.base.image_item import ImageItem
+from itemcloud.containers.base.image_item import ImageItem, to_img_size, to_img_box
 from itemcloud.util.colors import (
     Color,
     ColorSource,
@@ -86,7 +86,7 @@ class LayoutCanvas:
     def to_image(self, scale: float = 1.0) -> NamedImage:
         image = ImageItem.new(
             self.mode, 
-            self.size.scale(scale).image_tuple,
+            to_img_size(self.size.scale(scale)),
             self.background_color
         )
         return NamedImage(image, self.name)
@@ -316,7 +316,7 @@ class Layout:
             try:
                 canvas.image.paste(
                     im=image.image,
-                    box=box.image_tuple
+                    box=to_img_box(box)
                 )
             except Exception as e:
                 logger.error('Error pasting {0} into {1}. {2} \n{3}'.format(image.name, canvas.name, str(e), '\n'.join(traceback.format_exception(e))))

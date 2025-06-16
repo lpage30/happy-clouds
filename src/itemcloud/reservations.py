@@ -43,13 +43,13 @@ class SampledUnreservedOpening(object):
     def log_sampling(self, logger: BaseLogger) -> None:
         if (1 == self.found or (0 == (self.sampling_total % 500))) and self.original_item is not None and self.new_item is not None:
             logger.debug(
-                f"sample_to_find_unreserved_opening sampling[{self.sampling_total} {self.measure.latency_str()}] rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
+                f"sample_to_find_unreserved_opening sampling[{self.sampling_total}]@({self.measure.latency_str()}) rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
             )
 
     def log_finding(self, logger: BaseLogger) -> None:
         if self.original_item is not None and self.new_item is not None:
             logger.debug(
-                f"{'FOUND:' if 1 == self.found else 'NOT FOUND:'} sample_to_find_unreserved_opening sampling[{self.sampling_total} {self.measure.latency_str()}] rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
+                f"{'FOUND:' if 1 == self.found else 'NOT FOUND:'} sample_to_find_unreserved_opening sampling[{self.sampling_total}]@({self.measure.latency_str()}) rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
             )
 
 # extrapolated from https://github.com/amueller/word_cloud/blob/main/wordcloud/wordcloud.py
@@ -68,7 +68,7 @@ class Reservations(object):
 # NOTE: ND Array shape is of form: (height, width) https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.shape.html
 #       PIL Image shape is of form (width, height) https://pillow.readthedocs.io/en/stable/reference/Image.html
 
-        self._reservation_map = create_display_map(self._map_size.nd_shape)
+        self._reservation_map = create_display_map(self._map_size)
         self._position_buffer = create_display_buffer(self._buffer_length)
         self._native_reservations = native_create_reservations(
             self.num_threads,
@@ -141,7 +141,7 @@ class Reservations(object):
                 result.new_item = unrotated_item
                 result.rotated_degrees = 0
                 new_size = result.new_item.adjust(shrink_step_size, resize_type)
-                result.new_item = result.new_item.resize_item(new_size.nd_shape)
+                result.new_item = result.new_item.resize_item(new_size)
                 if result.new_item.is_less_than(min_party_size):
                     result.measure.stop()
                     result.log_finding(self.logger)
@@ -162,7 +162,7 @@ class Reservations(object):
             for direction in Direction:
                 expanded_box = find_expanded_box(expanded_item.display_map, self._reservation_map, expanded_box, direction)
                 if not(expanded_box.equals(result)):
-                    expanded_item = expanded_item.resize_item(expanded_box.size.image_tuple)
+                    expanded_item = expanded_item.resize_item(expanded_box.size)
                     result = (expanded_item, expanded_box)
                     expansion_count = expansion_count + 1
             if 0 == expansion_count:

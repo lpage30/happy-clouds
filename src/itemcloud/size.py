@@ -32,14 +32,6 @@ class Size:
     @property
     def height(self) -> int:
         return self._height
-
-    @property
-    def image_tuple(self) -> tuple[int, int]:
-        return (self.width, self.height)
-
-    @property
-    def nd_shape(self) -> tuple[int, int]:
-        return (self.height, self.width)
     
     @property
     def area(self) -> int:

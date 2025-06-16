@@ -89,7 +89,7 @@ class TextItem(Item):
         return self.reset_to_version()
 
     def reset_display_map(self) -> None:
-        self._display_map = size_to_display_map((self._width, self._height))        
+        self._display_map = size_to_display_map(self.item_size)        
 
     @width.setter
     def width(self, value: int) -> None:
@@ -175,7 +175,10 @@ class TextItem(Item):
             logger,
             as_watermark
         )
-    
+
+    def show(self, title: str | None = None) -> None:
+        self.to_image().show(title)
+
     def to_csv_row(self) -> Dict[str, Any]:
         return {
             TEXT_TEXT: self._text,

@@ -1,7 +1,7 @@
 from typing import List
 
 from itemcloud.box import Box
-from itemcloud.image_item import ImageItem
+from itemcloud.containers.base.image_item import ImageItem, to_img_size
 from itemcloud.util.colors import BLACK_COLOR, WHITE_COLOR
 from itemcloud.logger.base_logger import BaseLogger, LoggerLevel
 from itemcloud.size import Size
@@ -40,14 +40,14 @@ def show_all_fonts() -> None:
     logger.info('Rendering {0} fonts in 1 {1} x {2} image'.format(total_fonts, max_size.width, max_size.height))
     image = ImageItem.new(
         'RGBA', 
-        max_size.image_tuple,
+        to_img_size(max_size),
         WHITE_COLOR.name
     )
     height = 0
     for i in images:
         image.paste(
             im=i,
-            box=Box(0, height, max_size.width, height + i.height).image_tuple
+            box=(0, height, max_size.width, height + i.height)
         )
         height += i.height + margin
     image.show()

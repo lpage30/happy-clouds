@@ -63,6 +63,10 @@ class Item(Size):
         pass
 
     @abstractmethod
+    def show(self, title: str | None = None) -> None:
+        pass
+
+    @abstractmethod
     def copy_item(self) -> Item:
         pass
 

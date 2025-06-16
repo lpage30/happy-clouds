@@ -8,7 +8,7 @@ from itemcloud.reservations import (Reservations, SampledUnreservedOpening)
 from itemcloud.util.search_types import SearchPattern
 from itemcloud.util.search import SearchProperties
 from itemcloud.containers.base.item import Item
-from itemcloud.util.time_measure import TimeMeasure
+from itemcloud.util.time_measure import TimeMeasure, format_ms_duration
 from itemcloud.layout.base.layout import (
     LayoutContour,
     LayoutCanvas,
@@ -241,8 +241,6 @@ class ItemCloud(object):
         self._logger.push_indent('maximizing-empty-space')
         measure = TimeMeasure()
         measure.start()
-        maximized_count = 0
-
         for i in range(total_items - 1, -1, -1):
             layout_item: LayoutItem = layout.items[i]
             item_measure = TimeMeasure()
@@ -291,13 +289,14 @@ class ItemCloud(object):
             self._logger.pop_indent()
 
         measure.stop()
+        latency_str = f"{measure.latency_str()}({format_ms_duration(measure.latency_ms() / total_items)}/item)"
         self._logger.pop_indent()
         self._logger.info('Maximized {0}/{1} items ({2})'.format(
             maximized_count,
             len(new_items),
-            measure.latency_str()
+            latency_str
         ))    
-
+        
         new_items.reverse()
         self.layout_ = Layout(
             LayoutCanvas(
@@ -322,7 +321,7 @@ class ItemCloud(object):
             layout.margin,
             layout.name + '.maximized',
             self._total_threads,
-            measure.latency_str()
+            latency_str
         )
         self._logger.reset_context()
 
@@ -447,6 +446,8 @@ class ItemCloud(object):
             self._logger.pop_indent()
 
         generation_measure.stop()
+
+        latency_str = f"{generation_measure.latency_str()}({format_ms_duration(generation_measure.latency_ms() / total)}/item)"
         self.layout_ = Layout(
             LayoutCanvas(
                 ObjectCloud_size,
@@ -470,7 +471,7 @@ class ItemCloud(object):
             self._margin,
             self._name + '.layout',
             self._total_threads,
-            generation_measure.latency_str(),
+            latency_str,
             self._search_pattern
         )
         return self.layout_
