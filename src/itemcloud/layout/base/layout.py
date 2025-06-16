@@ -311,7 +311,7 @@ class Layout:
         for i in range(total):
             item: LayoutItem = self.items[i]
             logger.info('pasting Image[{0}/{1}] {2} into imagecloud canvas'.format(i + 1, total, item.name))            
-            image = item.to_image(logger, scale)
+            image = item.scale(scale).to_image(logger=logger)
             box = item.placement_box.scale(scale)
             try:
                 canvas.image.paste(

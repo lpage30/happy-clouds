@@ -36,7 +36,7 @@ class LayoutItem(Item, Reservation):
         item: Item,
 
     ) -> None:
-        Reservation.__init__(name, reservation_no, reservation_box, item.display_map)
+        Reservation.__init__(self, name, reservation_no, reservation_box, item.display_map)
         self._name = name
         self._placement_box = placement_box
         self._rotated_degrees = rotated_degrees if rotated_degrees is not None else 0
@@ -179,18 +179,6 @@ class LayoutItem(Item, Reservation):
     @property
     def rotated_degrees(self) -> int | None:
         return self._rotated_degrees
-
-    @property    
-    def reservation_box(self) -> Box:
-        return self._reservation_box
-
-    @reservation_box.setter    
-    def reservation_box(self, value: Box) -> None:
-        self._reservation_box = value
-
-    @property
-    def reservation_no(self) -> int:
-        return self._reservation_no
     
     @property
     def reservation_color(self) -> Color | None:

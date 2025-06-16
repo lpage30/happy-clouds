@@ -52,6 +52,11 @@ class Item(Size):
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
         pass
 
+    def scale_item(self, scale: float) -> Item:
+        if 1.0 == scale:
+            return self
+        return self.resize_item(self.item_size.scale(scale))
+    
     @abstractmethod
     def to_image(
         self,
