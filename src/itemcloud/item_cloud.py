@@ -260,7 +260,7 @@ class ItemCloud(object):
                 new_reservation_box.size.size_to_string(),
                 item_measure.latency_str()
             ))
-            margin = 2 * (layout_item.reservation_box.left - layout_item.placement_box.left)
+            margin = (layout_item.reservation_box.left - layout_item.placement_box.left)
             if reservations.reserve_opening(layout_item.name, layout_item.reservation_no, new_reservation_box, new_item.display_map):
                 
                 new_items.append(

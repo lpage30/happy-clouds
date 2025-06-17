@@ -195,7 +195,7 @@ class Font:
                     font_size=self.font_size
                 )
         else:
-            if '\n' in self.text:
+            if '\n' in text:
                 draw.multiline_text(
                     xy,
                     text,

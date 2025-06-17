@@ -28,9 +28,9 @@ class TextImageItem(Item):
         self._image = image
         self._text = text
         self._versions = version_stack
+        self._watermark_transparency = watermark_transparency
 
         if not(text._has_transparency):
-            self._watermark_transparency = watermark_transparency
             if self._text._foreground_color:
                 self._text._foreground_color = self._text._foreground_color.to_transparent(watermark_transparency)
             else:
@@ -39,6 +39,7 @@ class TextImageItem(Item):
 
             self._text = TextItem(
                 text=self._text._text,
+                font=self._text._font,
                 foreground_color=self._text._foreground_color,
                 background_color=self._text._background_color,
                 has_transparency=True
@@ -120,25 +121,25 @@ class TextImageItem(Item):
                 new_text = new_text.resize_item(size)
 
         return TextImageItem(
-            new_image,
-            new_text,
-            self._watermark_transparency,
-            self.all_versions()
+            image=new_image,
+            text=new_text,
+            watermark_transparency=self._watermark_transparency,
+            version_stack=self.all_versions()
         )
 
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
         return TextImageItem(
-            self._image.rotate_item(angle, direction),
-            self._text.rotate_item(angle, direction),
-            self._watermark_transparency,
-            self.all_versions()
+            image=self._image.rotate_item(angle, direction),
+            text=self._text.rotate_item(angle, direction),
+            watermark_transparency=self._watermark_transparency,
+            version_stack=self.all_versions()
         )
 
     def copy_item(self) -> Item:
         return TextImageItem(
-            self._image.copy_item(),
-            self._text.copy_item(),
-            self._watermark_transparency,
+            image=self._image.copy_item(),
+            text=self._text.copy_item(),
+            watermark_transparency=self._watermark_transparency,
         )
 
     def to_image(

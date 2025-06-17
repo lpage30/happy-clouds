@@ -221,4 +221,11 @@ class LayoutItem(Item, Reservation):
             self._item if item is None else item
         )
 
+    def write(self, layout_directory: str) -> Dict[str,Any]:
+        item_filepath = self.write_row(self._name, layout_directory, self.to_csv_row())
+        result = self.to_csv_row()
+        result.update({
+            layout_defaults.LAYOUT_ITEM_FILEPATH: item_filepath
+        })
+        return result
     

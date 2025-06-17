@@ -88,7 +88,7 @@ class CLIBaseArguments:
             result = True
             filepath = to_unused_filepath(self.output_directory, reservation_chart.name, self.output_image_format)
             print('saving itemcloud reservation chart to {0}'.format(filepath))
-            collage.image.save(filepath, self.output_image_format)
+            reservation_chart.image.save(filepath, self.output_image_format)
             print('completed! {0}'.format(filepath))
         
         if layout:

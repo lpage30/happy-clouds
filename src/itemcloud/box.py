@@ -74,13 +74,13 @@ class Box:
     def box_to_string(self) -> str:
         return f'Box({self.left}, {self.upper}, {self.right}, {self.lower})'
     
+
     def remove_margin(self, margin: int) -> Box:
-        padding = int(round(margin/2))
         return Box(
-            self.left + padding,
-            self.upper + padding,
-            self.right - padding,
-            self.lower - padding
+            self.left + margin,
+            self.upper + margin,
+            self.right - margin,
+            self.lower - margin
         )
     
     def is_wedged(self, bounding: Box) -> bool:

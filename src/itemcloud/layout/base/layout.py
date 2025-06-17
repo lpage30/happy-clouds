@@ -256,7 +256,7 @@ class Layout:
         self._contour = contour
         self._items = items
         for item in items:
-            item.reservation_color = canvas.reservation_colors[item.reservation_no]
+            item.reservation_color = canvas.reservation_colors[item.reservation_no - 1]
             
         self.max_items = max_items if max_items is not None else int(item_cloud_defaults.DEFAULT_MAX_ITEMS)
         self.min_item_size = min_item_size if min_item_size is not None else int(item_cloud_defaults.DEFAULT_MIN_ITEM_SIZE)
