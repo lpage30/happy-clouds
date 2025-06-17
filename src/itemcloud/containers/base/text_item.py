@@ -5,8 +5,7 @@ from itemcloud.util.colors import (Color, NamedColor, pick_color, ColorSource)
 from itemcloud.util.fonts import (Font, FontName, FontSize, FontTextAttributes,pick_font, pick_font_size)
 from itemcloud.util.font_categories import (FontTypeCategories, FontUsageCategory)
 from itemcloud.util.display_map import (
-    DISPLAY_MAP_TYPE,
-    size_to_display_map
+    DISPLAY_MAP_TYPE
 )
 from itemcloud.containers.base.image_item import (
     ImageItem
@@ -29,17 +28,23 @@ class TextItem(Item):
         font: Font,
         foreground_color: Color | None,
         background_color: Color | None,
-        version_stack: List[TextItem] = list()
+        version_stack: List[TextItem] = list(),
+        has_transparency: bool = False
     ) -> None:
+        image = font.to_image(
+            text,
+            foreground_color,
+            background_color
+        )
+
         self._text = text
         self._font = font
-        box_size = self._font.to_box(text)
-        self._width = box_size.width
-        self._height = box_size.height
         self._foreground_color = foreground_color
         self._background_color = background_color
+        self._rendered_image = image._image
+        self._display_map = image.display_map
         self._versions = version_stack
-        self.reset_display_map()
+        self._has_transparency = has_transparency
 
     @property
     def type(self) -> ItemType:
@@ -55,11 +60,11 @@ class TextItem(Item):
 
     @property
     def width(self) -> int:
-        return self._width
+        return self._rendered_image.width
 
     @property
     def height(self) -> int:
-        return self._height
+        return self._rendered_image.height
 
     def all_versions(self) -> List[TextItem]:
         versions = self._versions.copy()
@@ -82,22 +87,14 @@ class TextItem(Item):
         self._foreground_color = reset_version.foreground_color
         self._background_color = reset_version.background_color
         self._versions = reset_version.version_stack
-        self.reset_display_map()
+        self._rendered_image = reset_version._rendered_image
+        self._display_map = reset_version._display_map
+        self._has_transparency = reset_version._has_transparency
         return True    
 
     def reset_to_original_version(self) -> bool:
         return self.reset_to_version()
 
-    def reset_display_map(self) -> None:
-        self._display_map = size_to_display_map(self.item_size)        
-
-    @width.setter
-    def width(self, value: int) -> None:
-        self._width = value
-
-    @height.setter
-    def height(self, value: int) -> None:
-        self._height = value
 
     def resize_item(self, size: Size) -> Item:
         if self.is_equal(size):
@@ -108,12 +105,9 @@ class TextItem(Item):
             new_font,
             self._foreground_color,
             self._background_color,
-            self.all_versions()
+            self.all_versions(),
+            self._has_transparency
         )
-        text_box = new_font.to_box(self._text)
-        result.width = text_box.width
-        result.height = text_box.height
-        result.reset_display_map()     
         return result    
     
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
@@ -128,7 +122,8 @@ class TextItem(Item):
             font,
             self._foreground_color,
             self._background_color,
-            self.all_versions()
+            self.all_versions(),
+            self._has_transparency
         )
 
     def copy_item(self) -> Item:
@@ -136,7 +131,8 @@ class TextItem(Item):
             self._text,
             self._font,
             self._foreground_color,
-            self._background_color
+            self._background_color,
+            self._has_transparency
         )
 
     def draw_on_image(

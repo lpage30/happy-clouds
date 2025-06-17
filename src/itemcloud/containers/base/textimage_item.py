@@ -29,21 +29,27 @@ class TextImageItem(Item):
         self._text = text
         self._versions = version_stack
 
-        self._watermark_transparency = watermark_transparency
-        if self._text._foreground_color:
-            self._text._foreground_color = self._text._foreground_color.to_transparent(watermark_transparency)
-        else:
-            self._text._foreground_color = RGBAColor(255,255,255, watermark_transparency * 255)
-        self._text._background_color = None
-        self._image = image
-        self._width = image.width
-        self._height = image.height
-        if self.width < text.width:
-            self._width = text.width
-        if self.height < text.height:
-            self._height = text.height
-        self._combined_image = self.to_image()
-        self._display_map = self._combined_image.display_map
+        if not(text._has_transparency):
+            self._watermark_transparency = watermark_transparency
+            if self._text._foreground_color:
+                self._text._foreground_color = self._text._foreground_color.to_transparent(watermark_transparency)
+            else:
+                self._text._foreground_color = RGBAColor(255,255,255, watermark_transparency * 255)
+            self._text._background_color = None
+
+            self._text = TextItem(
+                text=self._text._text,
+                foreground_color=self._text._foreground_color,
+                background_color=self._text._background_color,
+                has_transparency=True
+            )
+
+        textimage = self._text.draw_on_image(
+            image = image,
+            as_watermark = True
+        )
+        self._rendered_image = textimage._image
+        self._display_map = textimage.display_map
 
     @property
     def type(self) -> ItemType:
@@ -63,11 +69,11 @@ class TextImageItem(Item):
 
     @property
     def width(self) -> int:
-        return self._width
+        return self._rendered_image.width
 
     @property
     def height(self) -> int:
-        return self._height
+        return self._rendered_image.height
 
     def all_versions(self) -> List[TextItem]:
         versions = self._versions.copy()
@@ -88,17 +94,13 @@ class TextImageItem(Item):
         self._versions = reset_version._version_stack
 
         self._watermark_transparency = reset_version._watermark_transparency
-        self._width = reset_version._width
-        self._height = reset_version._height
-        self._combined_image = reset_version._combined_image
-        self.reset_display_map()
+        self._rendered_image = reset_version._rendered_image
+        self._display_map = reset_version._display_map
+
         return True    
 
     def reset_to_original_version(self) -> bool:
         return self.reset_to_version()
-
-    def reset_display_map(self) -> None:
-        self._display_map = img_to_display_map(self._combined_image)        
 
     def resize_item(self, size: Size) -> Item:
         if self.item_size.is_equal(size):

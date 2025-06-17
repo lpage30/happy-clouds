@@ -11,7 +11,7 @@ from itemcloud.containers.weighted_text import (
     WEIGHTED_TEXT_HEADERS,
     WEIGHTED_TEXT_CSV_FILE_HELP
 )
-from itemcloud.logger.base_logger import BaseLogger
+from itemcloud.logger.base_logger import BaseLogger, set_logger_instance
 from itemcloud.logger.file_logger import FileLogger
 
 def arguments() -> argparse.ArgumentParser:
@@ -83,6 +83,7 @@ def main() -> None:
         logger: BaseLogger = FileLogger.create('generate weighted text', False, args.log_filepath)
     else:
         logger: BaseLogger = BaseLogger.create('generate weighted text', False)
+    set_logger_instance(logger)
 
     logger.info(f"Generate {args.count} random words from {len(args.words)} provided words.")
     word_count_set = generate_word_count_set(args.words, args.count)

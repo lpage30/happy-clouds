@@ -1,6 +1,6 @@
 import argparse
 from typing import List
-from itemcloud.logger.base_logger import BaseLogger
+from itemcloud.logger.base_logger import BaseLogger, set_logger_instance
 from itemcloud.logger.file_logger import FileLogger
 import itemcloud.cli_support.base.cli_helpers as cli_helpers
 from itemcloud.util.parsers import to_unused_filepath
@@ -59,6 +59,7 @@ class CLIBaseArguments:
             self.logger: BaseLogger = FileLogger.create(self.name, self.parsed_args.verbose, self.parsed_args.log_filepath)
         else:
             self.logger: BaseLogger = BaseLogger.create(self.name, self.parsed_args.verbose)
+        set_logger_instance(self.logger)
     
     def help(self) -> str:
         return self.parser.format_help()

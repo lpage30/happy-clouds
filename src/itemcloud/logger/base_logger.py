@@ -95,4 +95,15 @@ class  BaseLogger:
     def create(name: str, verbose: bool):
         return BaseLogger(name, LoggerLevel.DEBUG if verbose else LoggerLevel.INFO)
 
-        
+
+g_logger: BaseLogger = None
+
+def get_logger_instance() -> BaseLogger:
+    global g_logger
+    if g_logger is None:
+        g_logger = BaseLogger.create('global_logger', True)
+    return g_logger
+
+def set_logger_instance(logger: BaseLogger) -> None:
+    global g_logger
+    g_logger = logger

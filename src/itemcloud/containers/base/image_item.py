@@ -1,6 +1,6 @@
 from __future__ import annotations
 import os
-from PIL import Image, ImageDraw, ImageFilter, ImagePalette, _typing
+from PIL import Image, ImageDraw, ImageFilter, ImagePalette, _typing, UnidentifiedImageError
 from typing import Any, Dict, IO, List, Literal
 from collections.abc import Sequence
 import matplotlib.pyplot as plt
@@ -13,7 +13,7 @@ from itemcloud.util.display_map import (
     img_to_display_map
 )
 from itemcloud.size import Size
-from itemcloud.logger.base_logger import BaseLogger
+from itemcloud.logger.base_logger import BaseLogger, get_logger_instance
 from itemcloud.util.parsers import validate_row, to_unused_filepath
 from itemcloud.util.csv_utils import write_rows
 
@@ -50,7 +50,12 @@ class ImageItem(Item):
         self._filepath = filepath
         self._versions = version_stack
         self._display_map = img_to_display_map(image)
+        self._rendered_image = image
 
+    @property
+    def image(self) -> Image.Image:
+        return self._image
+    
     @property
     def type(self) -> ItemType:
         return ItemType.IMAGE
@@ -225,6 +230,18 @@ class ImageItem(Item):
         box: ImageItem | tuple[int, int, int, int] | tuple[int, int] | None = None,
         mask: ImageItem | None = None,
     ) -> None:
+        if not(isinstance(im, str) or isinstance(im, float) or isinstance(im, tuple)) and im._image.mode != self._image.mode:
+            get_logger_instance().warning("Converting {0} to mode {1} for pasting into {2}".format(im.name, self._image.mode, self.name))
+            im._image = im._image.convert(self._image.mode)
+
+        if not(box is None or isinstance(box, tuple)) and box._image.mode != self._image.mode:
+            get_logger_instance().warning("Converting {0} to mode {1} for box argument pasting {2} into {3}".format(box.name, self._image.mode, im.name, self.name))
+            box._image = box._image.convert(self._image.mode)
+
+        if not(mask is None) and mask._image.mode != self._image.mode:
+            get_logger_instance().warning("Converting {0} to mode {1} for mask argument pasting {2} into {3}".format(mask.name, self._image.mode, im.name, self.name))
+            mask._image = mask._image.convert(self._image.mode)
+    
         self._image.paste(
             im if isinstance(im, str) or isinstance(im, float) or isinstance(im, tuple) else im._image,
             None if box is None else box if isinstance(box, tuple) else box._image,
