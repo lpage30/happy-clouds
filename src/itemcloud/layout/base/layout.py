@@ -311,8 +311,8 @@ class Layout:
         for i in range(total):
             item: LayoutItem = self.items[i]
             logger.info('pasting Image[{0}/{1}] {2} into imagecloud canvas'.format(i + 1, total, item.name))            
-            image = item.scale_item(scale).to_image(logger=logger)
             box = item.placement_box.scale(scale)
+            image = item.scale_item(scale).to_image(size=box.size, logger=logger)
             try:
                 canvas.image.paste(
                     im=image,
@@ -399,7 +399,7 @@ class Layout:
                         canvas = LayoutCanvas.load(row, row_no, layout_directory)
                     if contour == None:
                         contour = LayoutContour.load(row, row_no, layout_directory)
-                    items.append(LayoutItem.load(row, row_no, layout_directory, create_layout_item))
+                    items.append(LayoutItem.load(row, row_no, layout_directory))
             
             if canvas == None or contour == None or 0 == len(items):
                 return None
@@ -411,6 +411,7 @@ class Layout:
                 ], layout_data, None, lambda va: Size(int(va[0]), int(va[1]))
              )
             item_step = get_value_or_default(layout_defaults.LAYOUT_ITEM_STEP, layout_data, None, int)
+            rotation_step = get_value_or_default(layout_defaults.LAYOUT_ITEM_ROTATION_INCREMENT, layout_data, None, int)
             resize_type = get_value_or_default(layout_defaults.LAYOUT_RESIZE_TYPE, layout_data, None, lambda v: ResizeType[v])
             scale = get_value_or_default(layout_defaults.LAYOUT_SCALE, layout_data, None, float)
             margin = get_value_or_default(layout_defaults.LAYOUT_MARGIN, layout_data, None, int)
@@ -425,6 +426,7 @@ class Layout:
                 max_items,
                 min_item_size,
                 item_step,
+                rotation_step,
                 resize_type,
                 scale,
                 margin,

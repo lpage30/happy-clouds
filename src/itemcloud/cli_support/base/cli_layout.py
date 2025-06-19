@@ -25,7 +25,7 @@ def cli_layout(
     args.load()
     args.logger.info('{0} {1}'.format(args.name, ' '.join(sys_args)))
     args.logger.info('loading {0} ...'.format(args.input))
-    layout = Layout.load(args.input, create_layout_item)
+    layout = Layout.load(args.input)
     args.logger.info('loaded layout with {0} items'.format(len(layout.items)))
     args.logger.info('laying-out and showing anyitemcloud layout with {0} scaling.'.format(args.scale))
     

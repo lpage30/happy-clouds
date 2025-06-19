@@ -280,7 +280,7 @@ class ImageItem(Item):
     ) -> ImageItem:
         return ImageItem(Image.open(fp, mode, formats), str(fp))
 
-    def to_csv_row(self, directory: str = '.') -> Dict[str, Any]:
+    def to_csv_row(self, _directory: str = '.') -> Dict[str, Any]:
         return {
             IMAGE_FILEPATH: self.filepath
         }

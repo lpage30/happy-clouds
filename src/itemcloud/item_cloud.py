@@ -244,11 +244,12 @@ class ItemCloud(object):
         measure.start()
         for i in range(total_items - 1, -1, -1):
             layout_item: LayoutItem = layout.items[i]
+            margin = layout_item.placement_box.get_margin(layout_item.reservation_box)
             item_measure = TimeMeasure()
             item_measure.start()
             self._logger.push_indent('item-{0}[{1}/{2}]'.format(layout_item.name, total_items - i, total_items))
             self._logger.info('Maximizing...')
-            new_item, new_reservation_box = reservations.maximize_existing_reservation(layout_item.item, layout_item.reservation_box)
+            new_item, new_reservation_box = reservations.maximize_existing_reservation(layout_item.item, layout_item.reservation_box, margin)
             item_measure.stop()
             if layout_item.reservation_box.equals(new_reservation_box):
                 self._logger.info('Already Maximized ({0})'.format(item_measure.latency_str()))
@@ -261,7 +262,6 @@ class ItemCloud(object):
                 new_reservation_box.size.size_to_string(),
                 item_measure.latency_str()
             ))
-            margin = (layout_item.reservation_box.left - layout_item.placement_box.left)
             if reservations.reserve_opening(layout_item.name, layout_item.reservation_no, new_reservation_box, new_item.display_map):
                 
                 new_items.append(

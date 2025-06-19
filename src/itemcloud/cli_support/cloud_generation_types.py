@@ -97,8 +97,7 @@ class CloudTypeHelpers:
     def layout(self, args: CLIBaseGenerateArguments) -> None:
         cli_layout(
             args.sys_args,
-            args,
-            self.create_layout
+            args
         )
     def cli_layout(self, args: List[str]) -> None:
         self.layout(self.layout_args(args))

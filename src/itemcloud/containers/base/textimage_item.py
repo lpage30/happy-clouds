@@ -11,8 +11,7 @@ from itemcloud.containers.base.text_item import TextItem
 from itemcloud.util.colors import RGBAColor
 from itemcloud.box import RotateDirection 
 from itemcloud.util.display_map import (
-    DISPLAY_MAP_TYPE,
-    img_to_display_map
+    DISPLAY_MAP_TYPE
 )
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.util.parsers import get_value_or_default

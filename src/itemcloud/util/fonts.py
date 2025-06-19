@@ -1,6 +1,6 @@
 
 from __future__ import annotations
-from PIL import ImageFont
+from PIL import ImageFont, Image, ImageDraw
 from typing import List
 from itemcloud.containers.base.image_item import ImageItem, to_img_size
 from itemcloud.box import Box, RotateDirection
@@ -37,6 +37,14 @@ class FontName:
         except:
             return False
 
+def value_to_FontLayout(value: int | None) -> ImageFont.Layout:
+    if value is None:
+        return None
+    if 0 == value:
+        return ImageFont.Layout.BASIC
+    if 1 == value:
+        return ImageFont.Layout.RAQM
+    return None
 
 class FontTextAttributes:
     def __init__(
@@ -128,28 +136,29 @@ class Font:
     def to_box(self, text: str) -> Box:
         return get_text_box(text, self.to_image_font(text).image_font, self._attributes)
 
-    def find_best_fit(self, text: str, fit_size: Size) -> "Font":
-        result: Font = Font(
+    def find_best_fit(self, text: str, fit_size: Size) -> Font:
+        image = Image.new('RGBA', to_img_size(fit_size.scale(2.0)))
+        draw = ImageDraw.Draw(image)
+        font_size = self._font_size
+        font_increment = 0
+        while True:
+            image_font = ImageFont.truetype(self.font_name, font_size)
+            bbox = draw.textbbox((0,0), text, image_font)
+            if bbox[2] < fit_size.width and bbox[3] < fit_size.height:
+                if font_increment < 0:
+                    break;
+                font_size += 1
+                font_increment = 1
+            elif bbox[2] > fit_size.width and bbox[3] > fit_size.height:
+                font_size -= 1
+                font_increment = -1
+            else:
+                break
+        return Font(
             self._font,
-            self._size,
+            FontSize(FontUsageCategory.CUSTOM, font_size - 1, font_size + 1),
             self._attributes
         )
-        step: float = 0.25
-        result.font_size = self.font_size
-        font_size = result.font_size
-        box_size = result.to_box(text).size
-        fit_area = fit_size.area
-        box_area = box_size.area
-        increment = step if box_area < fit_area else -step
-        while True:
-            result.font_size = font_size + increment
-            box_size = result.to_box(text).size
-            box_area = box_size.area
-            if (0 < increment and box_area < fit_area) or (0 > increment and box_area > fit_area):
-                font_size = result.font_size # keep expanding or shrinking with new font_size
-            else:
-                result.font_size = font_size
-                return result
         
     
     def draw_with_font_on_image(

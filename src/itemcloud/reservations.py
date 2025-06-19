@@ -1,4 +1,5 @@
 from typing import List
+from enum import Enum
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.box import (
     Box,
@@ -17,8 +18,8 @@ from itemcloud.util.display_map import(
     DISPLAY_MAP_TYPE,
     add_margin_to_display_map,
     write_display_map,
-    Direction,
-    find_expanded_box
+    can_fit_on_target,
+    from_displaymap_box
 )
 from itemcloud.util.time_measure import TimeMeasure
 from itemcloud.containers.base.item import Item
@@ -52,6 +53,12 @@ class SampledUnreservedOpening(object):
             logger.debug(
                 f"{'FOUND:' if 1 == self.found else 'NOT FOUND:'} sample_to_find_unreserved_opening sampling[{self.sampling_total}]@({self.measure.latency_str()}) rotated({self.rotated_degrees}) {self.original_item.size_to_string()} -> {self.new_item.size_to_string()}\n"
             )
+
+class Direction(Enum):
+    LEFT = 0
+    UP = 1
+    RIGHT = 2
+    DOWN = 3
 
 # extrapolated from https://github.com/amueller/word_cloud/blob/main/wordcloud/wordcloud.py
 class Reservations(object):
@@ -151,24 +158,73 @@ class Reservations(object):
                 unrotated_item = result.new_item
                 rotate = True
 
-    def maximize_existing_reservation(self, item: Item, reservation: Box) -> tuple[Item, Box]:
-        expansion_count: int = 0
-        sampling: int = 0
-        result: tuple[Item, Box] = (item, reservation)
-        expanded_box: Box = reservation
-        expanded_item: Item = item
+    def maximize_existing_reservation(self, item: Item, reservation: Box, margin: int) -> tuple[Item, Box]:
+        reservations_map = self._reservation_map
+        reservations_box = from_displaymap_box(reservations_map.shape)
+        reservations_box_size = reservations_box.size
+        expanded_item = item
+        expanded_reservation = reservation.copy_box()
+        # iteratively expand once in each direction until we cannot anymore
         while True:
-            sampling = sampling + 1
-            expansion_count = 0
+            expansions = 0
             for direction in Direction:
-                expanded_box = find_expanded_box(expanded_item.display_map, self._reservation_map, expanded_box, direction)
-                if not(expanded_box.equals(result[1])):
-                    expanded_item = expanded_item.resize_item(expanded_box.size)
-                    result = (expanded_item, expanded_box)
-                    expansion_count = expansion_count + 1
-            if 0 == expansion_count:
+                expanded_item_map = add_margin_to_display_map(expanded_item.display_map, margin)
+                expanded_item_window = from_displaymap_box(expanded_item_map.shape)
+                edge: Box = expanded_reservation.copy_box()
+                expanded = False
+                if Direction.LEFT == direction: # widen more to LEFT
+                    edge = Box(edge.left, edge.upper, edge.left, edge.lower)
+                    for left in range(edge.left - 1, -1, -1):
+                        edge.left = left
+                        if not(reservations_box.contains(edge)):
+                            break
+                        elif can_fit_on_target(expanded_item_map, reservations_map, edge, expanded_item_window):
+                            expanded_reservation.left = edge.left
+                            expanded = True
+                            break
+
+                elif Direction.UP == direction: # lengthen more UPward
+                    edge = Box(edge.left, edge.upper, edge.right, edge.upper)
+                    for upper in range(edge.upper - 1, -1, -1):
+                        edge.upper = upper
+                        if not(reservations_box.contains(edge)):
+                            break
+                        elif can_fit_on_target(expanded_item_map, reservations_map, edge, expanded_item_window):
+                            expanded_reservation.upper = edge.upper
+                            expanded = True
+                            break
+
+                elif Direction.RIGHT == direction: # widen more to RIGHT
+                    edge = Box(edge.right, edge.upper, edge.right, edge.lower)
+                    expanded_item_window.left = expanded_item_window.right - 1
+                    for right in range(edge.right + 1, reservations_box_size.width):
+                        edge.right = right
+                        if not(reservations_box.contains(edge)):
+                            break
+                        elif can_fit_on_target(expanded_item_map, reservations_map, edge, expanded_item_window):
+                            expanded_reservation.right = edge.right
+                            expanded = True
+                            break
+
+                elif Direction.DOWN == direction: # lengthen more DOWNward
+                    edge = Box(edge.left, edge.lower, edge.right, edge.lower)
+                    expanded_item_window.upper = expanded_item_window.lower - 1
+                    for lower in range(edge.lower + 1, reservations_box_size.height):
+                        edge.lower = lower
+                        if not(reservations_box.contains(edge)):
+                            break
+                        elif can_fit_on_target(expanded_item_map, reservations_map, edge, expanded_item_window):
+                            expanded_reservation.lower = edge.lower
+                            expanded = True
+                            break
+                if expanded:
+                    expansions += 1
+                    expanded_item = expanded_item.resize_item(expanded_reservation.remove_margin(margin).size)
+
+            if 0 == expansions:
                 break
-        return result
+        return (expanded_item, expanded_reservation)
+
     
 
     def _find_unreserved_openings(

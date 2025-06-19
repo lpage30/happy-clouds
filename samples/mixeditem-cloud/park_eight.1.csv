@@ -1,2 +1,0 @@
-background_color,font_name_path,font_size,foreground_color,image_filepath,max_font_size,min_font_size,name,text,text_align,text_anchor,text_layout,text_stroke_width,transparency_percent,weight
-,Skia,18.0,#ffffff,./mixeditem-cloud/park_eight.1.png,20.0,16.0,park_eight,NUMBER EIGHT,center,lt,0,2,0.25,1339.0

@@ -1,7 +1,8 @@
 from __future__ import annotations
+import os
 import matplotlib.patches as mpatches
 from typing import Any, Dict
-from itemcloud.box import Box
+from itemcloud.box import Box 
 from itemcloud.util.csv_utils import (
     load_rows,
     write_rows
@@ -19,7 +20,8 @@ from itemcloud.containers.base.item import Item
 from itemcloud.util.display_map import DISPLAY_MAP_TYPE
 from itemcloud.box import RotateDirection
 from itemcloud.util.parsers import (
-    filepath_to_name
+    filepath_to_name,
+    to_existing_filepath
 )
 from itemcloud.reservations import Reservation
 import itemcloud.layout.base.layout_defaults as layout_defaults
@@ -127,7 +129,7 @@ class LayoutItem(Item, Reservation):
 
     def to_csv_row(self, directory: str = '.') -> Dict[str, Any]:
         return {
-            layout_defaults.LAYOUT_ITEM_FILEPATH: self.to_write_item_filename(directory, self._name),
+            layout_defaults.LAYOUT_ITEM_FILEPATH: self.to_write_item_filename(directory, self.item.name),
             layout_defaults.LAYOUT_ITEM_POSITION_X: self.placement_box.left,
             layout_defaults.LAYOUT_ITEM_POSITION_Y: self.placement_box.upper,
             layout_defaults.LAYOUT_ITEM_SIZE_WIDTH: self.placement_box.width,
@@ -143,28 +145,29 @@ class LayoutItem(Item, Reservation):
         }
 
     def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
-        row[layout_defaults.LAYOUT_ITEM_FILEPATH] = self._item.write_row(directory, name, self._item.to_csv_row(directory))
-        return write_rows(self.to_write_item_filename(directory, self._name), [row])
+        row[layout_defaults.LAYOUT_ITEM_FILEPATH] = self._item.write_row(directory, self._item.name, self._item.to_csv_row(directory))
+        return write_rows(self.to_write_item_filename(directory, name), [row])
 
     @staticmethod
     def load_row(row: Dict[str, Any]) -> Item:
-        item = load_weighted_item_row(load_rows(row[layout_defaults.LAYOUT_ITEM_FILEPATH])[0])
+        item_rows = load_rows(row[layout_defaults.LAYOUT_ITEM_FILEPATH])
+        item = load_weighted_item_row(item_rows[0])
         return create_layout_item(
             filepath_to_name(row[layout_defaults.LAYOUT_ITEM_FILEPATH]),
             Box(
-                row[layout_defaults.LAYOUT_ITEM_POSITION_X],
-                row[layout_defaults.LAYOUT_ITEM_POSITION_Y],
-                row[layout_defaults.LAYOUT_ITEM_POSITION_X] + row[layout_defaults.LAYOUT_ITEM_SIZE_WIDTH],
-                row[layout_defaults.LAYOUT_ITEM_POSITION_Y] + row[layout_defaults.LAYOUT_ITEM_SIZE_HEIGHT]
+                int(row[layout_defaults.LAYOUT_ITEM_POSITION_X]),
+                int(row[layout_defaults.LAYOUT_ITEM_POSITION_Y]),
+                int(row[layout_defaults.LAYOUT_ITEM_POSITION_X]) + int(row[layout_defaults.LAYOUT_ITEM_SIZE_WIDTH]),
+                int(row[layout_defaults.LAYOUT_ITEM_POSITION_Y]) + int(row[layout_defaults.LAYOUT_ITEM_SIZE_HEIGHT])
             ),
-            row[layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES],
+            int(row[layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES]) if row[layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES] is not None else None,
             Box(
-                row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X],
-                row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y],
-                row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X] + row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_WIDTH],
-                row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y] + row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT]
+                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X]),
+                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y]),
+                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X]) + int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_WIDTH]),
+                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y]) + int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT])
             ),
-            row[layout_defaults.LAYOUT_ITEM_RESERVATION_NO],
+            int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_NO]),
             row[layout_defaults.LAYOUT_ITEM_LATENCY],
             item
         )
@@ -196,7 +199,7 @@ class LayoutItem(Item, Reservation):
         )
 
     def write_item(self, directory: str, name: str) -> str:
-        return self.write_row(name, directory, self.to_csv_row(directory))
+        return self.write_row(directory, name, self.to_csv_row(directory))
         
 
     def load_item(self, filepath: str) -> None:
@@ -222,10 +225,17 @@ class LayoutItem(Item, Reservation):
         )
 
     def write(self, layout_directory: str) -> Dict[str,Any]:
-        item_filepath = self.write_row(layout_directory, self._name, self.to_csv_row(layout_directory))
         result = self.to_csv_row(layout_directory)
-        result.update({
-            layout_defaults.LAYOUT_ITEM_FILEPATH: item_filepath
-        })
+        self.write_row(layout_directory, self._name, result)
         return result
+    
+    @staticmethod
+    def load(row: Dict[str,Any], _row_no: int, layout_directory: str) -> LayoutItem:
+        layout_row = {}
+        layout_row.update(row)
+        layout_row.update({
+            layout_defaults.LAYOUT_ITEM_FILEPATH: to_existing_filepath(row[layout_defaults.LAYOUT_ITEM_FILEPATH], layout_directory)
+        })
+        return LayoutItem.load_row(layout_row)
+    
     

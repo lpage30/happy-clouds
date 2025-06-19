@@ -11,6 +11,13 @@ def parse_to_float(s:str) -> float:
         raise ValueError('Invalid value {0} must be a number'.fomat(s))
     return float(s)
     
+def parse_to_bool(s:str) -> bool:
+    if s == None:
+        raise ValueError('Invalid value {0} must be something to evaluate as true or false'.fomat(s))
+    if s.isdigit():
+        return 0 != int(s)
+    return s.lower() in ['true', 't', 'y', 'yes']
+
 def parse_to_existing_path(pathtype: str, value: str) -> str:
     if not os.path.exists(value):
         raise ValueError('The {0} {1} does not exist!'.format(pathtype, value))

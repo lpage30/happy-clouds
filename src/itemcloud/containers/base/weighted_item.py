@@ -71,7 +71,7 @@ class WeightedItem(NamedItem):
 
     @staticmethod
     def load_row(row: Dict[str, Any]) -> Item:
-        return create_weighted_item(row[ITEM_WEIGHT], NamedItem.load_row(row))
+        return create_weighted_item(float(row[ITEM_WEIGHT]), NamedItem.load_row(row))
 
     @staticmethod
     def load_item(filepath: str) -> NamedItem:

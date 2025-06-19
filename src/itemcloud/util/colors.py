@@ -139,12 +139,41 @@ class IntColor(Color):
         result._transparency = int(transparency * 255)
         return result
 
+class RGBColor(Color):
+    def __int__(self, red: int, green: int, blue: int):
+        super().__init__(red, green, blue)
+
+    def to_transparent(self, transparency: float) -> "Color":
+        result =  RGBColor(self.red, self.green, self.blue)
+        result._transparency = int(transparency * 255)
+        return result
+
 class RGBAColor(Color):
     def __int__(self, red: int, green: int, blue: int, a: int):
         super().__init__(red, green, blue, a)
 
     def to_transparent(self, transparency: float) -> "Color":
         return RGBAColor(self.red, self.green, self.blue, int(transparency * 255))
+
+def to_color(color_str: str) -> Color:
+    if color_str.lower() == 'random':
+        return pick_color(ColorSource.NAME)
+    if color_str.startswith('#') or color_str.startswith('0x'):
+        i = 1 if color_str.startswith('#') else 2
+        int_array = list()
+        while i < len(color_str):
+            int_array.append(int(color_str[i:i+2], 16))
+            i += 2
+        red = int_array[0] if 0 < len(int_array) else 255
+        green = int_array[1] if 1 < len(int_array) else 255
+        blue =  int_array[2] if 2 < len(int_array) else 255
+        alpha =  int_array[3] if 3 < len(int_array) else None
+        return RGBColor(red, green, blue) if alpha is None else RGBAColor(red, green, blue, alpha)
+    
+    if color_str.isdigit():
+        return IntColor(int(color_str))
+    return NamedColor(color_str)
+
 
 WHITE_COLOR = NamedColor('white')
 BLACK_COLOR = NamedColor('black')

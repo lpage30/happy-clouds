@@ -52,6 +52,7 @@ class Box:
             int(round(self.right * scale)),
             int(round(self.lower * scale))
         )
+
     def copy_box(self) -> Box:
         return Box(
             self.left,
@@ -67,6 +68,7 @@ class Box:
             self.right == other.right and
             self.lower == other.lower
         )
+
     def contains(self, other) -> bool:
         return (self.left <= other.left and self.upper <= other.upper and 
             self.right >= other.right and self.lower >= other.lower)
@@ -82,6 +84,12 @@ class Box:
             self.right - margin,
             self.lower - margin
         )
+    def get_margin(self, larger: Box) -> int:
+        width_margin = self.left - larger.left
+        height_margin = self.upper - larger.upper
+        if width_margin != height_margin:
+            raise ValueError(f"Unexpected margin difference: width-margin({width_margin}) <> height-margin({height_margin})")
+        return width_margin
     
     def is_wedged(self, bounding: Box) -> bool:
         # a box is wedged when it is twisted so it hits its bounding box
@@ -99,6 +107,7 @@ class Box:
             self.left + size.width,
             self.upper + size.height
         )
+    
     def rotate(self, degrees: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Box:
         native_box = native_rotate_box(self.to_native(), degrees, direction.value)
         return Box.from_native(native_box)
@@ -113,8 +122,6 @@ class Box:
             result = result + rotation_increment
             box = box.rotate(result, direction)
         return result
-        
-
     
     def to_native(self):
         return native_create_box(
