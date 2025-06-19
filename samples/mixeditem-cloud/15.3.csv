@@ -1,0 +1,2 @@
+layout_item_filepath,layout_item_latency,layout_item_position_x,layout_item_position_y,layout_item_reservation_no,layout_item_reserved_position_x,layout_item_reserved_position_y,layout_item_reserved_size_height,layout_item_reserved_size_width,layout_item_rotated_degrees,layout_item_size_height,layout_item_size_width,layout_item_type
+./mixeditem-cloud/15.2.csv,000H_00M_03S_348MS,1285,52,15,1284,51,20,145,0,18,143,TEXT

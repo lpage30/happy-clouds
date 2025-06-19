@@ -237,6 +237,7 @@ class ItemCloud(object):
         new_items: list[LayoutItem] = list()
         
         total_items = len(layout.items)
+        maximized_count = 0
         self._logger.info('Maximizing ItemCloud empty-space around  {0} images'.format(total_items))
         self._logger.push_indent('maximizing-empty-space')
         measure = TimeMeasure()
@@ -321,7 +322,7 @@ class ItemCloud(object):
             layout.margin,
             layout.name + '.maximized',
             self._total_threads,
-            latency_str
+            latency_str,
         )
         self._logger.reset_context()
 
