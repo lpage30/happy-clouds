@@ -33,10 +33,12 @@ class WeightedItem(NamedItem):
     def copy_item(self) -> Item:
         return create_weighted_item(self.weight, super().copy_item())
 
-    def to_csv_row(self) -> Dict[str, Any]:
-        return {
+    def to_csv_row(self, directory: str = '.') -> Dict[str, Any]:
+        result = super().to_csv_row(directory)
+        result.update({
             ITEM_WEIGHT: self.weight,
-        }.update(super().to_csv_row())
+        })
+        return result
 
     def to_layout_item(
         self,

@@ -162,7 +162,7 @@ class Reservations(object):
             expansion_count = 0
             for direction in Direction:
                 expanded_box = find_expanded_box(expanded_item.display_map, self._reservation_map, expanded_box, direction)
-                if not(expanded_box.equals(result)):
+                if not(expanded_box.equals(result[1])):
                     expanded_item = expanded_item.resize_item(expanded_box.size)
                     result = (expanded_item, expanded_box)
                     expansion_count = expansion_count + 1

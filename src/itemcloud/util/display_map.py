@@ -88,9 +88,9 @@ def can_fit_on_target(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, target_i
     return 0 != native_can_fit_on_target(item, target, target_item_box.to_native(), item_window.to_native())
 
 def _find_expanded_box(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, box: Box, direction: Direction) -> Box:
-    target_box: Box = from_displaymap_box(target)
+    target_box: Box = from_displaymap_box(target.shape)
     target_size: Size = target_box.size
-    item_window: Box = from_displaymap_box(item)
+    item_window: Box = from_displaymap_box(item.shape)
     edge: Box = Box(box.left, box.upper, box.right, box.lower)
     margined_item: Box = Box(box.left, box.upper, box.right, box.lower)
 

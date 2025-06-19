@@ -280,12 +280,12 @@ class ImageItem(Item):
     ) -> ImageItem:
         return ImageItem(Image.open(fp, mode, formats), str(fp))
 
-    def to_csv_row(self) -> Dict[str, Any]:
+    def to_csv_row(self, directory: str = '.') -> Dict[str, Any]:
         return {
             IMAGE_FILEPATH: self.filepath
         }
 
-    def write_row(self, name: str, directory: str, row: Dict[str, Any]) -> str:
+    def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
         image_filepath = to_unused_filepath(directory, name, 'png')
         self._image.save(image_filepath, 'png')
         row[IMAGE_FILEPATH] = image_filepath

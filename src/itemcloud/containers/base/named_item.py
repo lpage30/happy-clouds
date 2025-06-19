@@ -68,13 +68,15 @@ class NamedItem(Item):
             self._item.copy_item()
         )
 
-    def to_csv_row(self) -> Dict[str, Any]:
-        return {
+    def to_csv_row(self, directory: str = '.') -> Dict[str, Any]:
+        result = self.item.to_csv_row(directory)
+        result.update({
             ITEM_NAME: self.name,
-        }.update(self.item.to_csv_row())
+        })
+        return result
 
-    def write_row(self, name: str, directory: str, row: Dict[str, Any]) -> str:
-        return self.item.write_row(name, directory, row)        
+    def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
+        return self.item.write_row(directory, name, row)        
     
     @property
     def name(self) -> str:
@@ -89,10 +91,10 @@ class NamedItem(Item):
         self._item = new_item
     
 
-    def write_item(self, name: str, directory: str) -> str:
-        row = self.to_csv_row()
+    def write_item(self, directory: str, name: str) -> str:
+        row = self.to_csv_row(directory)
         row[ITEM_NAME] = name
-        return self.write_row(name, directory, row)
+        return self.write_row(directory, name, row)
     
     @staticmethod
     def load_row(row: Dict[str, Any]) -> Item:

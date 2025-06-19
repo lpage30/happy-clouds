@@ -76,15 +76,15 @@ class Item(Size):
         pass
 
     @abstractmethod
-    def to_csv_row(self) -> Dict[str, Any]:
+    def to_csv_row(self, directory: str = '.') -> Dict[str, Any]:
         pass
 
     @abstractmethod
-    def to_write_item_filename(self, name: str, directory: str) -> str:
+    def to_write_item_filename(self, directory: str, name: str) -> str:
         return to_unused_filepath(directory, name, 'csv')
     
     @abstractmethod
-    def write_row(self, name: str, directory: str, row: Dict[str, Any]) -> str:
+    def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
         pass
     
     @staticmethod

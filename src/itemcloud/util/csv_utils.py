@@ -13,10 +13,10 @@ def load_rows(csv_filepath: str) -> List[Dict[str, Any]]:
         raise Exception(str(e))
 
 def write_rows(csv_filepath: str, rows: List[Dict[str,Any]]) -> str:
-    field_names = {}
+    field_names = list()
     for row in rows:
-        field_names = sorted(field_names.update(set(row.keys())))
-    field_names = list(field_names)
+        field_names.extend(row.keys())
+    field_names = sorted(list(set(field_names)))
     empty_row = dict.fromkeys(field_names)
     try:
         with open(csv_filepath, 'w') as file:
@@ -26,7 +26,7 @@ def write_rows(csv_filepath: str, rows: List[Dict[str,Any]]) -> str:
                 record = dict()
                 record.update(empty_row)
                 record.update(row)
-                csv_writer.writerow(dict(sorted(record.entries())))
+                csv_writer.writerow(dict(sorted(record.items())))
         return csv_filepath        
     except Exception as e:
         raise Exception(str(e))

@@ -167,15 +167,16 @@ class TextImageItem(Item):
     def show(self, title: str | None = None) -> None:
         self.to_image().show(title)
     
-    def to_csv_row(self) -> Dict[str, Any]:
-        return self._image.to_csv_row().update(
-            self._text.to_csv_row()
-        ).update({
+    def to_csv_row(self, directory: str = '.') -> Dict[str, Any]:
+        result = self._image.to_csv_row(directory)
+        result.update(self._text.to_csv_row(directory))
+        result.update({
             TEXT_TRANSPARENCY_PERCENT: self._watermark_transparency
         })
+        return result
 
-    def write_row(self, name: str, directory: str, row: Dict[str, Any]) -> str:
-        return self._image.write_row(name, directory, row)
+    def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
+        return self._image.write_row(directory, name, row)
 
     @staticmethod
     def load_row(row: Dict[str, Any]) -> Item:

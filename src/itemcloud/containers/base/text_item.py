@@ -175,7 +175,7 @@ class TextItem(Item):
     def show(self, title: str | None = None) -> None:
         self.to_image().show(title)
 
-    def to_csv_row(self) -> Dict[str, Any]:
+    def to_csv_row(self, directory: str = '.') -> Dict[str, Any]:
         return {
             TEXT_TEXT: self._text,
             TEXT_FONT_NAME_PATH: self._font.font_name,
@@ -190,7 +190,7 @@ class TextItem(Item):
             TEXT_BACKGROUND_COLOR: self._background_color.name if self._background_color is not None else ''
         }
 
-    def write_row(self, name: str, directory: str, row: Dict[str, Any]) -> str:
+    def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
         return write_rows(self.to_write_item_filename(directory, name), [row])
 
 

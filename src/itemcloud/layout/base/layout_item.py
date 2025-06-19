@@ -125,9 +125,9 @@ class LayoutItem(Item, Reservation):
             self._item.copy_item()
         )
 
-    def to_csv_row(self) -> Dict[str, Any]:
+    def to_csv_row(self, directory: str = '.') -> Dict[str, Any]:
         return {
-            layout_defaults.LAYOUT_ITEM_FILEPATH: self.to_write_item_filename(self._name, ),
+            layout_defaults.LAYOUT_ITEM_FILEPATH: self.to_write_item_filename(directory, self._name),
             layout_defaults.LAYOUT_ITEM_POSITION_X: self.placement_box.left,
             layout_defaults.LAYOUT_ITEM_POSITION_Y: self.placement_box.upper,
             layout_defaults.LAYOUT_ITEM_SIZE_WIDTH: self.placement_box.width,
@@ -142,9 +142,9 @@ class LayoutItem(Item, Reservation):
             layout_defaults.LAYOUT_ITEM_TYPE: self._item.type.name
         }
 
-    def write_row(self, name: str, directory: str, row: Dict[str, Any]) -> str:
-        row[layout_defaults.LAYOUT_ITEM_FILEPATH] = self._item.write_row(name, directory, self._item.to_csv_row())
-        return write_rows(self.to_write_item_filename(self._name, directory), [row])
+    def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
+        row[layout_defaults.LAYOUT_ITEM_FILEPATH] = self._item.write_row(directory, name, self._item.to_csv_row(directory))
+        return write_rows(self.to_write_item_filename(directory, self._name), [row])
 
     @staticmethod
     def load_row(row: Dict[str, Any]) -> Item:
@@ -195,8 +195,8 @@ class LayoutItem(Item, Reservation):
             label=self.name
         )
 
-    def write_item(self, name: str, directory: str) -> str:
-        return self.write_row(name, directory, self.to_csv_row())
+    def write_item(self, directory: str, name: str) -> str:
+        return self.write_row(name, directory, self.to_csv_row(directory))
         
 
     def load_item(self, filepath: str) -> None:
@@ -222,8 +222,8 @@ class LayoutItem(Item, Reservation):
         )
 
     def write(self, layout_directory: str) -> Dict[str,Any]:
-        item_filepath = self.write_row(self._name, layout_directory, self.to_csv_row())
-        result = self.to_csv_row()
+        item_filepath = self.write_row(layout_directory, self._name, self.to_csv_row(layout_directory))
+        result = self.to_csv_row(layout_directory)
         result.update({
             layout_defaults.LAYOUT_ITEM_FILEPATH: item_filepath
         })
