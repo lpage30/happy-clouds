@@ -4,31 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    
-        {
-            "name": "samples-generate_imagecloud",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "clis.cli_functions",
-            "cwd": "${workspaceFolder}/samples",
-            "args": "generate imagecloud -i ./imagecloud-import.csv -output_directory ./image-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./image-cloud/generate-log.debug.txt -total_threads 64 -verbose",
-        },
-        {
-            "name": "samples-generate_textcloud",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "clis.cli_functions",
-            "cwd": "${workspaceFolder}/samples",
-            "args": "generate textcloud -i ./textcloud-import.csv -output_directory ./text-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./text-cloud/generate-log.debug.txt -total_threads 64 -verbose"
-        },
-        {
-            "name": "samples-generate_textimagecloud",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "clis.cli_functions",
-            "cwd": "${workspaceFolder}/samples",
-            "args": "generate textimagecloud -i ./textimagecloud-import.csv -output_directory ./textimage-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./textimage-cloud/generate-log.debug.txt -total_threads 64 -verbose"
-        },
         {
             "name": "samples-generate_mixeditemcloud",
             "type": "debugpy",
@@ -38,25 +13,12 @@
             "args": "generate mixeditemcloud -i ./mixeditemcloud-import.csv -output_directory ./mixeditem-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./mixeditem-cloud/generate-log.debug.txt -total_threads 64 -verbose"
         },
         {
-            "name": "generate_imagecloud",
+            "name": "layout_mixeditemcloud",
             "type": "debugpy",
             "request": "launch",
             "module": "clis.cli_functions",
-            "args": "generate imagecloud ${command:pickArgs}",
-        },
-        {
-            "name": "layout_imagecloud",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "clis.cli_functions",
-            "args": "layout imagecloud ${command:pickArgs}",
-        },
-        {
-            "name": "generate_textcloud",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "clis.cli_functions",
-            "args": "generate textcloud ${command:pickArgs}",
+            "cwd": "${workspaceFolder}/samples",
+            "args": "layout mixeditemcloud -i ./mixeditem-cloud/mixeditemcloud-import.layout.csv -output_directory ./mixeditem-cloud -output_image_format png -maximize_empty_space -show_itemcloud -show_itemcloud_reservation_chart -log_filepath ./mixeditem-cloud/layout-log.debug.txt -verbose",
         },
         {
             "name": "show_all_text_fonts",

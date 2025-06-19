@@ -2,10 +2,10 @@
 script_dir=$( dirname -- "$( readlink -f -- "$0"; )"; )
 pushd $script_dir
 
-generate_log=./textimage-cloud/generate-log.$(date '+%Y%m%d.%H%M%S').txt
+generate_log=./mixeditem-cloud/generate-log.$(date '+%Y%m%d.%H%M%S').txt
 
-input_csv=./textimagecloud-import.csv
-output_directory=./textimage-cloud
+input_csv=./mixeditemcloud-import.csv
+output_directory=./mixeditem-cloud
 image_type=png
 
 linkedin_background_size="2814,705"
@@ -14,7 +14,7 @@ if [ ! -d "$output_directory" ]; then
     mkdir -p $output_directory
 fi
 
-generate_textimagecloud \
+generate_mixeditemcloud \
     -i $input_csv \
     -output_directory $output_directory \
     -output_image_format $image_type \

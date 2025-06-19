@@ -1,2 +1,0 @@
-name,image_filepath,weight,text,font_name_path,min_font_size,max_font_size,transparency_percent
-park_number_1,images/park_one.jpg,1369,NUMBER ONE,Skia,16,20,0.5
