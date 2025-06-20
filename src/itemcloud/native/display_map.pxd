@@ -39,7 +39,8 @@ cdef int is_outside_target(
 
 cdef int can_overlap(
     unsigned int item,
-    unsigned int target
+    unsigned int target,
+    unsigned int item_id
 ) noexcept nogil
 
 
@@ -47,7 +48,7 @@ cdef int can_fit_on_target(
     DISPLAY_MAP_TYPE item,
     DISPLAY_MAP_TYPE target,
     Box target_item_box,
-    Box item_window
+    unsigned int item_id
 ) noexcept nogil
 
 cdef void write_to_target(
@@ -61,17 +62,4 @@ cdef void write_to_target(
 cdef void write_to_margined_item(
     DISPLAY_MAP_TYPE item,
     DISPLAY_MAP_TYPE margined_item
-) noexcept nogil
-
-cdef enum Direction:
-    LEFT = 0
-    UP = 1
-    RIGHT = 2
-    DOWN = 3
-
-cdef Box find_expanded_box(
-    DISPLAY_MAP_TYPE item,
-    DISPLAY_MAP_TYPE target,
-    Box box,
-    Direction direction
 ) noexcept nogil

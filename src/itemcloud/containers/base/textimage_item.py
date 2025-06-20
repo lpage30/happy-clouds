@@ -26,6 +26,8 @@ class TextImageItem(Item):
     ) -> None:
         self._image = image
         self._text = text
+        self._text._can_stretch_to_fit = False
+
         self._versions = version_stack
         self._watermark_transparency = watermark_transparency
 
@@ -41,9 +43,9 @@ class TextImageItem(Item):
                 font=self._text._font,
                 foreground_color=self._text._foreground_color,
                 background_color=self._text._background_color,
-                has_transparency=True
+                has_transparency=True,
+                can_stretch_to_fit=self._text._can_stretch_to_fit
             )
-
         textimage = self._text.draw_on_image(
             image = image,
             as_watermark = True

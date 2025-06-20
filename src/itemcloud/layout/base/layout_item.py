@@ -38,49 +38,48 @@ class LayoutItem(Item, Reservation):
         item: Item,
 
     ) -> None:
-        Reservation.__init__(self, name, reservation_no, reservation_box, item.display_map)
+        Reservation.__init__(self, name, reservation_no, reservation_box, item)
         self._name = name
         self._placement_box = placement_box
         self._rotated_degrees = rotated_degrees if rotated_degrees is not None else 0
         self._reservation_color = None
         self._latency_str = latency_str
-        self._item = item
 
 
     @property
     def type(self) -> ItemType:
-        return self._item.type
+        return self.reservation_party.type
 
     @property
     def item(self) -> Item:
-        return self._item
+        return self.reservation_party
 
     @item.setter
     def item(self, value: item) -> None:
-        self._item = value
+        self.reservation_party = value
     
     @property
     def display_map(self) -> DISPLAY_MAP_TYPE:
-        return self._item.display_map
+        return self.reservation_party.display_map
 
     @property
     def version_count(self) -> int:
-        return self._item.version_count
+        return self.reservation_party.version_count
 
     @property
     def width(self) -> int:
-        return self._item.width
+        return self.reservation_party.width
 
     @property
     def height(self) -> int:
-        return self._item.height
+        return self.reservation_party.height
 
     @property
     def size(self) -> tuple[int, int]:
-        return self._item.size
+        return self.reservation_party.size
     
     def reset_to_original_version(self) -> bool:
-        return self._item.reset_to_original_version()
+        return self.reservation_party.reset_to_original_version()
 
     def resize_item(self, size: Size) -> Item:
         return create_layout_item(
@@ -90,7 +89,7 @@ class LayoutItem(Item, Reservation):
             self.reservation_box.resize(size),
             self.reservation_no,
             self._latency_str,
-            self._item.resize_item(size)
+            self.reservation_party.resize_item(size)
         )
 
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
@@ -101,7 +100,7 @@ class LayoutItem(Item, Reservation):
             self.reservation_box.rotate(angle, direction),
             self.reservation_no,
             self._latency_str,
-            self._item.rotate_item(angle, direction)
+            self.reservation_party.rotate_item(angle, direction)
         )
 
     def to_image(
@@ -111,10 +110,10 @@ class LayoutItem(Item, Reservation):
         logger: BaseLogger | None = None,
         as_watermark: bool = False
     ) -> ImageItem:
-        return self._item.to_image(rotated_degrees, size, logger, as_watermark)
+        return self.reservation_party.to_image(rotated_degrees, size, logger, as_watermark)
         
     def show(self, title: str | None = None) -> None:
-        self._item.show(title)
+        self.reservation_party.show(title)
 
     def copy_item(self) -> Item:
         return create_layout_item(
@@ -124,7 +123,7 @@ class LayoutItem(Item, Reservation):
             self.reservation_box,
             self.reservation_no,
             self._latency_str,
-            self._item.copy_item()
+            self.reservation_party.copy_item()
         )
 
     def to_csv_row(self, directory: str = '.') -> Dict[str, Any]:
@@ -141,11 +140,11 @@ class LayoutItem(Item, Reservation):
             layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT: self.reservation_box.height,
             layout_defaults.LAYOUT_ITEM_RESERVATION_NO: self.reservation_no,
             layout_defaults.LAYOUT_ITEM_LATENCY: self._latency_str,
-            layout_defaults.LAYOUT_ITEM_TYPE: self._item.type.name
+            layout_defaults.LAYOUT_ITEM_TYPE: self.reservation_party.type.name
         }
 
     def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
-        row[layout_defaults.LAYOUT_ITEM_FILEPATH] = self._item.write_row(directory, self._item.name, self._item.to_csv_row(directory))
+        row[layout_defaults.LAYOUT_ITEM_FILEPATH] = self.reservation_party.write_row(directory, self.reservation_party.name, self.reservation_party.to_csv_row(directory))
         return write_rows(self.to_write_item_filename(directory, name), [row])
 
     @staticmethod
@@ -211,7 +210,7 @@ class LayoutItem(Item, Reservation):
         self._reservation_no = item.reservation_no
         self._reservation_color = None
         self._latency_str = item.latency_str
-        self._item = item.item
+        self.reservation_party = item.item
 
     def to_reserved_item(self, placement_box: Box, rotated_degrees: int, reservation_box: Box, latency_str: str, item: Item | None = None) -> LayoutItem:
         return create_layout_item(
@@ -221,7 +220,7 @@ class LayoutItem(Item, Reservation):
             reservation_box,
             self.reservation_no,
             latency_str,
-            self._item if item is None else item
+            self.reservation_party if item is None else item
         )
 
     def write(self, layout_directory: str) -> Dict[str,Any]:

@@ -4,7 +4,7 @@ from itemcloud.containers.base.image_item import ImageItem
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.util.parsers import (parse_to_float, parse_to_int)
-from itemcloud.reservations import (Reservations, SampledUnreservedOpening)
+from itemcloud.reservations import (Reservation, Reservations, SampledUnreservedOpening)
 from itemcloud.util.search_types import SearchPattern
 from itemcloud.util.search import SearchProperties
 from itemcloud.containers.base.item import Item
@@ -244,46 +244,47 @@ class ItemCloud(object):
         measure.start()
         for i in range(total_items - 1, -1, -1):
             layout_item: LayoutItem = layout.items[i]
-            margin = layout_item.placement_box.get_margin(layout_item.reservation_box)
+            reservation: Reservation = layout_item
+            margin = layout_item.placement_box.get_margin(reservation.reservation_box)
             item_measure = TimeMeasure()
             item_measure.start()
-            self._logger.push_indent('item-{0}[{1}/{2}]'.format(layout_item.name, total_items - i, total_items))
+            self._logger.push_indent('{0}-{1}[{2}/{3}]'.format(layout_item.type.name, layout_item.name, total_items - i, total_items))
             self._logger.info('Maximizing...')
-            new_item, new_reservation_box = reservations.maximize_existing_reservation(layout_item.item, layout_item.reservation_box, margin)
+            expanded_reservation = reservations.maximize_existing_reservation(reservation, margin)
             item_measure.stop()
-            if layout_item.reservation_box.equals(new_reservation_box):
+            if reservation.reservation_box.equals(expanded_reservation.reservation_box):
                 self._logger.info('Already Maximized ({0})'.format(item_measure.latency_str()))
                 new_items.append(layout_item)
                 self._logger.pop_indent()
                 continue
 
-            self._logger.info('Maximized {0} -> {1} ({0})'.format(
+            self._logger.info('Maximized {0} -> {1} ({2})'.format(
                 layout_item.reservation_box.size.size_to_string(),
-                new_reservation_box.size.size_to_string(),
+                expanded_reservation.reservation_box.size.size_to_string(),
                 item_measure.latency_str()
             ))
-            if reservations.reserve_opening(layout_item.name, layout_item.reservation_no, new_reservation_box, new_item.display_map):
+            if reservations.reserve_opening(layout_item.name, layout_item.reservation_no, expanded_reservation.reservation_box, expanded_reservation.reservation_party):
                 
                 new_items.append(
                     layout_item.to_reserved_item(
-                        new_reservation_box.remove_margin(margin),
+                        expanded_reservation.reservation_box.remove_margin(margin),
                         layout_item.rotated_degrees,
-                        new_reservation_box,
+                        expanded_reservation.reservation_box,
                         item_measure.latency_str(),
-                        new_item
+                        expanded_reservation.reservation_party
                     )
                 )
                 maximized_count += 1
-                self._logger.info('resized {0} -> {1}. ({2})'.format(
+                self._logger.info('resized {0} -> {1} ({2})'.format(
                     layout_item.reservation_box.box_to_string(),
-                    new_reservation_box.box_to_string(),
+                    expanded_reservation.reservation_box.box_to_string(),
                     item_measure.latency_str(),
                 ))
             else:
                 self._logger.error('Dropping new reservation. Failed to reserve maximized position. rotated_degrees ({1}), resize({2} -> {3}) ({4})'.format(
                     layout_item.rotated_degrees,
                     layout_item.reservation_box.box_to_string(),
-                    new_reservation_box.box_to_string(),
+                    expanded_reservation.reservation_box.box_to_string(),
                     item_measure.latency_str(),
                 ))
 
@@ -415,7 +416,7 @@ class ItemCloud(object):
                     measure.latency_str()
                 ))
                 reservation_no = index + 1
-                if reservations.reserve_opening(name, reservation_no, sampled_result.opening_box, sampled_result.new_item.display_map):
+                if reservations.reserve_opening(name, reservation_no, sampled_result.opening_box, sampled_result.new_item):
                     proportional_items[index].item = sampled_result.new_item
                     layout_items.append(proportional_items[index].to_layout_item(
                         sampled_result.actual_box,

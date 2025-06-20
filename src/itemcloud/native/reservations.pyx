@@ -36,7 +36,7 @@ cdef int _is_unreserved(
         party,
         self_reservation_map,
         test_area,
-        from_displaymap_box(party)
+        0
     )
 
 cdef Box[::1] find_openings(

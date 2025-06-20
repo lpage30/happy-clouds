@@ -15,6 +15,13 @@ class RotateDirection(Enum):
     COUNTERCLOCKWISE = -1
     CLOCKWISE = 1
 
+class Direction(Enum):
+    NO_DIRECTION = 0
+    LEFT = 1
+    UP = 2
+    RIGHT = 3
+    DOWN = 4
+
 class Box:
     left: int
     upper: int
@@ -122,6 +129,68 @@ class Box:
             result = result + rotation_increment
             box = box.rotate(result, direction)
         return result
+    
+    def expand(self, distance: int, direction: Direction) -> Box:
+        if Direction.LEFT == direction:
+            return Box(
+                self.left - distance,
+                self.upper,
+                self.right,
+                self.lower
+            )
+        elif Direction.UP == direction:
+            return Box(
+                self.left,
+                self.upper - distance,
+                self.right,
+                self.lower
+            )
+        elif Direction.RIGHT == direction:
+            return Box(
+                self.left,
+                self.upper,
+                self.right + distance,
+                self.lower
+            )
+        elif Direction.DOWN == direction:
+            return Box(
+                self.left,
+                self.upper,
+                self.right,
+                self.lower + distance
+            )
+        return self
+
+    def slide(self, distance: int, direction: Direction) -> Box:
+        if Direction.LEFT == direction:
+            return Box(
+                self.left - distance,
+                self.upper,
+                self.right - distance,
+                self.lower
+            )
+        elif Direction.UP == direction:
+            return Box(
+                self.left,
+                self.upper - distance,
+                self.right,
+                self.lower - distance
+            )
+        elif Direction.RIGHT == direction:
+            return Box(
+                self.left + distance,
+                self.upper,
+                self.right + distance,
+                self.lower
+            )
+        elif Direction.DOWN == direction:
+            return Box(
+                self.left,
+                self.upper + distance,
+                self.right,
+                self.lower + distance
+            )
+        return self
     
     def to_native(self):
         return native_create_box(

@@ -31,7 +31,7 @@ class TextItem(Item):
         background_color: Color | None,
         version_stack: List[TextItem] = list(),
         has_transparency: bool = False,
-        can_stretch_to_fit: bool = False,
+        can_stretch_to_fit: bool = True,
         size: Size | None = None
     ) -> None:
         image = font.to_image(
@@ -42,7 +42,7 @@ class TextItem(Item):
         if size is None or not(can_stretch_to_fit):
             self._size = image.item_size
         else:
-            image = image.resize(size)
+            image = image.resize_item(size)
             self._size = size
     
         self._text = text
@@ -214,16 +214,6 @@ class TextItem(Item):
     def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
         return write_rows(self.to_write_item_filename(directory, name), [row])
 
-
-    @staticmethod
-    def load_row_ex(row: Dict[str, Any], can_stretch_to_fit = False) -> Item:
-        updated_row = row.copy()
-        if (not(field_exists(TEXT_CAN_STRETCH_TO_FIT, row))):
-            updated_row.update({
-                TEXT_CAN_STRETCH_TO_FIT: 'y' if can_stretch_to_fit else 'n'
-            })
-        return TextItem.load_row(row)
-    
     @staticmethod
     def load_row(row: Dict[str, Any]) -> Item:
         validate_row(row, [TEXT_TEXT])

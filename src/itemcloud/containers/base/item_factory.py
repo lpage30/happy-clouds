@@ -20,7 +20,7 @@ def load_item_row(row: Dict[str, Any]) -> "Item":
         case ItemType.IMAGE:
             return module.ImageItem.load_row(row)
         case ItemType.TEXT:
-            return module.TextItem.load_row_ex(row, True)
+            return module.TextItem.load_row(row)
         case ItemType.TEXTIMAGE:
             return module.TextImageItem.load_row(row)
         case _:

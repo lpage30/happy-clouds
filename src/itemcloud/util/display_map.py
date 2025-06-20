@@ -45,6 +45,12 @@ def create_display_buffer(length: int, initial_value: int = 0) -> DISPLAY_BUFFER
 def has_transparency(img: Image.Image) -> bool:
     return img.has_transparency_data
 
+def pixel_sum(img_pixel) -> int:
+    total = 0
+    for i in range(len(img_pixel)):
+        total += img_pixel[i]
+    return total
+
 def is_transparent(img_pixel) -> bool:
     return len(img_pixel) == 4 and 0 == img_pixel[3]
 
@@ -55,7 +61,8 @@ def img_to_display_map(img: Image.Image, map_fill_type: MapFillType = MapFillTyp
             pixels = img.load()
             for x in range(img.width):
                 for y in range(img.height):
-                    if is_transparent(pixels[x, y]):
+                    pixel = pixels[x,y]
+                    if is_transparent(pixel):
                         result[y,x] = 0 # y == rows, x == cols
     return result
 
@@ -69,7 +76,20 @@ def add_margin_to_display_map(item: DISPLAY_MAP_TYPE, margin: int, map_fill_type
     return result
 
 def write_display_map(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, target_location: Box, item_value: int):
-    native_write_to_target(item, target, target_location.upper, target_location.left, item_value)
+    plots = _write_to_target(item, target, target_location, item_value)
+    if plots == 0:
+        raise ValueError('Nothin')
 
-def can_fit_on_target(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, target_item_box: Box, item_window: Box) -> bool:
-    return 0 != native_can_fit_on_target(item, target, target_item_box.to_native(), item_window.to_native())
+def can_fit_on_target(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, target_item_box: Box, item_id: int | None = None) -> bool:
+    return 0 != native_can_fit_on_target(item, target, target_item_box.to_native(), item_id if item_id is not None else 0)
+
+def _write_to_target(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, target_location: Box, item_id: int) -> int:
+    target_row = target_location.upper
+    target_col = target_location.left
+    result = 0
+    for item_row in range(item.shape[0]):
+        for item_col in range(item.shape[1]):
+            if item[item_row, item_col] != 0:
+                result += 1
+                target[target_row + item_row, target_col + item_col] = item_id
+    return result

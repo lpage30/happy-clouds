@@ -49,7 +49,7 @@ class ImageItem(Item):
         self._image = image
         self._filepath = filepath
         self._versions = version_stack
-        self._display_map = img_to_display_map(image)
+        self._display_map = None
         self._rendered_image = image
 
     @property
@@ -62,6 +62,8 @@ class ImageItem(Item):
 
     @property
     def display_map(self) -> DISPLAY_MAP_TYPE:
+        if self._display_map is None:
+            self._display_map = img_to_display_map(self._rendered_image)
         return self._display_map
 
     @property
