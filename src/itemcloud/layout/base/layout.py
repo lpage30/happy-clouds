@@ -28,6 +28,7 @@ from typing import Any, Dict
 import csv
 import traceback
 from itemcloud.containers.base.image_item import ImageItem, to_img_size, to_img_box
+
 from itemcloud.util.colors import (
     Color,
     ColorSource,
@@ -37,7 +38,7 @@ from itemcloud.util.colors import (
 from itemcloud.layout.base.layout_item import LayoutItem
 import itemcloud.layout.base.layout_defaults as layout_defaults
 import itemcloud.item_cloud_defaults as item_cloud_defaults
-  
+
 class LayoutCanvas:
     def __init__(
         self,

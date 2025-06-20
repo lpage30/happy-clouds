@@ -1,6 +1,6 @@
 from __future__ import annotations
 import os
-from PIL import Image, ImageDraw, ImageFilter, ImagePalette, _typing, UnidentifiedImageError
+from PIL import Image, ImageDraw, ImageFilter, ImagePalette, _typing
 from typing import Any, Dict, IO, List, Literal
 from collections.abc import Sequence
 import matplotlib.pyplot as plt
@@ -45,10 +45,9 @@ def extend_filename(filepath: str, added_name: str) -> str:
     return from_filepath_parts(parts)
 
 class ImageItem(Item):
-    def __init__(self, image: Image.Image, filepath: str, version_stack: List[ImageItem] = list()) -> None:
+    def __init__(self, image: Image.Image, filepath: str) -> None:
         self._image = image
         self._filepath = filepath
-        self._versions = version_stack
         self._display_map = None
         self._rendered_image = image
 
@@ -84,33 +83,6 @@ class ImageItem(Item):
         fp_parts['name'] = name
         self.filepath = from_filepath_parts(fp_parts)
     
-    @property
-    def version_count(self) -> int:
-        return len(self._versions)
-    
-    def all_versions(self) -> List[ImageItem]:
-        versions = self._versions.copy()
-        versions.append(self)
-        return versions
-    
-    def get_version(self, versionNo: int) -> ImageItem | None:
-        if versionNo < len(self._versions):
-            return self._versions[versionNo]
-        return None
-
-    def reset_to_version(self, versionNo: int = 0) -> bool:
-        reset_version = self.get_version(versionNo)
-        if reset_version is None:
-            return False
-        self._image = reset_version._image
-        self._filepath = reset_version._filepath
-        self._versions = reset_version._versions
-        self._display_map = reset_version._display_map
-        return True    
-
-    def reset_to_original_version(self) -> Item:
-        return self.reset_to_version()
-
     def create_draw(self) -> ImageDraw:
         return ImageDraw.Draw(self._image)
 
@@ -165,7 +137,7 @@ class ImageItem(Item):
         return self._image.mode
      
     def resize(self, size: tuple[int, int]) -> ImageItem:
-        return ImageItem(self._image.resize(size), self.filepath, self.all_versions())
+        return ImageItem(self._image.resize(size), self.filepath)
 
     def resize_item(self, size: Size) -> Item:
         return self.resize(to_img_size(size))
@@ -186,7 +158,7 @@ class ImageItem(Item):
             center,
             translate,
             fillcolor
-        ), self.filepath, self.all_versions())
+        ), self.filepath)
     
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
         return self.rotate(angle if direction == RotateDirection.CLOCKWISE else -1.0 * angle)
@@ -208,7 +180,7 @@ class ImageItem(Item):
             dither,
             palette,
             colors,
-        ), self.filepath, self.all_versions())
+        ), self.filepath)
     
     def putpalette(
         self,
@@ -221,7 +193,7 @@ class ImageItem(Item):
             self,
             filter: ImageFilter.Filter | type[ImageFilter.Filter]
     ) -> ImageItem:
-        return ImageItem(self._image.filter(filter), self.filepath, self.all_versions())
+        return ImageItem(self._image.filter(filter), self.filepath)
     
     def load(self) -> Any | None:
         return self._image.load()

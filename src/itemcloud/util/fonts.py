@@ -12,6 +12,7 @@ from itemcloud.logger.base_logger import BaseLogger
 
 # https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
 ANCHOR = 'lt'
+
 # font sizings taken from: https://www.learnui.design/blog/mobile-desktop-website-font-size-guidelines.html
 class FontSize:
     def __init__(self, usage: FontUsageCategory, min: float, max: float) -> None:
@@ -280,7 +281,7 @@ class Font:
             logger
         ).image_font
 
-        box_size = get_text_box(text, font, self._attributes).size
+        box_size = size if size is not None else get_text_box(text, font, self._attributes).size
 
         if not(as_watermark) and bg_color is not None:
             result = ImageItem.new("RGB", to_img_size(box_size), bg_color.image_color)

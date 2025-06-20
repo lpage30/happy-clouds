@@ -171,8 +171,6 @@ class ItemCloud(object):
         proportional_items = resize_items_to_proportionally_fit(
             weighted_items,
             itemcloud_size,
-            self.resize_type,
-            self.item_step,
             self._margin
         )
         measure = TimeMeasure()

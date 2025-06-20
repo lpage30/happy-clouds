@@ -12,7 +12,6 @@ DISPLAY_MAP_SIZE_TYPE = tuple[int, int]
 DISPLAY_NP_DATA_TYPE = np.uint32
 DISPLAY_MAP_TYPE = np.ndarray[DISPLAY_NP_DATA_TYPE, DISPLAY_NP_DATA_TYPE]
 DISPLAY_BUFFER_TYPE = np.ndarray[DISPLAY_NP_DATA_TYPE]
-
 def from_displaymap_size(display_map_shape: DISPLAY_MAP_SIZE_TYPE) -> Size:
     return Size(display_map_shape[1], display_map_shape[0]) # columns == width, rows == height
 

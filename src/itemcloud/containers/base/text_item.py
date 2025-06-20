@@ -1,8 +1,8 @@
 from __future__ import annotations
-from typing import List, Dict, Any
+from typing import Dict, Any
 from itemcloud.size import Size
-from itemcloud.util.colors import (Color, to_color, ColorSource)
-from itemcloud.util.fonts import (Font, FontName, FontSize, FontTextAttributes,pick_font, pick_font_size, value_to_FontLayout)
+from itemcloud.util.colors import (Color, to_color)
+from itemcloud.util.fonts import (Font, FontName, FontSize, FontTextAttributes, pick_font, pick_font_size, value_to_FontLayout)
 from itemcloud.util.font_categories import (FontTypeCategories, FontUsageCategory)
 from itemcloud.util.display_map import (
     DISPLAY_MAP_TYPE
@@ -18,8 +18,7 @@ from itemcloud.util.parsers import (
     get_value_or_default,
     get_complex_value_or_default,
     validate_row,
-    field_exists,
-    parse_to_bool
+    field_exists
 )
 from itemcloud.util.csv_utils import write_rows
 class TextItem(Item):
@@ -29,31 +28,24 @@ class TextItem(Item):
         font: Font,
         foreground_color: Color | None,
         background_color: Color | None,
-        version_stack: List[TextItem] = list(),
         has_transparency: bool = False,
-        can_stretch_to_fit: bool = True,
         size: Size | None = None
     ) -> None:
         image = font.to_image(
-            text,
-            foreground_color,
-            background_color
+            text=text,
+            fg_color=foreground_color,
+            bg_color=background_color,
+            size=size
         )
-        if size is None or not(can_stretch_to_fit):
-            self._size = image.item_size
-        else:
-            image = image.resize_item(size)
-            self._size = size
-    
+        self._size = image.item_size
+        
         self._text = text
         self._font = font
         self._foreground_color = foreground_color
         self._background_color = background_color
         self._rendered_image = image._image
         self._display_map = image.display_map
-        self._versions = version_stack
         self._has_transparency = has_transparency
-        self._can_stretch_to_fit = can_stretch_to_fit
 
     @property
     def type(self) -> ItemType:
@@ -64,47 +56,12 @@ class TextItem(Item):
         return self._display_map
 
     @property
-    def version_count(self) -> int:
-        return len(self._versions)
-
-    @property
     def width(self) -> int:
         return self._rendered_image.width
 
     @property
     def height(self) -> int:
         return self._rendered_image.height
-
-    def all_versions(self) -> List[TextItem]:
-        versions = self._versions.copy()
-        versions.append(self)
-        return versions
-    
-    def get_version(self, versionNo: int) -> TextItem | None:
-        if versionNo < len(self._versions):
-            return self._versions[versionNo]
-        return None
-
-    def reset_to_version(self, versionNo: int = 0) -> bool:
-        reset_version = self.get_version(versionNo)
-        if reset_version is None:
-            return False
-        self._text = reset_version._text
-        self._font = reset_version._font
-        self._width = reset_version._width
-        self._height = reset_version._height
-        self._foreground_color = reset_version._foreground_color
-        self._background_color = reset_version._background_color
-        self._versions = reset_version._versions
-        self._rendered_image = reset_version._rendered_image
-        self._display_map = reset_version._display_map
-        self._has_transparency = reset_version._has_transparency
-        self._can_stretch_to_fit = reset_version._can_stretch_to_fit
-        self._size = reset_version._size
-        return True    
-
-    def reset_to_original_version(self) -> bool:
-        return self.reset_to_version()
 
     def resize_item(self, size: Size) -> Item:
         if self.is_equal(size):
@@ -115,9 +72,7 @@ class TextItem(Item):
             new_font,
             self._foreground_color,
             self._background_color,
-            self.all_versions(),
             self._has_transparency,
-            self._can_stretch_to_fit,
             size
         )
         return result    
@@ -134,10 +89,8 @@ class TextItem(Item):
             font,
             self._foreground_color,
             self._background_color,
-            self.all_versions(),
             self._has_transparency,
-            self._can_stretch_to_fit,
-            self._size   
+            self.item_size   
         )
 
     def copy_item(self) -> Item:
@@ -147,8 +100,7 @@ class TextItem(Item):
             self._foreground_color,
             self._background_color,
             self._has_transparency,
-            self._can_stretch_to_fit,
-            self._size
+            self.item_size
         )
 
     def draw_on_image(
@@ -178,7 +130,7 @@ class TextItem(Item):
         logger: BaseLogger | None = None,
         as_watermark: bool = False
     ) -> ImageItem:
-        expected_size = self._size if size is None else size
+        expected_size = self.item_size if size is None else size
         result = self._font.to_image(
             self._text,
             self._foreground_color,
@@ -188,8 +140,6 @@ class TextItem(Item):
             logger,
             as_watermark
         )
-        if self._can_stretch_to_fit and not(result.item_size.is_equal(expected_size)):
-            result = result.resize_item(expected_size)
         return result
 
     def show(self, title: str | None = None) -> None:
@@ -207,8 +157,7 @@ class TextItem(Item):
             TEXT_ANCHOR: self._font.anchor,
             TEXT_ALIGN: self._font.align,
             TEXT_FOREGROUND_COLOR: self._foreground_color.name if self._foreground_color is not None else '',
-            TEXT_BACKGROUND_COLOR: self._background_color.name if self._background_color is not None else '',
-            TEXT_CAN_STRETCH_TO_FIT: 'y' if self._can_stretch_to_fit else 'n'
+            TEXT_BACKGROUND_COLOR: self._background_color.name if self._background_color is not None else ''
         }
 
     def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
@@ -254,8 +203,6 @@ class TextItem(Item):
             fg_color,
             bg_color
         )
-        if field_exists(TEXT_CAN_STRETCH_TO_FIT, row):
-            result._can_stretch_to_fit = parse_to_bool(row[TEXT_CAN_STRETCH_TO_FIT])
         if field_exists(TEXT_FONT_SIZE, row):
             result._font.font_size = float(row[TEXT_FONT_SIZE])
             text_box = result._font.to_box(result._text)
@@ -275,7 +222,6 @@ TEXT_ANCHOR = 'text_anchor'
 TEXT_ALIGN = 'text_align'
 TEXT_FOREGROUND_COLOR = 'foreground_color'
 TEXT_BACKGROUND_COLOR = 'background_color'
-TEXT_CAN_STRETCH_TO_FIT = 'can_stretch_to_fit'
 
 TEXT_ITEM_HEADERS = [
     TEXT_TEXT,
@@ -288,6 +234,5 @@ TEXT_ITEM_HEADERS = [
     TEXT_ANCHOR,
     TEXT_ALIGN,
     TEXT_FOREGROUND_COLOR,
-    TEXT_BACKGROUND_COLOR,
-    TEXT_CAN_STRETCH_TO_FIT
+    TEXT_BACKGROUND_COLOR
 ]

@@ -29,19 +29,12 @@ class NamedItem(Item):
         return self._item.display_map
 
     @property
-    def version_count(self) -> int:
-        return self._item.version_count
-
-    @property
     def width(self) -> int:
         return self._item.width
 
     @property
     def height(self) -> int:
         return self._item.height
-
-    def reset_to_original_version(self) -> bool:
-        return self._item.reset_to_original_version()
 
     def resize_item(self, size: Size) -> Item:
         return create_named_item(self._name, self._item.resize_item(size))

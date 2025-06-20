@@ -1,5 +1,4 @@
 from typing import List
-from enum import Enum
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.box import (
     Box,
@@ -159,24 +158,31 @@ class Reservations(object):
         expanded_item = reservation.reservation_party
         expanded_reservation = reservation.reservation_box.copy_box()
         expand_step_distance = 1
+        deadends = set()
+        deadends.add(Direction.NO_DIRECTION)
         # iteratively expand once in each direction until we cannot anymore
         while True:
             expansions = 0
             for direction in Direction:
-                if Direction.NO_DIRECTION == direction:
+                if direction in deadends:
                     continue
                 expanded_item_map = add_margin_to_display_map(expanded_item.display_map, margin)
-                sliding_reservation_box: Box = expanded_reservation.copy_box().slide(expand_step_distance, direction)
-                if reservations_box.contains(sliding_reservation_box) \
-                    and can_fit_on_target(
-                        expanded_item_map,
-                        reservations_map,
-                        sliding_reservation_box,
-                        reservation.reservation_no
-                    ):
-                    expanded_reservation = expanded_reservation.expand(expand_step_distance, direction)
-                    expanded_item = expanded_item.resize_item(expanded_reservation.remove_margin(margin).size)
-                    expansions += 1
+                sliding_reservation_box: Box = expanded_reservation.slide(expand_step_distance, direction)
+                if not(reservations_box.contains(sliding_reservation_box)):
+                    deadends.add(direction)
+                    continue
+                if not(can_fit_on_target(
+                    expanded_item_map,
+                    reservations_map,
+                    sliding_reservation_box,
+                    reservation.reservation_no
+                )):
+                    deadends.add(direction)
+                    continue
+
+                expanded_reservation = expanded_reservation.expand(expand_step_distance, direction)
+                expanded_item = expanded_item.resize_item(expanded_reservation.remove_margin(margin).size)
+                expansions += 1
 
             if 0 == expansions:
                 break

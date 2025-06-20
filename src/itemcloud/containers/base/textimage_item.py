@@ -21,14 +21,11 @@ class TextImageItem(Item):
         self,
         image: ImageItem,
         text: TextItem,
-        watermark_transparency: float = 1.0,
-        version_stack: List[TextImageItem] = list()
+        watermark_transparency: float = 1.0
     ) -> None:
         self._image = image
         self._text = text
-        self._text._can_stretch_to_fit = False
 
-        self._versions = version_stack
         self._watermark_transparency = watermark_transparency
 
         if not(text._has_transparency):
@@ -43,8 +40,7 @@ class TextImageItem(Item):
                 font=self._text._font,
                 foreground_color=self._text._foreground_color,
                 background_color=self._text._background_color,
-                has_transparency=True,
-                can_stretch_to_fit=self._text._can_stretch_to_fit
+                has_transparency=True
             )
         textimage = self._text.draw_on_image(
             image = image,
@@ -66,43 +62,12 @@ class TextImageItem(Item):
         return self._image.name
 
     @property
-    def version_count(self) -> int:
-        return len(self._versions)
-
-    @property
     def width(self) -> int:
         return self._rendered_image.width
 
     @property
     def height(self) -> int:
         return self._rendered_image.height
-
-    def all_versions(self) -> List[TextItem]:
-        versions = self._versions.copy()
-        versions.append(self)
-        return versions
-    
-    def get_version(self, versionNo: int) -> TextImageItem | None:
-        if versionNo < len(self._versions):
-            return self._versions[versionNo]
-        return None
-
-    def reset_to_version(self, versionNo: int = 0) -> bool:
-        reset_version = self.get_version(versionNo)
-        if reset_version is None:
-            return False
-        self._image = reset_version._image
-        self._text = reset_version._text
-        self._versions = reset_version._version_stack
-
-        self._watermark_transparency = reset_version._watermark_transparency
-        self._rendered_image = reset_version._rendered_image
-        self._display_map = reset_version._display_map
-
-        return True    
-
-    def reset_to_original_version(self) -> bool:
-        return self.reset_to_version()
 
     def resize_item(self, size: Size) -> Item:
         if self.item_size.is_equal(size):
@@ -124,16 +89,14 @@ class TextImageItem(Item):
         return TextImageItem(
             image=new_image,
             text=new_text,
-            watermark_transparency=self._watermark_transparency,
-            version_stack=self.all_versions()
+            watermark_transparency=self._watermark_transparency
         )
 
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
         return TextImageItem(
             image=self._image.rotate_item(angle, direction),
             text=self._text.rotate_item(angle, direction),
-            watermark_transparency=self._watermark_transparency,
-            version_stack=self.all_versions()
+            watermark_transparency=self._watermark_transparency
         )
 
     def copy_item(self) -> Item:

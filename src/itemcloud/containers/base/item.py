@@ -23,11 +23,6 @@ class Item(Size):
 
     @property
     @abstractmethod
-    def version_count(self) -> int:
-        pass
-
-    @property
-    @abstractmethod
     def width(self) -> int:
         pass
 
@@ -39,10 +34,6 @@ class Item(Size):
     @property
     def item_size(self) -> Size:
         return Size(self.width, self.height)
-
-    @abstractmethod
-    def reset_to_original_version(self) -> bool:
-        pass
 
     @abstractmethod
     def resize_item(self, size: Size) -> Item:

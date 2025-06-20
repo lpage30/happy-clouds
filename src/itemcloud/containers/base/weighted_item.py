@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Any, Dict
+from typing import Any, Dict, List
+from math import sqrt
 from itemcloud.size import (
     ResizeType,
     Size,
@@ -98,17 +99,24 @@ def sort_by_weight(
 def resize_items_to_proportionally_fit(
     weighted_items: list[WeightedItem],
     fit_size: Size,
-    resize_type: ResizeType,
-    step_size: int,
     margin: int
-) -> list[WeightedItem]:
-    native_weighted_size_array = native_create_weighted_size_array(len(weighted_items))
-    for i in range(len(weighted_items)):
-        native_weighted_size_array[i] = to_native_weighted_size(weighted_items[i])
-    
-    native_weighted_size_array = native_resize_to_proportionally_fit(native_weighted_size_array, fit_size.to_native_size(), resize_type.value, step_size, margin)
-    result: list[WeightedItem] = list()
-    for i in range(len(weighted_items)):
-        result.append(from_native_weighted_size(weighted_items[i], native_weighted_size_array[i]))
+) -> List[WeightedItem]:
+    margin_area = (len(weighted_items) * (margin*4))
+    margin_fit_area = fit_size.area - margin_area
+    if margin_fit_area <= 0:
+        raise ValueError(f"Unable to proportionally fit {len(weighted_items)} in {fit_size.size_to_string()} ({fit_size.area}) area due to margin {margin} taking up {margin_area} space.")
+    total_weight = sum(item.weight for item in weighted_items)
+    result: List[WeightedItem] = list()
+    for witem in weighted_items:
+        item_size = witem.item_size
+        target_area = witem.weight / total_weight * margin_fit_area
+        new_size = item_size.scale(sqrt(target_area/item_size.area))
+        new_item = witem.item.resize_item(new_size)
+        result.append(
+            WeightedItem(witem.weight, witem.name, new_item)
+        )
+        margin_fit_area -= new_size.area
+        total_weight -= witem.weight
+
     return result
     

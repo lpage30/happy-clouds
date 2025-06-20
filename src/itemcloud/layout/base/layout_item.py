@@ -63,10 +63,6 @@ class LayoutItem(Item, Reservation):
         return self.reservation_party.display_map
 
     @property
-    def version_count(self) -> int:
-        return self.reservation_party.version_count
-
-    @property
     def width(self) -> int:
         return self.reservation_party.width
 
@@ -78,9 +74,6 @@ class LayoutItem(Item, Reservation):
     def size(self) -> tuple[int, int]:
         return self.reservation_party.size
     
-    def reset_to_original_version(self) -> bool:
-        return self.reservation_party.reset_to_original_version()
-
     def resize_item(self, size: Size) -> Item:
         return create_layout_item(
             self.name,

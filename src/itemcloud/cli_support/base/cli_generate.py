@@ -26,15 +26,14 @@ def save_layout(
 ) -> None:
     reconstructed_reservation_map = layout.reconstruct_reservation_map(args.logger)
     if not(np.array_equal(layout.canvas.reservation_map, reconstructed_reservation_map)):
-        args.logger.info('Warning reservations map from generation not same as reconstructed from imitemsages.')
+        args.logger.info('Warning reservations map from generation not same as reconstructed from items.')
     
     collage = layout.to_image(args.logger)
+    reservation_chart = layout.to_reservation_chart_image()
 
-    args.try_save_output(collage, None, layout)
+    args.try_save_output(collage, reservation_chart, layout)
 
     if args.show_itemcloud_reservation_chart:
-        reservation_chart = layout.to_reservation_chart_image()
-        args.try_save_output(None, reservation_chart, None)
         reservation_chart.show()
 
     if args.show_itemcloud:

@@ -1,8 +1,6 @@
 from __future__ import annotations
-from typing import Dict, Any, List
-from itemcloud.containers.named_text import (
-    NamedText
-)
+from typing import List
+from itemcloud.containers.named_text import NamedText
 from itemcloud.containers.base.text_item import (
     TEXT_TEXT,
     TEXT_FONT_NAME_PATH,
@@ -17,8 +15,6 @@ from itemcloud.containers.base.text_item import (
 )
 from itemcloud.containers.base.named_item import ITEM_NAME
 from itemcloud.containers.base.weighted_item import WeightedItem, ITEM_WEIGHT
-from itemcloud.size import Size
-from itemcloud.util.parsers import validate_row
 
 class WeightedText(WeightedItem, NamedText):
     
