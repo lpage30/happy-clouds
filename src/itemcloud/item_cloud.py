@@ -246,7 +246,7 @@ class ItemCloud(object):
             margin = layout_item.placement_box.get_margin(reservation.reservation_box)
             item_measure = TimeMeasure()
             item_measure.start()
-            self._logger.push_indent('{0}-{1}[{2}/{3}]'.format(layout_item.type.name, layout_item.name, total_items - i, total_items))
+            self._logger.push_indent('{0}-{1}[{2}/{3}]({4})'.format(layout_item.type.name, layout_item.name, total_items - i, total_items, reservation.reservation_no))
             self._logger.info('Maximizing...')
             expanded_reservation = reservations.maximize_existing_reservation(reservation, margin)
             item_measure.stop()
@@ -261,7 +261,7 @@ class ItemCloud(object):
                 expanded_reservation.reservation_box.size.size_to_string(),
                 item_measure.latency_str()
             ))
-            if reservations.reserve_opening(layout_item.name, layout_item.reservation_no, expanded_reservation.reservation_box, expanded_reservation.reservation_party):
+            if reservations.reserve_opening(layout_item.name, layout_item.reservation_no, expanded_reservation.reservation_box, expanded_reservation.reservation_party, margin):
                 
                 new_items.append(
                     layout_item.to_reserved_item(
@@ -406,15 +406,16 @@ class ItemCloud(object):
             )
             measure.stop()
             if sampled_result.found:
-                self._logger.info('Found position: samplings({0}), rotated_degrees ({1}), resize({2}->{3}) ({4})'.format(
+                reservation_no = index + 1
+                self._logger.info('Found position({0}): samplings({1}), rotated_degrees ({2}), resize({3}->{4}) ({5})'.format(
+                    reservation_no,
                     sampled_result.sampling_total,
                     sampled_result.rotated_degrees,
                     item.size_to_string(),
                     sampled_result.new_item.size_to_string(),
                     measure.latency_str()
                 ))
-                reservation_no = index + 1
-                if reservations.reserve_opening(name, reservation_no, sampled_result.opening_box, sampled_result.new_item):
+                if reservations.reserve_opening(name, reservation_no, sampled_result.opening_box, sampled_result.new_item, self._margin):
                     proportional_items[index].item = sampled_result.new_item
                     layout_items.append(proportional_items[index].to_layout_item(
                         sampled_result.actual_box,

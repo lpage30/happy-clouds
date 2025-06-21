@@ -87,14 +87,15 @@ class Reservations(object):
     def reservation_area(self) -> Box:
         return self._map_box
 
-    def reserve_opening(self, name: str, reservation_no: int, opening: Box, party: Item) -> bool:
+    def reserve_opening(self, name: str, reservation_no: int, opening: Box, party: Item, margin: int) -> bool:
+    
         if not(self._map_box.contains(opening)):
             self.logger.error("BAD OPENING: reserve_opening reservation_map{0} cannot contain opening{1}".format(
                 self._map_box.box_to_string(), opening.box_to_string()
             ))
             return False
         self.logger.debug("RESERVED: reserve_opening reservation({0}) opening{1}".format(reservation_no, opening.box_to_string()))
-        write_display_map(party.display_map, self._reservation_map, opening, reservation_no)
+        write_display_map(add_margin_to_display_map(party.display_map, margin), self._reservation_map, opening, reservation_no)
         self._reservations.append(Reservation(name, reservation_no, opening, party))
         return True
 
@@ -226,8 +227,8 @@ class Reservations(object):
         return result
                 
     @staticmethod
-    def create_reservation_map(logger: BaseLogger, map_size: Size, reservations: list[Reservation]) -> DISPLAY_MAP_TYPE:
+    def create_reservation_map(logger: BaseLogger, map_size: Size, reservations: list[Reservation], margin: int) -> DISPLAY_MAP_TYPE:
         reserver = Reservations(logger, map_size)
         for r in reservations:
-            reserver.reserve_opening(r.reservation_name, r.reservation_no, r.reservation_box, r.reservation_party)
+            reserver.reserve_opening(r.reservation_name, r.reservation_no, r.reservation_box, r.reservation_party, margin)
         return reserver._reservation_map

@@ -51,7 +51,7 @@ def pixel_sum(img_pixel) -> int:
     return total
 
 def is_transparent(img_pixel) -> bool:
-    return len(img_pixel) == 4 and 0 == img_pixel[3]
+    return len(img_pixel) == 4 and img_pixel[3] < 255
 
 def img_to_display_map(img: Image.Image, map_fill_type: MapFillType = MapFillType.TRANSPARENT) -> DISPLAY_MAP_TYPE:
     result = create_display_map(Size(img.width, img.height), 1)

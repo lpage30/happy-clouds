@@ -295,7 +295,8 @@ class Layout:
         return Reservations.create_reservation_map(
             logger,
             self.canvas.size,
-            self.items
+            self.items,
+            self.margin
         )
     
     def to_image(
