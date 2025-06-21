@@ -45,6 +45,7 @@ class CLIBaseGenerateArguments(CLIBaseArguments):
         self.rotation_increment: int = self.parsed_args.rotation_increment
         self.resize_type: bool = self.parsed_args.resize_type
         self.margin: int = self.parsed_args.margin
+        self.opacity_pct: int = self.parsed_args.opacity_pct
         self.mode: str = self.parsed_args.mode
         self.cloud_expansion_step_size: int = self.parsed_args.cloud_expansion_step_size
         self.total_threads: int = self.parsed_args.total_threads
@@ -70,6 +71,7 @@ class CLIBaseGenerateArguments(CLIBaseArguments):
             type= lambda v: cli_helpers.is_size(parser, v),
             help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.CLOUD_SIZE_HELP)
         )
+
         parser.add_argument(
             '-placement_search_pattern',
             default=item_cloud_defaults.DEFAULT_SEARCH_PATTERN,
@@ -85,12 +87,21 @@ class CLIBaseGenerateArguments(CLIBaseArguments):
             type=lambda v: cli_helpers.is_integer(parser, v),
             help='Optional, (default %(default)s) {0}'.format(DEFAULT_CLOUD_EXPAND_STEP_SIZE_HELP)
         )
+
         parser.add_argument(
             '-margin',
             default=item_cloud_defaults.DEFAULT_MARGIN,
             metavar='<number>',
             type=lambda v: cli_helpers.is_integer(parser, v),
             help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.MARGIN_HELP)
+        )
+
+        parser.add_argument(
+            '-opacity_pct',
+            default=item_cloud_defaults.DEFAULT_OPACITY,
+            metavar='<0-100>',
+            type=lambda v: cli_helpers.is_integer(parser, v),
+            help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.OPACITY_HELP)
         )
 
         parser.add_argument(
@@ -116,7 +127,6 @@ class CLIBaseGenerateArguments(CLIBaseArguments):
             type=lambda v: cli_helpers.is_integer(parser, v),
             help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.ROTATION_INCREMENT_HELP)
         )
-
 
         parser.add_argument(
             '-resize_type',
@@ -191,6 +201,7 @@ def create_item_cloud(args: CLIBaseGenerateArguments, item_cloud_type: ItemCloud
         contour_width=args.contour_width,
         contour_color=args.contour_color,
         margin=args.margin,
+        opacity=args.opacity_pct,
         mode=args.mode,
         name=args.get_output_name(),
         total_threads=args.total_threads,

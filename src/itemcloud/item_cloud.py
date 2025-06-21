@@ -21,6 +21,7 @@ from itemcloud.containers.base.weighted_item import (
     sort_by_weight
 )
 import itemcloud.item_cloud_defaults as item_cloud_defaults
+from itemcloud.util.display_map import set_opacity_percentage
 # implementation was extrapolated from wordcloud and adapted for generic renderable objects
  
 class ItemCloud(object):
@@ -76,6 +77,11 @@ class ItemCloud(object):
             
     margin: int (default=objectcloud_defaults.DEFAULT_MARGIN)
         The gap to allow between images
+
+    opacity: int
+        A pixel is considered transparent 
+        if its alpha value is <= this percent of 255. 
+        0(fully-transparent) - (partly transparent) - 100(fully-opaque)
     
     mode : string (default=objectcloud_defaults.DEFAULT_MODE)
         Transparent background will be generated when mode is "RGBA" and
@@ -96,6 +102,7 @@ class ItemCloud(object):
         contour_width: float | None = None,
         contour_color: str | None = None,
         margin: int | None = None,
+        opacity: int | None = None,
         mode: str | None = None,
         name: str | None = None,
         total_threads: int | None = None,
@@ -117,11 +124,13 @@ class ItemCloud(object):
         self._logger.reset_context()
 
         self._margin = margin if margin is not None else parse_to_int(item_cloud_defaults.DEFAULT_MARGIN)
+        self._opacity = opacity if opacity is not None else parse_to_int(item_cloud_defaults.DEFAULT_OPACITY)
         self._mode = mode if mode is not None else item_cloud_defaults.DEFAULT_MODE
         self._name = name if name is not None else 'itemcloud'
         self._total_threads = total_threads if total_threads is not None else parse_to_int(item_cloud_defaults.DEFAULT_TOTAL_THREADS)
         self._search_pattern = search_pattern if search_pattern is not None else SearchPattern[item_cloud_defaults.DEFAULT_SEARCH_PATTERN]
         self.layout_: Layout | None = None
+        set_opacity_percentage(self._opacity)
 
     @property
     def mask(self) -> np.ndarray | None:
@@ -319,6 +328,7 @@ class ItemCloud(object):
             layout.resize_type,
             layout.scale,
             layout.margin,
+            layout.opacity,
             layout.name + '.maximized',
             self._total_threads,
             latency_str,
@@ -470,6 +480,7 @@ class ItemCloud(object):
             self._resize_type,
             self._scale,
             self._margin,
+            self._opacity,
             self._name + '.layout',
             self._total_threads,
             latency_str,

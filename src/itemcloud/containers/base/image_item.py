@@ -1,7 +1,7 @@
 from __future__ import annotations
 import os
 from PIL import Image, ImageDraw, ImageFilter, ImagePalette, _typing
-from typing import Any, Dict, IO, List, Literal
+from typing import Any, Dict, IO, Literal
 from collections.abc import Sequence
 import matplotlib.pyplot as plt
 import numpy as np
@@ -135,7 +135,11 @@ class ImageItem(Item):
     @property
     def mode(self) -> str:
         return self._image.mode
-     
+    
+    @property
+    def has_transparency_data(self) -> bool:
+        return self._image.has_transparency_data
+    
     def resize(self, size: tuple[int, int]) -> ImageItem:
         return ImageItem(self._image.resize(size), self.filepath)
 

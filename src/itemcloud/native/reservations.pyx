@@ -47,8 +47,7 @@ cdef Box[::1] find_openings(
 ) noexcept nogil:
     cdef atomic[int] pos_count
     cdef Size size = from_displaymap_size(party)
-    cdef Size sub_map_size = create_size(self.map_size.width - size.width, self.map_size.height - size.height)
-    cdef int total_positions = size_area(sub_map_size)
+    cdef int total_positions = size_area(self.map_size)
     cdef int p
     cdef Box possible_opening
     cdef int row

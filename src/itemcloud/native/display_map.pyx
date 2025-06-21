@@ -64,26 +64,6 @@ cdef int can_fit_on_target(
 
     return 1
 
-cdef void write_to_target(
-    DISPLAY_MAP_TYPE item,
-    DISPLAY_MAP_TYPE target,
-    int target_row,
-    int target_col,
-    unsigned int item_id
-) noexcept nogil:
-    cdef int item_row = 0
-    cdef int item_col = 0
-    cdef int item_rows = item.shape[0]
-    cdef int item_cols = item.shape[1]
-    cdef int row = 0
-    cdef int col = 0
-    cdef unsigned int value = item_id
-    for item_row in range(item_rows):
-        for item_col in range(item_cols):
-            if item[item_row, item_col] != 0:
-                target[target_row + item_row, target_col + item_col] = value
-
-
 cdef void write_to_margined_item(
     DISPLAY_MAP_TYPE item,
     DISPLAY_MAP_TYPE margined_item
@@ -152,6 +132,3 @@ def native_can_fit_on_target(
 
 def native_write_to_margined_item(DISPLAY_MAP_TYPE item, DISPLAY_MAP_TYPE margined_item): # return nothing
     write_to_margined_item(item, margined_item)
-
-def native_write_to_target(DISPLAY_MAP_TYPE item, DISPLAY_MAP_TYPE target, int target_row, int target_col, unsigned int item_id):
-    write_to_target(item, target, target_row, target_col, item_id)

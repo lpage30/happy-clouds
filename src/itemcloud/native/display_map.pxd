@@ -51,14 +51,6 @@ cdef int can_fit_on_target(
     unsigned int item_id
 ) noexcept nogil
 
-cdef void write_to_target(
-    DISPLAY_MAP_TYPE item,
-    DISPLAY_MAP_TYPE target,
-    int target_row,
-    int target_col,
-    unsigned int item_id
-) noexcept nogil
-
 cdef void write_to_margined_item(
     DISPLAY_MAP_TYPE item,
     DISPLAY_MAP_TYPE margined_item

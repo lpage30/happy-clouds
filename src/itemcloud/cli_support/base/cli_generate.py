@@ -46,12 +46,11 @@ def cli_generate(
     args.load()
     print('{0} {1}'.format(args.name, ' '.join(sys_args)))
     args.logger.info('{0} {1}'.format(args.name, ' '.join(sys_args)))
+    cloud = create_item_cloud(args, ItemCloud)
     args.logger.info('loading {0} ...'.format(args.input))
     weighted_items: List[WeightedItem] = load_weighted_items(args.input)
     total_items = len(weighted_items)
     args.logger.info('loaded {0} weights and items'.format(total_items))
-
-    cloud = create_item_cloud(args, ItemCloud)
     args.logger.info('generating cloud from {0} weighted and normalized items.{1}'.format(
         total_items,
         ' Cloud will be expanded iteratively by cloud_expansion_step_size until all items are positioned.' if 0 != args.cloud_expansion_step_size else ''

@@ -10,6 +10,7 @@ DEFAULT_BACKGROUND_COLOR = None
 DEFAULT_CONTOUR_WIDTH = '0'
 DEFAULT_CONTOUR_COLOR = 'black'
 DEFAULT_MARGIN = '1'
+DEFAULT_OPACITY = '0'
 DEFAULT_MODE = 'RGBA'
 DEFAULT_MAX_ITEMS = '200'
 DEFAULT_RESIZE_TYPE = 'MAINTAIN_ASPECT_RATIO'
@@ -59,6 +60,7 @@ CONTOUR_WIDTH_HELP = 'If mask is not None and contour_width > 0, draw the mask c
 CONTOUR_COLOR_HELP = 'Mask contour color.'
 
 MARGIN_HELP = 'The gap to allow between items.'
+OPACITY_HELP = 'A pixel is considered transparent\nif its alpha value is <= this percent of 255.\n0(fully-transparent) - (partly transparent) - 100(fully-opaque)'
 
 MODE_TYPES = [
     '1', # (1-bit pixels, black and white, stored with one pixel per byte)

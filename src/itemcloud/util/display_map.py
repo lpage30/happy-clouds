@@ -1,13 +1,14 @@
 from PIL import Image
 import numpy as np
 from enum import Enum
+from typing import Callable, Tuple
 from itemcloud.box import Box
 from itemcloud.size import Size
 from itemcloud.native.display_map import (
     native_write_to_margined_item,
-    native_write_to_target,
     native_can_fit_on_target
 )
+IS_TRANSPARENT_PIXEL_FUNCTION_TYPE = Callable[[tuple], bool]
 DISPLAY_MAP_SIZE_TYPE = tuple[int, int]
 DISPLAY_NP_DATA_TYPE = np.uint32
 DISPLAY_MAP_TYPE = np.ndarray[DISPLAY_NP_DATA_TYPE, DISPLAY_NP_DATA_TYPE]
@@ -41,28 +42,36 @@ def create_display_buffer(length: int, initial_value: int = 0) -> DISPLAY_BUFFER
     return np.full((length), dtype=DISPLAY_NP_DATA_TYPE, fill_value=initial_value)
 
 
-def has_transparency(img: Image.Image) -> bool:
-    return img.has_transparency_data
-
 def pixel_sum(img_pixel) -> int:
     total = 0
     for i in range(len(img_pixel)):
         total += img_pixel[i]
     return total
 
+g_max_alpha_value_for_transparency: int = 0
+
+def set_opacity_percentage(opacity_pct:int) -> None:
+    global g_max_alpha_value_for_transparency
+    if not(0 <= opacity_pct and opacity_pct <= 100):
+        raise ValueError(f"Expected value between 0 and 100. got {opacity_pct}")
+    g_max_alpha_value_for_transparency = round(opacity_pct/100 * 255)
+
 def is_transparent(img_pixel) -> bool:
-    return len(img_pixel) == 4 and img_pixel[3] < 255
+    global g_max_alpha_value_for_transparency
+    return len(img_pixel) == 4 and img_pixel[3] <= g_max_alpha_value_for_transparency
 
 def img_to_display_map(img: Image.Image, map_fill_type: MapFillType = MapFillType.TRANSPARENT) -> DISPLAY_MAP_TYPE:
     result = create_display_map(Size(img.width, img.height), 1)
     if map_fill_type == MapFillType.TRANSPARENT:
-        if has_transparency(img):
+        if img.has_transparency_data:
             pixels = img.load()
             for x in range(img.width):
                 for y in range(img.height):
                     pixel = pixels[x,y]
                     if is_transparent(pixel):
                         result[y,x] = 0 # y == rows, x == cols
+    if not(1 in result):
+        raise ValueError('Empty Image')
     return result
 
 def size_to_display_map(size: Size) -> DISPLAY_MAP_TYPE:
@@ -79,7 +88,7 @@ def write_display_map(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, target_l
     if plots == 0:
         raise ValueError('Nothin')
 
-def can_fit_on_target(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, target_item_box: Box, item_id: int | None = None) -> bool:
+def can_fit_on_target(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, target_item_box: Box, item_id: int | None = None, ) -> bool:
     return 0 != native_can_fit_on_target(item, target, target_item_box.to_native(), item_id if item_id is not None else 0)
 
 def _write_to_target(item: DISPLAY_MAP_TYPE, target: DISPLAY_MAP_TYPE, target_location: Box, item_id: int) -> int:

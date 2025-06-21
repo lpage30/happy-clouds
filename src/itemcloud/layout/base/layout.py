@@ -7,6 +7,7 @@ from itemcloud.reservations import (
     Reservations,
 )
 from itemcloud.util.display_map import (
+    set_opacity_percentage,
     create_display_map,
     DISPLAY_MAP_TYPE,
     DISPLAY_NP_DATA_TYPE
@@ -246,6 +247,7 @@ class Layout:
         resize_type: ResizeType | None = None,
         scale: float | None = None,
         margin: int | None = None,
+        opacity: int | None = None,
         name: str | None = None,
         total_threads: int | None = None,
         latency_str: str = '',
@@ -267,6 +269,7 @@ class Layout:
         self.scale = scale if scale is not None else int(item_cloud_defaults.DEFAULT_SCALE)
 
         self.margin = margin if margin is not None else int(item_cloud_defaults.DEFAULT_MARGIN)
+        self.opacity = opacity if opacity is not None else int(item_cloud_defaults.DEFAULT_OPACITY)
         self.total_threads = total_threads if total_threads is not None else int(item_cloud_defaults.DEFAULT_TOTAL_THREADS)
         self._latency_str = latency_str
         self._search_pattern = search_pattern if search_pattern is not None else SearchPattern[item_cloud_defaults.DEFAULT_SEARCH_PATTERN]
@@ -316,10 +319,17 @@ class Layout:
             box = item.placement_box.scale(scale)
             image = item.scale_item(scale).to_image(size=box.size, logger=logger)
             try:
-                canvas.image.paste(
-                    im=image,
-                    box=to_img_box(box)
-                )
+                if image.has_transparency_data:
+                    canvas.image.paste(
+                        im=image,
+                        box=to_img_box(box),
+                        mask=image
+                    )
+                else:
+                    canvas.image.paste(
+                        im=image,
+                        box=to_img_box(box)
+                    )
             except Exception as e:
                 logger.error('Error pasting {0} into {1}. {2} \n{3}'.format(image.name, canvas.name, str(e), '\n'.join(traceback.format_exception(e))))
 
@@ -362,6 +372,7 @@ class Layout:
             layout_defaults.LAYOUT_RESIZE_TYPE: self.resize_type.name,
             layout_defaults.LAYOUT_SCALE: self.scale,
             layout_defaults.LAYOUT_MARGIN: self.margin,
+            layout_defaults.LAYOUT_OPACITY: self.opacity,
             layout_defaults.LAYOUT_NAME: self.name,
             layout_defaults.LAYOUT_TOTAL_THREADS: self.total_threads,
             layout_defaults.LAYOUT_LATENCY: self._latency_str,
@@ -417,10 +428,12 @@ class Layout:
             resize_type = get_value_or_default(layout_defaults.LAYOUT_RESIZE_TYPE, layout_data, None, lambda v: ResizeType[v])
             scale = get_value_or_default(layout_defaults.LAYOUT_SCALE, layout_data, None, float)
             margin = get_value_or_default(layout_defaults.LAYOUT_MARGIN, layout_data, None, int)
+            opacity = get_value_or_default(layout_defaults.LAYOUT_OPACITY, layout_data, None, int)
             name = get_value_or_default(layout_defaults.LAYOUT_NAME, layout_data, None)  
             total_threads = get_value_or_default(layout_defaults.LAYOUT_TOTAL_THREADS, layout_data, None, int)
             latency_str = get_value_or_default(layout_defaults.LAYOUT_LATENCY, layout_data, '')
             search_pattern =  get_value_or_default(layout_defaults.LAYOUT_SEARCH_PATTERN, layout_data, None, lambda v: SearchPattern[v])
+            set_opacity_percentage(opacity)
             return Layout(
                 canvas,
                 contour,
@@ -432,6 +445,7 @@ class Layout:
                 resize_type,
                 scale,
                 margin,
+                opacity,
                 name,
                 total_threads,
                 latency_str,
