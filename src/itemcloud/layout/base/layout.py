@@ -28,7 +28,7 @@ from PIL import ImageFilter
 from typing import Any, Dict
 import csv
 import traceback
-from itemcloud.containers.base.image_item import ImageItem, to_img_size, to_img_box
+from itemcloud.containers.base.image_item import ImageItem, to_img_size, to_img_xy
 
 from itemcloud.util.colors import (
     Color,
@@ -322,13 +322,13 @@ class Layout:
                 if image.has_transparency_data:
                     canvas.image.paste(
                         im=image,
-                        box=to_img_box(box),
+                        box=to_img_xy(box),
                         mask=image
                     )
                 else:
                     canvas.image.paste(
                         im=image,
-                        box=to_img_box(box)
+                        box=to_img_xy(box)
                     )
             except Exception as e:
                 logger.error('Error pasting {0} into {1}. {2} \n{3}'.format(image.name, canvas.name, str(e), '\n'.join(traceback.format_exception(e))))

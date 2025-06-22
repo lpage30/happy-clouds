@@ -29,6 +29,9 @@ def from_img_box(box: tuple[int, int, int, int]) -> Box:
 def to_img_box(box: Box) -> tuple[int, int, int, int]:
     return (box.left, box.upper, box.right, box.lower)
 
+def to_img_xy(box: Box) -> tuple[int, int]:
+    return (box.left, box.upper)
+
 def to_filepath_parts(filepath: str) -> Dict[str, str]:
     return {
         'path': os.path.dirname(os.path.abspath(filepath)),
