@@ -47,6 +47,24 @@ def extend_filename(filepath: str, added_name: str) -> str:
     parts['name'] = parts['name'] + added_name
     return from_filepath_parts(parts)
 
+g_resize_resampling: Image.Resampling = Image.Resampling.NEAREST
+g_rotate_resampling: Image.Resampling = Image.Resampling.NEAREST
+
+def set_resize_resampling(resize_resampling: Image.Resampling) -> None:
+    global g_resize_resampling
+    g_resize_resampling = resize_resampling
+
+def set_rotate_resampling(rotate_resampling: Image.Resampling) -> None:
+    global g_rotate_resampling
+    g_rotate_resampling = rotate_resampling
+
+def set_opacity_percentage(opacity_pct:int) -> None:
+    global g_max_alpha_value_for_transparency
+    if not(0 <= opacity_pct and opacity_pct <= 100):
+        raise ValueError(f"Expected value between 0 and 100. got {opacity_pct}")
+    g_max_alpha_value_for_transparency = round(opacity_pct/100 * 255)
+
+
 class ImageItem(Item):
     def __init__(self, image: Image.Image, filepath: str) -> None:
         self._image = image
@@ -103,11 +121,13 @@ class ImageItem(Item):
         as_watermark: bool = False
     ) -> ImageItem:
         new_image = self
+        if as_watermark:
+            new_image = new_image.convert('RGBA')
         if rotated_degrees is not None and 0 < rotated_degrees:
             if logger:
                 logger.info('Rotating Image {0} degrees'.format(rotated_degrees))
             # always rotate clockwise (negative degrees)
-            new_image = new_image.rotate(-rotated_degrees, expand=1)
+            new_image = new_image.rotate_item(rotated_degrees, RotateDirection.CLOCKWISE)
         
         if size is not None and new_image.size != to_img_size(size):
             if logger:
@@ -116,8 +136,6 @@ class ImageItem(Item):
                     size.size_to_string()
                 ))
             new_image = new_image.resize(to_img_size(size))
-        if as_watermark:
-            new_image = new_image.convert('RGBA')
         return new_image
 
     def show(self, title: str | None = None) -> None:
@@ -144,7 +162,8 @@ class ImageItem(Item):
         return self._image.has_transparency_data
     
     def resize(self, size: tuple[int, int]) -> ImageItem:
-        return ImageItem(self._image.resize(size), self.filepath)
+        global g_resize_resampling
+        return ImageItem(self._image.resize(size=size, resample=g_resize_resampling), self.filepath)
 
     def resize_item(self, size: Size) -> Item:
         return self.resize(to_img_size(size))
@@ -152,7 +171,7 @@ class ImageItem(Item):
     def rotate(
         self,
         angle: float,
-        resample: Image.Resampling = Image.Resampling.NEAREST,
+        resample: Image.Resampling = g_rotate_resampling,
         expand: int | bool = False,
         center: tuple[float, float] | None = None,
         translate: tuple[int, int] | None = None,
@@ -168,7 +187,10 @@ class ImageItem(Item):
         ), self.filepath)
     
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
-        return self.rotate(angle if direction == RotateDirection.CLOCKWISE else -1.0 * angle)
+        global g_rotate_resampling
+        result = self.rotate(angle=(angle if direction == RotateDirection.CLOCKWISE else -1.0 * angle), resample=g_rotate_resampling, expand=True)
+        return result
+
 
     def copy_item(self) -> Item:
         return ImageItem(self._image, extend_filename(self.filepath, '-copy'))
@@ -241,8 +263,11 @@ class ImageItem(Item):
     def fromarray(obj: Image.SupportsArrayInterface, mode: str | None = None) -> ImageItem:
         return ImageItem(Image.fromarray(obj, mode), "from-array")
     
+    def alpha_composite(self, im: ImageItem, dest: Sequence[int] = (0, 0), source: Sequence[int] = (0, 0)) -> None:
+        self._image.alpha_composite(im=im._image, dest=dest, source=source)
+
     @staticmethod
-    def alpha_composite(im1: ImageItem, im2: ImageItem) -> ImageItem:
+    def new_alpha_composite(im1: ImageItem, im2: ImageItem) -> ImageItem:
         return ImageItem(Image.alpha_composite(im1._image, im2._image), im1.filepath + im2.filepath)
 
     @staticmethod

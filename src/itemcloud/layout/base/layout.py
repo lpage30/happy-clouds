@@ -24,11 +24,11 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import io
 import os
-from PIL import ImageFilter
+from PIL import ImageFilter, Image
 from typing import Any, Dict
 import csv
 import traceback
-from itemcloud.containers.base.image_item import ImageItem, to_img_size, to_img_xy
+from itemcloud.containers.base.image_item import ImageItem, to_img_size, to_img_xy, set_resize_resampling, set_rotate_resampling
 
 from itemcloud.util.colors import (
     Color,
@@ -248,6 +248,8 @@ class Layout:
         scale: float | None = None,
         margin: int | None = None,
         opacity: int | None = None,
+        resize_resampling: Image.Resampling | None = None,
+        rotate_resampling: Image.Resampling | None = None,
         name: str | None = None,
         total_threads: int | None = None,
         latency_str: str = '',
@@ -270,6 +272,8 @@ class Layout:
 
         self.margin = margin if margin is not None else int(item_cloud_defaults.DEFAULT_MARGIN)
         self.opacity = opacity if opacity is not None else int(item_cloud_defaults.DEFAULT_OPACITY)
+        self.resize_resampling = resize_resampling if resize_resampling is not None else Image.Resampling(int(item_cloud_defaults.DEFAULT_RESAMPLING))
+        self.rotate_resampling = rotate_resampling if rotate_resampling is not None else Image.Resampling(int(item_cloud_defaults.DEFAULT_RESAMPLING))
         self.total_threads = total_threads if total_threads is not None else int(item_cloud_defaults.DEFAULT_TOTAL_THREADS)
         self._latency_str = latency_str
         self._search_pattern = search_pattern if search_pattern is not None else SearchPattern[item_cloud_defaults.DEFAULT_SEARCH_PATTERN]
@@ -319,17 +323,12 @@ class Layout:
             box = item.placement_box.scale(scale)
             image = item.scale_item(scale).to_image(size=box.size, logger=logger)
             try:
-                if image.has_transparency_data:
-                    canvas.image.paste(
-                        im=image,
-                        box=to_img_xy(box),
-                        mask=image
-                    )
-                else:
-                    canvas.image.paste(
-                        im=image,
-                        box=to_img_xy(box)
-                    )
+                # canvas.image.paste(
+                #     im=image,
+                #     box=to_img_xy(box),
+                #     mask=image
+                # )
+                canvas.image.alpha_composite(im=image, dest=to_img_xy(box))
             except Exception as e:
                 logger.error('Error pasting {0} into {1}. {2} \n{3}'.format(image.name, canvas.name, str(e), '\n'.join(traceback.format_exception(e))))
 
@@ -373,6 +372,8 @@ class Layout:
             layout_defaults.LAYOUT_SCALE: self.scale,
             layout_defaults.LAYOUT_MARGIN: self.margin,
             layout_defaults.LAYOUT_OPACITY: self.opacity,
+            layout_defaults.LAYOUT_RESIZE_RESAMPLING: self.resize_resampling,
+            layout_defaults.LAYOUT_ROTATE_RESAMPLING: self.rotate_resampling,
             layout_defaults.LAYOUT_NAME: self.name,
             layout_defaults.LAYOUT_TOTAL_THREADS: self.total_threads,
             layout_defaults.LAYOUT_LATENCY: self._latency_str,
@@ -429,11 +430,15 @@ class Layout:
             scale = get_value_or_default(layout_defaults.LAYOUT_SCALE, layout_data, None, float)
             margin = get_value_or_default(layout_defaults.LAYOUT_MARGIN, layout_data, None, int)
             opacity = get_value_or_default(layout_defaults.LAYOUT_OPACITY, layout_data, None, int)
+            resize_resampling = get_value_or_default(layout_defaults.LAYOUT_RESIZE_RESAMPLING, layout_data, None, lambda v: Image.Resampling(int(v)))
+            rotate_resampling = get_value_or_default(layout_defaults.LAYOUT_ROTATE_RESAMPLING, layout_data, None, lambda v: Image.Resampling(int(v)))
             name = get_value_or_default(layout_defaults.LAYOUT_NAME, layout_data, None)  
             total_threads = get_value_or_default(layout_defaults.LAYOUT_TOTAL_THREADS, layout_data, None, int)
             latency_str = get_value_or_default(layout_defaults.LAYOUT_LATENCY, layout_data, '')
             search_pattern =  get_value_or_default(layout_defaults.LAYOUT_SEARCH_PATTERN, layout_data, None, lambda v: SearchPattern[v])
             set_opacity_percentage(opacity)
+            set_resize_resampling(resize_resampling)
+            set_rotate_resampling(resize_resampling)
             return Layout(
                 canvas,
                 contour,
@@ -446,6 +451,8 @@ class Layout:
                 scale,
                 margin,
                 opacity,
+                resize_resampling,
+                rotate_resampling,
                 name,
                 total_threads,
                 latency_str,

@@ -136,8 +136,8 @@ class Reservations(object):
             if rotate and 0 < rotation_increment:
                 # cycle part: (search -> rotate)[until found or rotated 360]
                 result.rotated_degrees += rotation_increment
-                result.new_item = result.new_item.rotate_item(rotation_increment, RotateDirection.CLOCKWISE)
-                if 360 <= result.rotated_degrees + rotation_increment:
+                result.new_item = unrotated_item.rotate_item(result.rotated_degrees, RotateDirection.CLOCKWISE)
+                if 360 <= (result.rotated_degrees + rotation_increment):
                     rotate = False
             else:
                 # cycle part search -> shrink
@@ -145,6 +145,7 @@ class Reservations(object):
                 result.rotated_degrees = 0
                 new_size = result.new_item.adjust(shrink_step_size, resize_type)
                 result.new_item = result.new_item.resize_item(new_size)
+
                 if result.new_item.is_less_than(min_party_size):
                     result.measure.stop()
                     result.log_finding(self.logger)

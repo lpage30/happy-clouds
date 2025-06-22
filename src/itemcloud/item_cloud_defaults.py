@@ -11,6 +11,7 @@ DEFAULT_CONTOUR_WIDTH = '0'
 DEFAULT_CONTOUR_COLOR = 'black'
 DEFAULT_MARGIN = '1'
 DEFAULT_OPACITY = '0'
+DEFAULT_RESAMPLING = '3'
 DEFAULT_MODE = 'RGBA'
 DEFAULT_MAX_ITEMS = '200'
 DEFAULT_RESIZE_TYPE = 'MAINTAIN_ASPECT_RATIO'
@@ -61,6 +62,7 @@ CONTOUR_COLOR_HELP = 'Mask contour color.'
 
 MARGIN_HELP = 'The gap to allow between items.'
 OPACITY_HELP = 'A pixel is considered transparent\nif its alpha value is <= this percent of 255.\n0(fully-transparent) - (partly transparent) - 100(fully-opaque)'
+RESAMPLING_HELP = 'Resampling to use when resizing or rotating image.\n0 = NEAREST, 1 = LANCZOS, 2 = BILINEAR, 3 = BICUBIC, 4 = BOX, 5 = HAMMING\nhttps://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters'
 
 MODE_TYPES = [
     '1', # (1-bit pixels, black and white, stored with one pixel per byte)

@@ -229,9 +229,9 @@ class Font:
         if as_watermark:
             image = image.convert('RGBA')
             if 0 < text_rotation:
-                text_image = text_image.rotate(-text_rotation, expand=1)
+                text_image = text_image.rotate_item(text_rotation, RotateDirection.CLOCKWISE)
             text_image = text_image.resize(image.size)
-            return ImageItem.alpha_composite(image, text_image)
+            return ImageItem.new_alpha_composite(image, text_image)
         
         return image
 
@@ -301,7 +301,7 @@ class Font:
             if logger:
                 logger.info('Rotating {1} degrees'.format(rotated_degrees))
             # always rotate clockwise (negative degrees)
-            result = result.rotate(-rotated_degrees, expand=1)
+            result = result.rotate_item(rotated_degrees, RotateDirection.CLOCKWISE)
                 
         if size is not None and result.item_size != size:
             if logger:

@@ -5,6 +5,7 @@ from itemcloud.size import (
     RESIZE_TYPES
 )
 from itemcloud.item_cloud import ItemCloud
+from PIL import Image
 
 import itemcloud.item_cloud_defaults as item_cloud_defaults
 import itemcloud.cli_support.base.cli_helpers as cli_helpers
@@ -46,6 +47,8 @@ class CLIBaseGenerateArguments(CLIBaseArguments):
         self.resize_type: bool = self.parsed_args.resize_type
         self.margin: int = self.parsed_args.margin
         self.opacity_pct: int = self.parsed_args.opacity_pct
+        self.resize_resampling: Image.Resampling =Image.Resampling(self.parsed_args.resize_resampling)
+        self.rotate_resampling: Image.Resampling =Image.Resampling(self.parsed_args.resize_resampling)
         self.mode: str = self.parsed_args.mode
         self.cloud_expansion_step_size: int = self.parsed_args.cloud_expansion_step_size
         self.total_threads: int = self.parsed_args.total_threads
@@ -102,6 +105,20 @@ class CLIBaseGenerateArguments(CLIBaseArguments):
             metavar='<0-100>',
             type=lambda v: cli_helpers.is_integer(parser, v),
             help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.OPACITY_HELP)
+        )
+        parser.add_argument(
+            '-resize_resampling',
+            default=item_cloud_defaults.DEFAULT_RESAMPLING,
+            metavar='<0-5>',
+            type=lambda v: cli_helpers.is_integer(parser, v),
+            help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.RESAMPLING_HELP)
+        )
+        parser.add_argument(
+            '-rotate_resampling',
+            default=item_cloud_defaults.DEFAULT_RESAMPLING,
+            metavar='<0-5>',
+            type=lambda v: cli_helpers.is_integer(parser, v),
+            help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.RESAMPLING_HELP)
         )
 
         parser.add_argument(
