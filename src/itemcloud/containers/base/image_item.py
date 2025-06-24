@@ -270,4 +270,24 @@ class ImageItem(Item):
         validate_row(row, [IMAGE_FILEPATH])
         return ImageItem.open(row[IMAGE_FILEPATH])
 
-
+IMAGE_FORMATS = [
+    'blp',
+    'bmp',
+    'dds',
+    'dib',
+    'eps',
+    'gif',
+    'icns',
+    'ico',
+    'im',
+    'jpeg',
+    'mpo',
+    'msp',
+    'pcx',
+    'pfm',
+    'png',
+    'ppm',
+    'sgi',
+    'webp',
+    'xbm'
+]

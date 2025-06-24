@@ -26,16 +26,9 @@ dependencies = [
 Homepage = "https://github.com/lpage30/happy-clouds"
 
 [project.scripts]
-generate_imagecloud = "clis.cli_functions:generate_imagecloud"
-layout_imagecloud = "clis.cli_functions:layout_imagecloud"
-generate_textcloud = "clis.cli_functions:generate_textcloud"
-layout_textcloud = "clis.cli_functions:layout_textcloud"
-generate_textimagecloud = "clis.cli_functions:generate_textimagecloud"
-layout_textimagecloud = "clis.cli_functions:layout_textimagecloud"
-generate_mixeditemcloud = "clis.cli_functions:generate_mixeditemcloud"
-layout_mixeditemcloud = "clis.cli_functions:layout_mixeditemcloud"
-show_all_text_fonts = "clis.show_all_fonts:show_all_fonts"
-cloud_usage_md = "clis.generate_md_help:generate_md_help"
+generate = "clis.generate:main"
+layout = "clis.layout:main"
+show_all_text_fonts = "clis.show_all_fonts:main"
 generate_weighted_text = "clis.generate_random_weighted_text_csv:main"
 
 [tool.setuptools.packages.find]

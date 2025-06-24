@@ -55,48 +55,50 @@ options:
 "name","text","weight","font_name_path","min_font_size","max_font_size","text_layout","text_stroke_width","text_anchor","text_align","foreground_color","background_color"
 <name>,text|phrase|prose,<float>,<path-to-your-font>|<name-of-font>|empty(random),<float>|empty(random),<float>|empty(random),empty(0)|0(BASIC)|1(RAQM),empty|<integer>,empty(ma)|<l|m|r><t|m|b|a>,empty(center)|center|right|left,<color-name>|#RRGGBB|empty|random,<color-name>|#RRGGBB|empty|random
 ```
-### `generate_imagecloud`
-imports an imagecloud csv file of weights and image filepaths, generates cloud
+### `generate`
+imports an csv file of weights and image/text/image-text filepaths, generates cloud
 ```
-usage: generate_imagecloud [-h] -i <csv_filepath> [-output_directory <output-directory-path>]
-                           [-output_image_format blp|bmp|dds|dib|eps|gif|icns|ico|im|jpeg|mpo|msp|pcx|pfm|png|ppm|sgi|webp|xbm]
-                           [-show_itemcloud] [-no-show_itemcloud] [-show_itemcloud_reservation_chart]
-                           [-no-show_itemcloud_reservation_chart] [-maximize_empty_space] [-no-maximize_empty_space]
-                           [-verbose] [-no-verbose] [-log_filepath <log-filepath>] [-cloud_size "<width>,<height>"]
-                           [-placement_search_pattern NONE|RANDOM|LINEAR|RAY|SPIRAL] [-cloud_expansion_step_size <int>]
-                           [-margin <number>] [-min_item_size "<width>,<height>"] [-step_size <int>]
-                           [-rotation_increment <int>]
-                           [-resize_type NO_RESIZE_TYPE|MAINTAIN_ASPECT_RATIO|MAINTAIN_PERCENTAGE_CHANGE]
-                           [-max_item_size "<width>,<height>"]
-                           [-mode 1|L|P|RGB|RGBA|CMYK|YCbCr|LAB|HSV|I|F|LA|PA|RGBX|RGBa|La|I;16|I;16L|I;16B|I;16N]
-                           [-background_color <color-name>] [-mask <image_file_path>] [-contour_width <float>]
-                           [-contour_color <color-name>] [-total_threads <int>]
+usage: generate (image|text|image-text) cloud [-h] -i <csv_filepath> [-output_directory <output-directory-path>]
+                                              [-output_image_format blp|bmp|dds|dib|eps|gif|icns|ico|im|jpeg|mpo|msp|pcx|pfm|png|ppm|sgi|webp|xbm]
+                                              [-show_itemcloud] [-no-show_itemcloud] [-show_itemcloud_reservation_chart]
+                                              [-no-show_itemcloud_reservation_chart] [-maximize_empty_space] [-no-maximize_empty_space] [-verbose]
+                                              [-no-verbose] [-log_filepath <log-filepath>] [-cloud_size "<width>,<height>"]
+                                              [-placement_search_pattern NONE|RANDOM|LINEAR|RAY|SPIRAL] [-cloud_expansion_step_size <int>]
+                                              [-margin <number>] [-min_item_size "<width>,<height>"] [-step_size <int>] [-rotation_increment <int>]
+                                              [-resize_type NO_RESIZE_TYPE|MAINTAIN_ASPECT_RATIO|MAINTAIN_PERCENTAGE_CHANGE]
+                                              [-max_item_size "<width>,<height>"]
+                                              [-mode 1|L|P|RGB|RGBA|CMYK|YCbCr|LAB|HSV|I|F|LA|PA|RGBX|RGBa|La|I;16|I;16L|I;16B|I;16N]
+                                              [-background_color <color-name>] [-mask <image_file_path>] [-contour_width <float>]
+                                              [-contour_color <color-name>] [-total_threads <int>]
 
-            Generate an 'imagecloud' from a csv file indicating weight, and image
-            
+        Generate an image cloud from a csv file whose rows contain:
+        weight, and either image or text or image-text (image with text watermark)
+        The weight is used to indicate importance of the image|text|image-text item relative
+        to other image|text|image-text in the file.
+        
 
 options:
   -h, --help            show this help message and exit
   -i, --input <csv_filepath>
-                        Required, csv file for weighted images with following format:
-                        "weight","image_filepath"
-                        <float>,<image-filepath>
+                        csv file of weights and image|text|image-text:
+                        "weight","image_filepath","name","text","weight","font_name_path","min_font_size","max_font_size","text_layout","text_stroke_width","text_anchor","text_align","foreground_color","background_color","name","text","weight","font_name_path","min_font_size","max_font_size","text_layout","text_stroke_width","text_anchor","text_align","foreground_color","background_color","transparency_percent","image_filepath"
+                        <float>,<image-filepath>,<name>,text|phrase|prose,<float>,<path-to-your-font>|<name-of-font>|empty(random),<float>|empty(random),<float>|empty(random),empty(0)|0(BASIC)|1(RAQM),empty|<integer>,empty(ma)|<l|m|r><t|m|b|a>,empty(center)|center|right|left,<color-name>|#RRGGBB|empty|random,<color-name>|#RRGGBB|empty|random,<name>,text|phrase|prose,<float>,<path-to-your-font>|<name-of-font>|empty(random),<float>|empty(random),<float>|empty(random),empty(0)|0(BASIC)|1(RAQM),empty|<integer>,empty(ma)|<l|m|r><t|m|b|a>,empty(center)|center|right|left,<color-name>|#RRGGBB|empty|random,<color-name>|#RRGGBB|empty|random,<float>,<image-filepath>
   -output_directory <output-directory-path>
                         Optional, output directory for all output
   -output_image_format blp|bmp|dds|dib|eps|gif|icns|ico|im|jpeg|mpo|msp|pcx|pfm|png|ppm|sgi|webp|xbm
                         Optional,(default png) image format: [blp,bmp,dds,dib,eps,gif,icns,ico,im,jpeg,mpo,msp,pcx,pfm,png,ppm,sgi,webp,xbm]
-  -show_itemcloud       Optional, (default) show itemcloud.
+  -show_itemcloud       Optional, (default)show itemcloud.
   -no-show_itemcloud    Optional, do not show mage itemcloud.
   -show_itemcloud_reservation_chart
                         Optional, show reservation_chart for itemcloud.
   -no-show_itemcloud_reservation_chart
                         Optional, (default) do not show reservation_chart for itemcloud.
   -maximize_empty_space
-                        Optional maximize items, after generation, to fill surrounding empty space.
+                        Optional (default)maximize items, after generation, to fill surrounding empty space.
   -no-maximize_empty_space
-                        Optional (default) maximize items, after generation, to fill surrounding empty space.
-  -verbose              Optional, report progress as constructing itemcloud
-  -no-verbose           Optional, (default) report progress as constructing itemcloud
+                        Optional do not maximize items, after generation, to fill surrounding empty space.
+  -verbose              Optional, (default)report progress as constructing itemcloud
+  -no-verbose           Optional, do not report progress as constructing itemcloud
   -log_filepath <log-filepath>
                         Optional, all output logging will also be written to this logfile
   -cloud_size "<width>,<height>"
@@ -145,47 +147,48 @@ options:
 ```
 #### input CSV format
 ```csv
-"weight","image_filepath"
-<float>,<image-filepath>
+"weight","image_filepath","name","text","weight","font_name_path","min_font_size","max_font_size","text_layout","text_stroke_width","text_anchor","text_align","foreground_color","background_color","name","text","weight","font_name_path","min_font_size","max_font_size","text_layout","text_stroke_width","text_anchor","text_align","foreground_color","background_color","transparency_percent","image_filepath"
+<float>,<image-filepath>,<name>,text|phrase|prose,<float>,<path-to-your-font>|<name-of-font>|empty(random),<float>|empty(random),<float>|empty(random),empty(0)|0(BASIC)|1(RAQM),empty|<integer>,empty(ma)|<l|m|r><t|m|b|a>,empty(center)|center|right|left,<color-name>|#RRGGBB|empty|random,<color-name>|#RRGGBB|empty|random,<name>,text|phrase|prose,<float>,<path-to-your-font>|<name-of-font>|empty(random),<float>|empty(random),<float>|empty(random),empty(0)|0(BASIC)|1(RAQM),empty|<integer>,empty(ma)|<l|m|r><t|m|b|a>,empty(center)|center|right|left,<color-name>|#RRGGBB|empty|random,<color-name>|#RRGGBB|empty|random,<float>,<image-filepath>
 ```
-### `layout_imagecloud`
-imports an already generated imagecloud layout csv shows reservations and cloud
+### `layout`
+imports an already generated cloud layout csv shows reservations and cloud
 ```
-usage: layout_imagecloud [-h] -i <csv_filepath> [-output_directory <output-directory-path>]
-                         [-output_image_format blp|bmp|dds|dib|eps|gif|icns|ico|im|jpeg|mpo|msp|pcx|pfm|png|ppm|sgi|webp|xbm]
-                         [-show_itemcloud] [-no-show_itemcloud] [-show_itemcloud_reservation_chart]
-                         [-no-show_itemcloud_reservation_chart] [-maximize_empty_space] [-no-maximize_empty_space]
-                         [-verbose] [-no-verbose] [-log_filepath <log-filepath>] [-scale <float>]
+usage: layout existing (image|text|image-text) cloud [-h] -i <csv_filepath> [-output_directory <output-directory-path>]
+                                                     [-output_image_format blp|bmp|dds|dib|eps|gif|icns|ico|im|jpeg|mpo|msp|pcx|pfm|png|ppm|sgi|webp|xbm]
+                                                     [-show_itemcloud] [-no-show_itemcloud] [-show_itemcloud_reservation_chart]
+                                                     [-no-show_itemcloud_reservation_chart] [-maximize_empty_space] [-no-maximize_empty_space] [-verbose]
+                                                     [-no-verbose] [-log_filepath <log-filepath>] [-scale <float>]
 
-             Layout and show a generated 'imagecloud' from its layout csv file
-            
+        Layout and show an image cloud as defined by its previously generated layout csv file
+        Containing all the reservations, sizes, and rotations of image|text|image-text generated
+        to produce a single image cloud.
+        
 
 options:
   -h, --help            show this help message and exit
   -i, --input <csv_filepath>
-                        Required, csv file representing 1 Layout Contour, 1 Layout Canvas and N Layout Items:
+                        csv file representing 1 Layout Contour, 1 Layout Canvas and N Layout Items:
                         "layout_max_items","layout_min_item_size_width","layout_min_item_size_height","layout_item_step","layout_item_rotation_increment","layout_resize_type","layout_scale","layout_margin","layout_name","layout_total_threads","layout_latency","layout_search_pattern","layout_canvas_name","layout_canvas_mode","layout_canvas_background_color","layout_canvas_size_width","layout_canvas_size_height","layout_canvas_reservation_map_csv_filepath","layout_contour_mask_image_filepath","layout_contour_width","layout_contour_color","layout_item_filepath","layout_item_position_x","layout_item_position_y","layout_item_size_width","layout_item_size_height","layout_item_rotated_degrees","layout_item_reserved_position_x","layout_item_reserved_position_y","layout_item_reserved_size_width","layout_item_reserved_size_height","layout_item_reservation_no","layout_item_latency","layout_item_type"
                         <integer>,<width>,<height>,<integer>,<integer>,NO_RESIZE_TYPE|MAINTAIN_ASPECT_RATIO|MAINTAIN_PERCENTAGE_CHANGE,<float>,<image-margin>,<name>,<integer>,<string>,NONE|RANDOM|LINEAR|RAY|SPIRAL,<name>,1|L|P|RGB|RGBA|CMYK|YCbCr|LAB|HSV|I|F|LA|PA|RGBX|RGBa|La|I;16|I;16L|I;16B|I;16N,<empty>|<any-color-name>,<width>,<height>,<csv-filepath-of-reservation_map>,<empty>|<filepath-of-image-used-as-mask>,<float>,<any-color-name>,<filepath-of-item-to-render>,<x>,<y>,<width>,<height>,<degrees-rotation>,<x>,<y>,<width>,<height>,<empty>|<reservation_no_in_reservation_map>,<string>,<name-of-subclassed-layout-type>
   -output_directory <output-directory-path>
                         Optional, output directory for all output
   -output_image_format blp|bmp|dds|dib|eps|gif|icns|ico|im|jpeg|mpo|msp|pcx|pfm|png|ppm|sgi|webp|xbm
                         Optional,(default png) image format: [blp,bmp,dds,dib,eps,gif,icns,ico,im,jpeg,mpo,msp,pcx,pfm,png,ppm,sgi,webp,xbm]
-  -show_itemcloud       Optional, show itemcloud.
-  -no-show_itemcloud    Optional, (default) do not show mage itemcloud.
+  -show_itemcloud       Optional, (default)show itemcloud.
+  -no-show_itemcloud    Optional, do not show mage itemcloud.
   -show_itemcloud_reservation_chart
                         Optional, show reservation_chart for itemcloud.
   -no-show_itemcloud_reservation_chart
                         Optional, (default) do not show reservation_chart for itemcloud.
   -maximize_empty_space
-                        Optional maximize items, after generation, to fill surrounding empty space.
+                        Optional (default)maximize items, after generation, to fill surrounding empty space.
   -no-maximize_empty_space
-                        Optional (default) maximize items, after generation, to fill surrounding empty space.
-  -verbose              Optional, report progress as constructing itemcloud
-  -no-verbose           Optional, (default) report progress as constructing itemcloud
+                        Optional do not maximize items, after generation, to fill surrounding empty space.
+  -verbose              Optional, (default)report progress as constructing itemcloud
+  -no-verbose           Optional, do not report progress as constructing itemcloud
   -log_filepath <log-filepath>
                         Optional, all output logging will also be written to this logfile
   -scale <float>        Optional, (default 1.0) scale up/down all images
-
 ```
 #### input CSV format
 ```csv
