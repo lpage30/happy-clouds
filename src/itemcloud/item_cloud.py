@@ -64,6 +64,7 @@ class ItemCloud(object):
     Items are 1st rotated, until the sum rotation is 360, and then shrunk and rotated again.
     
     resize_type: ResizeType (default=objectcloud_defaults.DEFAULT_RESIZE_TYPE)
+    maximize_type: ResizeType (default=objectcloud_defaults.DEFAULT_RESIZE_TYPE)
     
     scale : float (default=objectcloud_defaults.DEFAULT_SCALE)
         Scaling between computation and drawing. For large word-cloud images,
@@ -109,6 +110,7 @@ class ItemCloud(object):
         item_step: int | None = None,
         item_rotation_increment: int | None = None,
         resize_type: ResizeType | None = None,
+        maximize_type: ResizeType | None = None,
         scale: float | None = None,
         contour_width: float | None = None,
         contour_color: str | None = None,
@@ -130,6 +132,7 @@ class ItemCloud(object):
         self._item_step = item_step if item_step is not None else parse_to_int(item_cloud_defaults.DEFAULT_STEP_SIZE)
         self._item_rotation_increment = item_rotation_increment if item_rotation_increment is not None else parse_to_int(item_cloud_defaults.DEFAULT_ROTATION_INCREMENT)
         self._resize_type = resize_type if resize_type is not None else item_cloud_defaults.DEFAULT_RESIZE_TYPE
+        self._maximize_type = maximize_type if maximize_type is not None else item_cloud_defaults.DEFAULT_RESIZE_TYPE
         self._scale = scale if scale is not None else parse_to_float(item_cloud_defaults.DEFAULT_SCALE)
         self._contour_width = contour_width if contour_width is not None else parse_to_int(item_cloud_defaults.DEFAULT_CONTOUR_WIDTH)
         self._contour_color = contour_color if contour_color is not None else item_cloud_defaults.DEFAULT_CONTOUR_COLOR
@@ -179,6 +182,10 @@ class ItemCloud(object):
     @property
     def resize_type(self) -> ResizeType:
         return self._resize_type
+
+    @property
+    def maximize_type(self) -> ResizeType:
+        return self._maximize_type
 
     @property
     def layout(self) -> Layout | None:
@@ -275,7 +282,7 @@ class ItemCloud(object):
             item_measure.start()
             self._logger.push_indent('{0}-{1}[{2}/{3}]({4})'.format(layout_item.type.name, layout_item.name, total_items - i, total_items, reservation.reservation_no))
             self._logger.info('Maximizing...')
-            expanded_reservation = reservations.maximize_existing_reservation(reservation, margin)
+            expanded_reservation = reservations.maximize_existing_reservation(reservation, margin, layout.maximize_type)
             item_measure.stop()
             if reservation.reservation_box.equals(expanded_reservation.reservation_box):
                 self._logger.info('Already Maximized ({0})'.format(item_measure.latency_str()))
@@ -344,6 +351,7 @@ class ItemCloud(object):
             layout.item_step,
             layout.item_rotation_increment,
             layout.resize_type,
+            layout.maximize_type,
             layout.scale,
             layout.margin,
             layout.opacity,
@@ -498,6 +506,7 @@ class ItemCloud(object):
             self._item_step,
             self._item_rotation_increment,
             self._resize_type,
+            self._maximize_type,
             self._scale,
             self._margin,
             self._opacity,

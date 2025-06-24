@@ -245,6 +245,7 @@ class Layout:
         item_step: int | None = None,
         item_rotation_increment: int | None = None,
         resize_type: ResizeType | None = None,
+        maximize_type: ResizeType | None = None,
         scale: float | None = None,
         margin: int | None = None,
         opacity: int | None = None,
@@ -268,6 +269,7 @@ class Layout:
         self.item_step = item_step if item_step is not None else int(item_cloud_defaults.DEFAULT_STEP_SIZE)
         self.item_rotation_increment = item_rotation_increment if item_rotation_increment is not None else int(item_cloud_defaults.DEFAULT_ROTATION_INCREMENT)
         self.resize_type = resize_type if resize_type is not None else ResizeType[item_cloud_defaults.DEFAULT_RESIZE_TYPE]
+        self.maximize_type = maximize_type if maximize_type is not None else ResizeType[item_cloud_defaults.DEFAULT_RESIZE_TYPE]
         self.scale = scale if scale is not None else int(item_cloud_defaults.DEFAULT_SCALE)
 
         self.margin = margin if margin is not None else int(item_cloud_defaults.DEFAULT_MARGIN)
@@ -369,6 +371,7 @@ class Layout:
             layout_defaults.LAYOUT_ITEM_STEP: self.item_step,
             layout_defaults.LAYOUT_ITEM_ROTATION_INCREMENT: self.item_rotation_increment,
             layout_defaults.LAYOUT_RESIZE_TYPE: self.resize_type.name,
+            layout_defaults.LAYOUT_MAXIMIZE_TYPE: self.maximize_type.name,
             layout_defaults.LAYOUT_SCALE: self.scale,
             layout_defaults.LAYOUT_MARGIN: self.margin,
             layout_defaults.LAYOUT_OPACITY: self.opacity,
@@ -427,6 +430,7 @@ class Layout:
             item_step = get_value_or_default(layout_defaults.LAYOUT_ITEM_STEP, layout_data, None, int)
             rotation_step = get_value_or_default(layout_defaults.LAYOUT_ITEM_ROTATION_INCREMENT, layout_data, None, int)
             resize_type = get_value_or_default(layout_defaults.LAYOUT_RESIZE_TYPE, layout_data, None, lambda v: ResizeType[v])
+            maximize_type = get_value_or_default(layout_defaults.LAYOUT_MAXIMIZE_TYPE, layout_data, None, lambda v: ResizeType[v])
             scale = get_value_or_default(layout_defaults.LAYOUT_SCALE, layout_data, None, float)
             margin = get_value_or_default(layout_defaults.LAYOUT_MARGIN, layout_data, None, int)
             opacity = get_value_or_default(layout_defaults.LAYOUT_OPACITY, layout_data, None, int)
@@ -448,6 +452,7 @@ class Layout:
                 item_step,
                 rotation_step,
                 resize_type,
+                maximize_type,
                 scale,
                 margin,
                 opacity,

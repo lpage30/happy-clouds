@@ -59,10 +59,14 @@ def create_item_cloud(
         layout.item_step,
         layout.item_rotation_increment,
         layout.resize_type,
+        layout.maximize_type,
         layout.scale,
         layout.contour.width,
         layout.contour.color,
         layout.margin,
+        layout.opacity,
+        layout.resize_resampling,
+        layout.rotate_resampling,
         layout.canvas.mode,
         layout.canvas.name
     )

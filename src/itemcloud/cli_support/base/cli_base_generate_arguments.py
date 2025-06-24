@@ -45,6 +45,7 @@ class CLIBaseGenerateArguments(CLIBaseArguments):
         self.step_size: int = self.parsed_args.step_size
         self.rotation_increment: int = self.parsed_args.rotation_increment
         self.resize_type: bool = self.parsed_args.resize_type
+        self.maximize_type: bool = self.parsed_args.maximize_type
         self.margin: int = self.parsed_args.margin
         self.opacity_pct: int = self.parsed_args.opacity_pct
         self.resize_resampling: Image.Resampling =Image.Resampling(self.parsed_args.resize_resampling)
@@ -152,6 +153,13 @@ class CLIBaseGenerateArguments(CLIBaseArguments):
             type=lambda v: cli_helpers.is_resize_type(parser, v),
             help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.RESIZE_TYPE_HELP)
         )
+        parser.add_argument(
+            '-maximize_type',
+            default=item_cloud_defaults.DEFAULT_RESIZE_TYPE,
+            metavar='{0}'.format('|'.join(RESIZE_TYPES)),
+            type=lambda v: cli_helpers.is_resize_type(parser, v),
+            help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.RESIZE_TYPE_HELP)
+        )
 
         parser.add_argument(
             '-max_item_size',
@@ -215,6 +223,7 @@ def create_item_cloud(args: CLIBaseGenerateArguments, item_cloud_type: ItemCloud
         item_step=args.step_size,
         item_rotation_increment=args.rotation_increment,
         resize_type=args.resize_type,
+        maximize_type=args.maximize_type,
         contour_width=args.contour_width,
         contour_color=args.contour_color,
         margin=args.margin,

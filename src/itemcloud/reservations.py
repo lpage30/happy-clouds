@@ -154,7 +154,7 @@ class Reservations(object):
                 unrotated_item = result.new_item
                 rotate = True
 
-    def maximize_existing_reservation(self, reservation: Reservation, margin: int) -> Reservation:
+    def maximize_existing_reservation(self, reservation: Reservation, margin: int, maximize_type: ResizeType) -> Reservation:
         reservations_map = self._reservation_map
         reservations_box = from_displaymap_box(reservations_map.shape)
         expanded_item = reservation.reservation_party
@@ -165,27 +165,56 @@ class Reservations(object):
         # iteratively expand once in each direction until we cannot anymore
         while True:
             expansions = 0
-            for direction in Direction:
-                if direction in deadends:
-                    continue
-                expanded_item_map = add_margin_to_display_map(expanded_item.display_map, margin)
-                sliding_reservation_box: Box = expanded_reservation.slide(expand_step_distance, direction)
-                if not(reservations_box.contains(sliding_reservation_box)):
-                    deadends.add(direction)
-                    continue
-                if not(can_fit_on_target(
-                    expanded_item_map,
-                    reservations_map,
-                    sliding_reservation_box,
-                    reservation.reservation_no
-                )):
-                    deadends.add(direction)
-                    continue
+            if maximize_type == ResizeType.NO_RESIZE_TYPE:
+                for direction in Direction:
+                    if direction in deadends:
+                        continue
+                    expanded_item_map = add_margin_to_display_map(expanded_item.display_map, margin)
+                    sliding_reservation_box: Box = expanded_reservation.slide(expand_step_distance, direction)
+                    if not(reservations_box.contains(sliding_reservation_box)):
+                        deadends.add(direction)
+                        continue
+                    if not(can_fit_on_target(
+                        expanded_item_map,
+                        reservations_map,
+                        sliding_reservation_box,
+                        reservation.reservation_no
+                    )):
+                        deadends.add(direction)
+                        continue
 
-                expanded_reservation = expanded_reservation.expand(expand_step_distance, direction)
-                expanded_item = expanded_item.resize_item(expanded_reservation.remove_margin(margin).size)
-                expansions += 1
+                    expanded_reservation = expanded_reservation.expand(expand_step_distance, direction)
+                    expanded_item = expanded_item.resize_item(expanded_reservation.remove_margin(margin).size)
+                    expansions += 1
+            else:
+                new_reservations = (
+                    # move up and left
+                    Box(expanded_reservation.left-expand_step_distance, expanded_reservation.upper-expand_step_distance, expanded_reservation.right, expanded_reservation.lower),
+                    # move up and right
+                    Box(expanded_reservation.left, expanded_reservation.upper-expand_step_distance, expanded_reservation.right + expand_step_distance, expanded_reservation.lower),
+                    # move down and right
+                    Box(expanded_reservation.left, expanded_reservation.upper, expanded_reservation.right + expand_step_distance, expanded_reservation.lower + expand_step_distance),
+                    # move down and left
+                    Box(expanded_reservation.left-expand_step_distance, expanded_reservation.upper, expanded_reservation.right, expanded_reservation.lower + expand_step_distance)
+                )
 
+                for new_reservation in new_reservations:
+                    if not(reservations_box.contains(new_reservation)):
+                        continue
+                    new_item = expanded_item.resize_item(new_reservation.remove_margin(margin).size)
+                    new_item_map = add_margin_to_display_map(new_item.display_map, margin)
+                    if not(can_fit_on_target(
+                        new_item_map,
+                        reservations_map,
+                        new_reservation,
+                        reservation.reservation_no
+                    )):
+                        continue
+
+                    expanded_reservation = new_reservation
+                    expanded_item = new_item
+                    expansions += 1
+                    break
             if 0 == expansions:
                 break
 
