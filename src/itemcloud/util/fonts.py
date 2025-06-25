@@ -169,16 +169,20 @@ class Font:
         image: ImageItem,
         fg_color: Color | None,
         as_watermark: bool = False,
-        xy: tuple[float, float] | None = None
+        xy: tuple[float, float] | None = None,
+        rotated_degrees: int | None = None,
     ) -> ImageItem:
         text_image = image
-        text_rotation = 0
         if xy is None:
             xy = (0.0, 0.0)
-        if as_watermark:
+
+        if as_watermark or (rotated_degrees is not None and 0 < rotated_degrees):
             box = get_text_box(text, font, self._attributes)
-            text_rotation = box.rotate_until_wedged(Box(0,0, image.width, image.height))
-            text_image = ImageItem.new('RGBA', to_img_size(box.size), (255,255,255,0))
+            if as_watermark:
+                text_image = ImageItem.new('RGBA', to_img_size(box.size), (255,255,255,0))
+            else:
+                text_image = ImageItem.new(image.mode, to_img_size(box.size))
+
 
         draw = text_image.create_draw()
         if fg_color is not None:
@@ -226,12 +230,16 @@ class Font:
                     font_size=self.font_size
 
                 )
-        if as_watermark:
-            image = image.convert('RGBA')
-            if 0 < text_rotation:
-                text_image = text_image.rotate_item(text_rotation, RotateDirection.CLOCKWISE)
+        if as_watermark or (rotated_degrees is not None and 0 < rotated_degrees):
+            if as_watermark and image.mode != 'RGBA':
+                image = image.convert('RGBA')
+            if rotated_degrees is not None and 0 < rotated_degrees:
+                text_image = text_image.rotate_item(rotated_degrees, RotateDirection.CLOCKWISE)
             text_image = text_image.resize(image.size)
-            return ImageItem.new_alpha_composite(image, text_image)
+            if as_watermark:
+                return ImageItem.new_alpha_composite(image, text_image)
+            else:
+                return image.paste(im=text_image, mask=text_image if text_image.has_transparency_data else None)
         
         return image
 
@@ -259,7 +267,8 @@ class Font:
             image,
             fg_color,
             as_watermark,
-            xy
+            xy,
+            rotated_degrees
         )
 
     def to_image(
