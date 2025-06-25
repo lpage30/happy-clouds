@@ -12,6 +12,15 @@ from itemcloud.util.parsers import to_unused_filepath
 class Item(Size):
 
     @property
+    def is_primitive(self) -> bool:
+        return False
+
+    @property
+    @abstractmethod
+    def primitive_item(self) -> PrimitiveItem:
+        pass
+    
+    @property
     @abstractmethod
     def type(self) -> ItemType:
         pass 
@@ -82,3 +91,25 @@ class Item(Size):
     @abstractmethod
     def load_row(row: Dict[str, Any]) -> Item:
         pass
+
+
+class PrimitiveItem(Item):
+    _original: PrimitiveItem | None = None
+
+    @property
+    def is_primitive(self) -> bool:
+        return True
+ 
+    @property
+    def original_item(self) -> PrimitiveItem:
+        if self._original is None:
+            return self
+        return self._original
+
+    @property
+    def primitive_item(self) -> PrimitiveItem:
+        return self
+
+    @original_item.setter
+    def original_item(self, original: PrimitiveItem) -> None:
+        self._original = original    

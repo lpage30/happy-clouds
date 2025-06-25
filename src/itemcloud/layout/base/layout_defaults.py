@@ -1,5 +1,5 @@
 from itemcloud.size import RESIZE_TYPES
-from itemcloud.item_cloud_defaults import MODE_TYPES
+from itemcloud.containers.base.image_item import MODE_TYPES, RESAMPLING_TYPES
 from itemcloud.util.search_types import SEARCH_PATTERNS
 LAYOUT_MAX_ITEMS = 'layout_max_items'
 LAYOUT_MAX_ITEMS_HELP = '<integer>'
@@ -22,9 +22,9 @@ LAYOUT_MARGIN_HELP = '<image-margin>'
 LAYOUT_OPACITY = 'layout_opacity'
 LAYOUT_OPACITY_HELP = '<0-100-image-opacity-pct>'
 LAYOUT_RESIZE_RESAMPLING = 'layout_resize_resampling'
-LAYOUT_RESIZE_RESAMPLING_HELP = '<0-5-image-resize-resampling>'
+LAYOUT_RESIZE_RESAMPLING_HELP = '|'.join(RESAMPLING_TYPES)
 LAYOUT_ROTATE_RESAMPLING = 'layout_rotate_resampling'
-LAYOUT_ROTATE_RESAMPLING_HELP = '<0-5-image-rotate-resampling>'
+LAYOUT_ROTATE_RESAMPLING_HELP = '|'.join(RESAMPLING_TYPES)
 LAYOUT_NAME = 'layout_name'
 LAYOUT_NAME_HELP = '<name>'
 LAYOUT_TOTAL_THREADS = 'layout_total_threads'

@@ -26,9 +26,3 @@ class SearchPattern(Enum):
 
 
 SEARCH_PATTERNS = [p.name for p in SearchPattern]
-
-def is_search_pattern(value: str) -> SearchPattern:
-    for p in SearchPattern:
-        if p.name == value:
-            return p
-    raise ValueError('Unsupported SearchPattern {0}'.format(value))

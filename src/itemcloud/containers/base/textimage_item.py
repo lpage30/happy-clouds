@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 from itemcloud.size import Size
 from itemcloud.containers.base.item_types import ItemType
-from itemcloud.containers.base.item import Item
+from itemcloud.containers.base.item import PrimitiveItem
 from itemcloud.containers.base.image_item import (
     extend_filename,
     ImageItem
@@ -16,7 +16,7 @@ from itemcloud.util.display_map import (
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.util.parsers import get_value_or_default
 
-class TextImageItem(Item):
+class TextImageItem(PrimitiveItem):
     def __init__(
         self,
         image: ImageItem,
@@ -86,25 +86,31 @@ class TextImageItem(Item):
             if new_text.item_size.is_less_than(size):
                 new_text = new_text.resize_item(size)
 
-        return TextImageItem(
+        result = TextImageItem(
             image=new_image,
             text=new_text,
             watermark_transparency=self._watermark_transparency
         )
+        result.original_item = self.original_item
+        return result
 
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
-        return TextImageItem(
+        result = TextImageItem(
             image=self._image.rotate_item(angle, direction),
             text=self._text.rotate_item(angle, direction),
             watermark_transparency=self._watermark_transparency
         )
+        result.original_item = self.original_item
+        return result
 
     def copy_item(self) -> Item:
-        return TextImageItem(
+        result = TextImageItem(
             image=self._image.copy_item(),
             text=self._text.copy_item(),
             watermark_transparency=self._watermark_transparency,
         )
+        result.original_item = self.original_item
+        return result
 
     def to_image(
         self,
@@ -146,10 +152,12 @@ class TextImageItem(Item):
     def load_row(row: Dict[str, Any]) -> Item:
         image = ImageItem.load_row(row)
         text = TextItem.load_row(row)
-        return TextImageItem(
+        result = TextImageItem(
             image,
             text,
             get_value_or_default(TEXT_TRANSPARENCY_PERCENT, row, 1.0, float)
         )
+        result.original_item = result
+        return result
     
 TEXT_TRANSPARENCY_PERCENT = 'transparency_percent'

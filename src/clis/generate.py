@@ -25,7 +25,13 @@ from itemcloud.containers.weighted_textimage import (
     WEIGHTED_TEXT_IMAGE_HEADERS,
     WEIGHTED_TEXT_IMAGE_HEADERS_HELP,
 )
-from itemcloud.containers.base.image_item import IMAGE_FORMATS
+from itemcloud.containers.base.image_item import (
+    IMAGE_FORMATS,
+    RESAMPLING_TYPES,
+    ResamplingType,
+    MODE_TYPES,
+    set_global_image_settings
+)
 import itemcloud.item_cloud_defaults as item_cloud_defaults
 from itemcloud.size import (
     RESIZE_TYPES,
@@ -48,38 +54,48 @@ def main() -> None:
     args = parser.parse_args()
     name = create_name(args.input, args.output_image_format, args.output_directory)
     if args.log_filepath:
-        logger: BaseLogger = FileLogger.create(parser.prog, False, args.log_filepath)
+        logger: BaseLogger = FileLogger.create(parser.prog, args.verbose, args.log_filepath)
     else:
-        logger: BaseLogger = BaseLogger.create(parser.prog, False)
+        logger: BaseLogger = BaseLogger.create(parser.prog, args.verbose)
     set_logger_instance(logger)
 
     logger.info('{0} {1} {2}'.format(parser.prog, name, ' '.join(sys_args)))
-    logger.info('loading {0} ...'.format(args.input))
-    weighted_items: List[WeightedItem] = load_weighted_items(args.input)
-    total_items = len(weighted_items)
-    logger.info('loaded {0} weights and items'.format(total_items))
     mask_image = None
     if args.mask is not None:
         mask_image = ImageItem.open(args.mask)
-
+    # load itemcloud 1st 
     cloud = ItemCloud(
         logger=logger,
         mask=mask_image,
         size=args.cloud_size,
         background_color=args.background_color,
+        max_items=None,
         max_item_size=args.max_item_size,
         min_item_size=args.min_item_size,
         item_step=args.step_size,
         item_rotation_increment=args.rotation_increment,
         resize_type=args.resize_type,
+        maximize_type=args.maximize_type,
+        scale=None,
         contour_width=args.contour_width,
         contour_color=args.contour_color,
         margin=args.margin,
+        opacity=args.opacity_pct,
+        resize_resampling=args.resize_resampling,
+        rotate_resampling=args.rotate_resampling,
         mode=args.mode,
         name=name,
         total_threads=args.total_threads,
         search_pattern=args.placement_search_pattern
     )
+    # global image settings used when loading images to convert them to configured mode
+    set_global_image_settings(cloud._mode, cloud._opacity, cloud._resize_resampling, cloud._rotate_resampling)
+
+    logger.info('loading {0} ...'.format(args.input))
+    weighted_items: List[WeightedItem] = load_weighted_items(args.input)
+    total_items = len(weighted_items)
+    logger.info('loaded {0} weights and items'.format(total_items))
+
     logger.info('generating cloud from {0} weighted and normalized items.{1}'.format(
         total_items,
         ' Cloud will be expanded iteratively by cloud_expansion_step_size until all items are positioned.' if 0 != args.cloud_expansion_step_size else ''
@@ -100,7 +116,7 @@ def process_layout(args, logger, layout) -> None:
     if not(np.array_equal(layout.canvas.reservation_map, reconstructed_reservation_map)):
         logger.info('Warning reservations map from generation not same as reconstructed from items.')
     
-    collage = layout.to_image(args.logger)
+    collage = layout.to_image(logger)
     reservation_chart = layout.to_reservation_chart_image()
 
     if args.output_directory is not None:
@@ -236,7 +252,7 @@ def getArgParser() -> argparse.ArgumentParser:
     parser.add_argument(
         '-placement_search_pattern',
         default=item_cloud_defaults.DEFAULT_SEARCH_PATTERN,
-        metavar='{0}'.format('|'.join(SEARCH_PATTERNS)),
+        metavar='|'.join(SEARCH_PATTERNS),
         type=lambda v: is_enum(parser, SearchPattern, v),
         help='Optional,(default %(default)s) {0}'.format(item_cloud_defaults.SEARCH_PATTERN_HELP)
     )
@@ -259,7 +275,27 @@ step > 1 might speed up computation but give a worse fit.
         type=lambda v: is_integer(parser, v),
         help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.MARGIN_HELP)
     )
-
+    parser.add_argument(
+        '-opacity_pct',
+        default=item_cloud_defaults.DEFAULT_OPACITY,
+        metavar='<0-100>',
+        type=lambda v: is_integer(parser, v),
+        help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.OPACITY_HELP)
+    )
+    parser.add_argument(
+        '-resize_resampling',
+        default=item_cloud_defaults.DEFAULT_RESAMPLING,
+        metavar='|'.join(RESAMPLING_TYPES),
+        type=lambda v: is_enum(parser,ResamplingType, v),
+        help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.RESAMPLING_HELP)
+    )
+    parser.add_argument(
+        '-rotate_resampling',
+        default=item_cloud_defaults.DEFAULT_RESAMPLING,
+        metavar='|'.join(RESAMPLING_TYPES),
+        type=lambda v: is_enum(parser,ResamplingType, v),
+        help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.RESAMPLING_HELP)
+    )
     parser.add_argument(
         '-min_item_size',
         default=item_cloud_defaults.DEFAULT_MIN_ITEM_SIZE,
@@ -288,7 +324,15 @@ step > 1 might speed up computation but give a worse fit.
     parser.add_argument(
         '-resize_type',
         default=item_cloud_defaults.DEFAULT_RESIZE_TYPE,
-        metavar='{0}'.format('|'.join(RESIZE_TYPES)),
+        metavar='|'.join(RESIZE_TYPES),
+        type=lambda v: is_enum(parser, ResizeType, v),
+        help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.RESIZE_TYPE_HELP)
+    )
+
+    parser.add_argument(
+        '-maximize_type',
+        default=item_cloud_defaults.DEFAULT_RESIZE_TYPE,
+        metavar='|'.join(RESIZE_TYPES),
         type=lambda v: is_enum(parser, ResizeType, v),
         help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.RESIZE_TYPE_HELP)
     )
@@ -304,8 +348,8 @@ step > 1 might speed up computation but give a worse fit.
     parser.add_argument(
         '-mode',
         default=item_cloud_defaults.DEFAULT_MODE,
-        metavar='{0}'.format('|'.join(item_cloud_defaults.MODE_TYPES)),
-        type=lambda v: in_array(parser, item_cloud_defaults.MODE_TYPES, v),
+        metavar='|'.join(MODE_TYPES),
+        type=lambda v: in_array(parser, MODE_TYPES, v),
         help='Optional, (default %(default)s) {0}'.format(item_cloud_defaults.MODE_HELP)
     )
     parser.add_argument(

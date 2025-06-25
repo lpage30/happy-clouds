@@ -1,7 +1,9 @@
 import warnings
 import numpy as np
-from PIL import Image
-from itemcloud.containers.base.image_item import ImageItem, set_resize_resampling, set_rotate_resampling
+from itemcloud.containers.base.image_item import (
+    ImageItem,
+    ResamplingType
+)
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.size import (Size, ResizeType)
 from itemcloud.util.parsers import (parse_to_float, parse_to_int)
@@ -22,7 +24,6 @@ from itemcloud.containers.base.weighted_item import (
     sort_by_weight
 )
 import itemcloud.item_cloud_defaults as item_cloud_defaults
-from itemcloud.util.display_map import set_opacity_percentage
 # implementation was extrapolated from wordcloud and adapted for generic renderable objects
  
 class ItemCloud(object):
@@ -116,8 +117,8 @@ class ItemCloud(object):
         contour_color: str | None = None,
         margin: int | None = None,
         opacity: int | None = None,
-        resize_resampling: Image.Resampling | None = None,
-        rotate_resampling: Image.Resampling | None = None,
+        resize_resampling: ResamplingType | None = None,
+        rotate_resampling: ResamplingType | None = None,
         mode: str | None = None,
         name: str | None = None,
         total_threads: int | None = None,
@@ -141,18 +142,14 @@ class ItemCloud(object):
 
         self._margin = margin if margin is not None else parse_to_int(item_cloud_defaults.DEFAULT_MARGIN)
         self._opacity = opacity if opacity is not None else parse_to_int(item_cloud_defaults.DEFAULT_OPACITY)
-        self._resize_resampling = resize_resampling if resize_resampling is not None else Image.Resampling(parse_to_int(item_cloud_defaults.DEFAULT_RESAMPLING))
-        self._rotate_resampling = rotate_resampling if rotate_resampling is not None else Image.Resampling(parse_to_int(item_cloud_defaults.DEFAULT_RESAMPLING))
+        self._resize_resampling = resize_resampling if resize_resampling is not None else item_cloud_defaults.DEFAULT_RESAMPLING
+        self._rotate_resampling = rotate_resampling if rotate_resampling is not None else item_cloud_defaults.DEFAULT_RESAMPLING
 
         self._mode = mode if mode is not None else item_cloud_defaults.DEFAULT_MODE
         self._name = name if name is not None else 'itemcloud'
         self._total_threads = total_threads if total_threads is not None else parse_to_int(item_cloud_defaults.DEFAULT_TOTAL_THREADS)
         self._search_pattern = search_pattern if search_pattern is not None else SearchPattern[item_cloud_defaults.DEFAULT_SEARCH_PATTERN]
         self.layout_: Layout | None = None
-        set_opacity_percentage(self._opacity)
-        set_resize_resampling(self._resize_resampling)
-        set_rotate_resampling(self._rotate_resampling)
-
     @property
     def mask(self) -> np.ndarray | None:
         return self._mask
@@ -360,6 +357,7 @@ class ItemCloud(object):
             layout.name + '.maximized',
             self._total_threads,
             latency_str,
+            layout._search_pattern
         )
         self._logger.reset_context()
 

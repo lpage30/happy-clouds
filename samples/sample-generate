@@ -1,0 +1,29 @@
+#!/bin/bash
+script_dir=$( dirname -- "$( readlink -f -- "$0"; )"; )
+pushd $script_dir
+
+output_directory=./item-cloud
+generate_log=$output_directory/generate-log.$(date '+%Y%m%d.%H%M%S').txt
+
+input_csv=./itemcloud-import.csv
+image_type=png
+
+linkedin_background_size="2814,705"
+reasonable_smallest_size="50,50"
+if [ ! -d "$output_directory" ]; then
+    mkdir -p $output_directory
+fi
+
+generate \
+    -i $input_csv \
+    -output_directory $output_directory \
+    -output_image_format $image_type \
+    -cloud_size $linkedin_background_size \
+    -min_item_size $reasonable_smallest_size \
+    -resize_type MAINTAIN_ASPECT_RATIO \
+    -maximize_type MAINTAIN_ASPECT_RATIO \
+    -maximize_empty_space \
+    -show_itemcloud \
+    -log_filepath $generate_log \
+    -total_threads 64
+popd

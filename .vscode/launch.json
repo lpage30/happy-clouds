@@ -6,36 +6,45 @@
     "configurations": [
 
         {
+            "name": "user-specific",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "clis.generate",
+            "cwd": "${userHome}/Documents/image-clouds",
+            "args": "-i ./imagecloud-import-1.csv -output_directory ./image-cloud -output_image_format png -cloud_size 1586,1224 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_type MAINTAIN_ASPECT_RATIO -placement_search_pattern SPIRAL -rotation_increment 10 -maximize_empty_space -show_itemcloud -log_filepath ./image-cloud/generate-log.debug.txt -total_threads 64 -verbose"
+        },
+
+        {
             "name": "samples-generate-1",
             "type": "debugpy",
             "request": "launch",
-            "module": "clis.cli_functions",
+            "module": "clis.generate",
             "cwd": "${workspaceFolder}/samples",
-            "args": "generate -i ./mixeditemcloud-import-1.csv -output_directory ./mixeditem-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./mixeditem-cloud/generate-log.debug.txt -total_threads 64 -verbose"
+            "args": "-i ./itemcloud-import-1.csv -output_directory ./item-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./item-cloud/generate-log.debug.txt -total_threads 64 -verbose"
         },
         {
             "name": "samples-generate",
             "type": "debugpy",
             "request": "launch",
-            "module": "clis.cli_functions",
+            "module": "clis.generate",
             "cwd": "${workspaceFolder}/samples",
-            "args": "generate -i ./mixeditemcloud-import.csv -output_directory ./mixeditem-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -maximize_type MAINTAIN_ASPECT_RATIO-show_itemcloud -log_filepath ./mixeditem-cloud/generate-log.debug.txt -total_threads 64 -verbose"
+            "args": "-i ./itemcloud-import.csv -output_directory ./item-cloud -output_image_format png -cloud_size 2814,705 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_type MAINTAIN_ASPECT_RATIO -maximize_empty_space -show_itemcloud -log_filepath ./item-cloud/generate-log.debug.txt -total_threads 64 -verbose"
         },
         {
             "name": "layout-1",
             "type": "debugpy",
             "request": "launch",
-            "module": "clis.cli_functions",
+            "module": "clis.layout",
             "cwd": "${workspaceFolder}/samples",
-            "args": "layout -i ./mixeditem-cloud/mixeditemcloud-import-1.layout.csv -output_directory ./mixeditem-cloud -output_image_format png -maximize_empty_space -show_itemcloud -show_itemcloud_reservation_chart -log_filepath ./mixeditem-cloud/layout-log.debug.txt -verbose",
+            "args": "-i ./item-cloud/itemcloud-import-1.layout.csv -output_directory ./item-cloud -output_image_format png -maximize_empty_space -show_itemcloud -show_itemcloud_reservation_chart -log_filepath ./item-cloud/layout-log.debug.txt -verbose",
         },
         {
             "name": "layout",
             "type": "debugpy",
             "request": "launch",
-            "module": "clis.cli_functions",
+            "module": "clis.layout",
             "cwd": "${workspaceFolder}/samples",
-            "args": "layout -i ./mixeditem-cloud/mixeditemcloud-import.layout.csv -output_directory ./mixeditem-cloud -output_image_format png -maximize_empty_space -show_itemcloud -show_itemcloud_reservation_chart -log_filepath ./mixeditem-cloud/layout-log.debug.txt -verbose",
+            "args": "-i ./item-cloud/itemcloud-import.layout.csv -output_directory ./item-cloud -output_image_format png -maximize_empty_space -show_itemcloud -show_itemcloud_reservation_chart -log_filepath ./item-cloud/layout-log.debug.txt -verbose",
         },
         {
             "name": "show_all_text_fonts",

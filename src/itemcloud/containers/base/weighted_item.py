@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import Any, Dict, List
 from math import sqrt
 from itemcloud.size import (
-    ResizeType,
     Size,
 )
 from itemcloud.containers.base.item_factory import create_layout_item, create_weighted_item
@@ -16,8 +15,6 @@ from itemcloud.util.csv_utils import load_rows
 from itemcloud.containers.base.item_factory import create_weighted_item
 from itemcloud.native.weighted_size import (
     native_create_weighted_size,
-    native_create_weighted_size_array,
-    native_resize_to_proportionally_fit,  
 )
 class WeightedItem(NamedItem):
     weight: float

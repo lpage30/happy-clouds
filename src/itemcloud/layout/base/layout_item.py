@@ -16,7 +16,7 @@ from itemcloud.size import Size
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.containers.base.image_item import ImageItem
 from itemcloud.containers.base.item_types import ItemType
-from itemcloud.containers.base.item import Item
+from itemcloud.containers.base.item import Item, PrimitiveItem
 from itemcloud.util.display_map import DISPLAY_MAP_TYPE
 from itemcloud.box import RotateDirection
 from itemcloud.util.parsers import (
@@ -45,6 +45,9 @@ class LayoutItem(Item, Reservation):
         self._reservation_color = None
         self._latency_str = latency_str
 
+    @property
+    def primitive_item(self) -> PrimitiveItem:
+       return self.item.primitive_item
 
     @property
     def type(self) -> ItemType:
@@ -73,6 +76,13 @@ class LayoutItem(Item, Reservation):
     @property
     def size(self) -> tuple[int, int]:
         return self.reservation_party.size
+    
+    @property
+    def original_image(self) -> ImageItem:
+        return self.primitive_item.original_item.to_image(
+            self.rotated_degrees,
+            self._placement_box.size
+        )
     
     def resize_item(self, size: Size) -> Item:
         return create_layout_item(
@@ -103,7 +113,7 @@ class LayoutItem(Item, Reservation):
         logger: BaseLogger | None = None,
         as_watermark: bool = False
     ) -> ImageItem:
-        return self.reservation_party.to_image(rotated_degrees, size, logger, as_watermark)
+        return self.original_image.to_image(rotated_degrees, size, logger, as_watermark)
         
     def show(self, title: str | None = None) -> None:
         self.reservation_party.show(title)
@@ -137,28 +147,34 @@ class LayoutItem(Item, Reservation):
         }
 
     def write_row(self, directory: str, name: str, row: Dict[str, Any]) -> str:
-        row[layout_defaults.LAYOUT_ITEM_FILEPATH] = self.reservation_party.write_row(directory, self.reservation_party.name, self.reservation_party.to_csv_row(directory))
+        row[layout_defaults.LAYOUT_ITEM_FILEPATH] = self.primitive_item.original_item.write_row(directory, self.reservation_party.name, self.reservation_party.to_csv_row(directory))
         return write_rows(self.to_write_item_filename(directory, name), [row])
 
     @staticmethod
     def load_row(row: Dict[str, Any]) -> Item:
         item_rows = load_rows(row[layout_defaults.LAYOUT_ITEM_FILEPATH])
+        placement_box = Box(
+            int(row[layout_defaults.LAYOUT_ITEM_POSITION_X]),
+            int(row[layout_defaults.LAYOUT_ITEM_POSITION_Y]),
+            int(row[layout_defaults.LAYOUT_ITEM_POSITION_X]) + int(row[layout_defaults.LAYOUT_ITEM_SIZE_WIDTH]),
+            int(row[layout_defaults.LAYOUT_ITEM_POSITION_Y]) + int(row[layout_defaults.LAYOUT_ITEM_SIZE_HEIGHT])
+        )
+        rotated_degrees = int(row[layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES]) if row[layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES] is not None else None
+        reservation_box = Box(
+            int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X]),
+            int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y]),
+            int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X]) + int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_WIDTH]),
+            int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y]) + int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT])
+        )
         item = load_weighted_item_row(item_rows[0])
+        item = item.resize_item(placement_box.size)
+        if rotated_degrees is not None:
+            item = item.rotate_item(rotated_degrees)
         return create_layout_item(
             filepath_to_name(row[layout_defaults.LAYOUT_ITEM_FILEPATH]),
-            Box(
-                int(row[layout_defaults.LAYOUT_ITEM_POSITION_X]),
-                int(row[layout_defaults.LAYOUT_ITEM_POSITION_Y]),
-                int(row[layout_defaults.LAYOUT_ITEM_POSITION_X]) + int(row[layout_defaults.LAYOUT_ITEM_SIZE_WIDTH]),
-                int(row[layout_defaults.LAYOUT_ITEM_POSITION_Y]) + int(row[layout_defaults.LAYOUT_ITEM_SIZE_HEIGHT])
-            ),
-            int(row[layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES]) if row[layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES] is not None else None,
-            Box(
-                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X]),
-                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y]),
-                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X]) + int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_WIDTH]),
-                int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y]) + int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT])
-            ),
+            placement_box,
+            rotated_degrees,
+            reservation_box,
             int(row[layout_defaults.LAYOUT_ITEM_RESERVATION_NO]),
             row[layout_defaults.LAYOUT_ITEM_LATENCY],
             item
@@ -222,12 +238,21 @@ class LayoutItem(Item, Reservation):
         return result
     
     @staticmethod
-    def load(row: Dict[str,Any], _row_no: int, layout_directory: str) -> LayoutItem:
-        layout_row = {}
-        layout_row.update(row)
-        layout_row.update({
-            layout_defaults.LAYOUT_ITEM_FILEPATH: to_existing_filepath(row[layout_defaults.LAYOUT_ITEM_FILEPATH], layout_directory)
-        })
-        return LayoutItem.load_row(layout_row)
+    def pluck_item_rows(row: Dict[str,Any], _row_no: int, layout_directory: str) -> Dict[str, Any]:
+        return {
+            layout_defaults.LAYOUT_ITEM_FILEPATH: to_existing_filepath(row[layout_defaults.LAYOUT_ITEM_FILEPATH], layout_directory),
+            layout_defaults.LAYOUT_ITEM_POSITION_X: row[layout_defaults.LAYOUT_ITEM_POSITION_X],
+            layout_defaults.LAYOUT_ITEM_POSITION_Y: row[layout_defaults.LAYOUT_ITEM_POSITION_Y],
+            layout_defaults.LAYOUT_ITEM_SIZE_WIDTH: row[layout_defaults.LAYOUT_ITEM_SIZE_WIDTH],
+            layout_defaults.LAYOUT_ITEM_SIZE_HEIGHT: row[layout_defaults.LAYOUT_ITEM_SIZE_HEIGHT],
+            layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES: row[layout_defaults.LAYOUT_ITEM_ROTATED_DEGREES],
+            layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X: row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_X],
+            layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y: row[layout_defaults.LAYOUT_ITEM_RESERVATION_POSITION_Y],
+            layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_WIDTH: row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_WIDTH],
+            layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT: row[layout_defaults.LAYOUT_ITEM_RESERVATION_SIZE_HEIGHT],
+            layout_defaults.LAYOUT_ITEM_RESERVATION_NO: row[layout_defaults.LAYOUT_ITEM_RESERVATION_NO],
+            layout_defaults.LAYOUT_ITEM_LATENCY: row[layout_defaults.LAYOUT_ITEM_LATENCY],
+            layout_defaults.LAYOUT_ITEM_TYPE: row[layout_defaults.LAYOUT_ITEM_TYPE]
+        }
     
     

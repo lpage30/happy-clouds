@@ -8,7 +8,7 @@ from clis.argument_cli_helpers import (
     create_name,
     to_unused_filepath
 )
-from itemcloud.containers.base.image_item import IMAGE_FORMATS
+from itemcloud.containers.base.image_item import IMAGE_FORMATS, set_global_image_settings
 from itemcloud.layout.base.layout_defaults import (
     LAYOUT_HEADERS,
     LAYOUT_CANVAS_HEADERS,
@@ -29,16 +29,16 @@ def main() -> None:
     parser = getArgParser()
     args = parser.parse_args()
     if args.log_filepath:
-        logger: BaseLogger = FileLogger.create(parser.prog, False, args.log_filepath)
+        logger: BaseLogger = FileLogger.create(parser.prog, args.verbose, args.log_filepath)
     else:
-        logger: BaseLogger = BaseLogger.create(parser.prog, False)
+        logger: BaseLogger = BaseLogger.create(parser.prog, args.verbose)
     set_logger_instance(logger)
 
     logger.info('{0} {1}'.format(args.name, ' '.join(sys_args)))
     logger.info('loading {0} ...'.format(args.input))
-    layout = Layout.load(args.input)
+    layout: Layout = Layout.load(args.input, set_global_image_settings)
     logger.info('loaded layout with {0} items'.format(len(layout.items)))
-    logger.info('laying-out and showing anyitemcloud layout with {0} scaling.'.format(args.scale))
+    logger.info('laying-out and showing itemcloud layout with {0} scaling.'.format(args.scale))
     
     layout.set_names(
         create_name(args.input, args.output_image_format, args.output_directory, layout.name),
@@ -48,27 +48,33 @@ def main() -> None:
     if args.maximize_empty_space:
         logger.info('Maximizing {0} images: expanding them to fit their surrounding empty space.'.format(len(layout.items)))
         cloud = ItemCloud(
-            logger,
-            layout.contour.mask,
-            layout.canvas.size,
-            layout.canvas.background_color,
-            layout.max_items,
-            None,
-            layout.min_item_size,
-            layout.item_step,
-            layout.item_rotation_increment,
-            layout.resize_type,
-            layout.scale,
-            layout.contour.width,
-            layout.contour.color,
-            layout.margin,
-            layout.canvas.mode,
-            layout.canvas.name
+            logger=logger,
+            mask=layout.contour.mask,
+            size=layout.canvas.size,
+            background_color=layout.canvas.background_color,
+            max_items=layout.max_items,
+            max_item_size=None,
+            min_item_size=layout.min_item_size,
+            item_step=layout.item_step,
+            item_rotation_increment=layout.item_rotation_increment,
+            resize_type=layout.resize_type,
+            maximize_type=layout.maximize_type,
+            scale=layout.scale,
+            contour_width=layout.contour.width,
+            contour_color=layout.contour.color,
+            margin=layout.margin,
+            opacity=layout.opacity,
+            resize_resampling=layout.resize_resampling,
+            rotate_resampling=layout.rotate_resampling,
+            mode=layout.canvas.mode,
+            name=layout.canvas.name,
+            total_threads=layout.total_threads,
+            search_pattern=layout._search_pattern
         )
         cloud.layout_ = layout
         layout = cloud.maximize_empty_space(layout)
 
-    collage = layout.to_image(args.logger, args.scale)
+    collage = layout.to_image(logger, args.scale)
     reservation_chart = layout.to_reservation_chart_image()
 
     if args.output_directory is not None:

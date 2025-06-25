@@ -11,7 +11,7 @@ from itemcloud.containers.base.image_item import (
     ImageItem
 )
 from itemcloud.containers.base.item_types import ItemType, TEXT_TEXT
-from itemcloud.containers.base.item import Item
+from itemcloud.containers.base.item import PrimitiveItem
 from itemcloud.logger.base_logger import BaseLogger
 from itemcloud.box import RotateDirection
 from itemcloud.util.parsers import (
@@ -21,7 +21,7 @@ from itemcloud.util.parsers import (
     field_exists
 )
 from itemcloud.util.csv_utils import write_rows
-class TextItem(Item):
+class TextItem(PrimitiveItem):
     def __init__(
         self,
         text: str,
@@ -75,6 +75,7 @@ class TextItem(Item):
             self._has_transparency,
             size
         )
+        result.original_item = self.original_item
         return result    
     
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
@@ -84,7 +85,7 @@ class TextItem(Item):
             angle,
             self.item_size
         )
-        return TextItem(
+        result = TextItem(
             self._text,
             font,
             self._foreground_color,
@@ -92,9 +93,11 @@ class TextItem(Item):
             self._has_transparency,
             self.item_size   
         )
+        result.original_item = self.original_item
+        return result
 
     def copy_item(self) -> Item:
-        return TextItem(
+        result = TextItem(
             self._text,
             self._font,
             self._foreground_color,
@@ -102,6 +105,8 @@ class TextItem(Item):
             self._has_transparency,
             self.item_size
         )
+        result.original_item = self.original_item
+        return result
 
     def draw_on_image(
         self,
@@ -208,7 +213,7 @@ class TextItem(Item):
             text_box = result._font.to_box(result._text)
             result._width = text_box.width
             result._height = text_box.height
-
+        result.original_item = result
         return result
 
 

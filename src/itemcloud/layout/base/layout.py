@@ -7,7 +7,6 @@ from itemcloud.reservations import (
     Reservations,
 )
 from itemcloud.util.display_map import (
-    set_opacity_percentage,
     create_display_map,
     DISPLAY_MAP_TYPE,
     DISPLAY_NP_DATA_TYPE
@@ -25,10 +24,15 @@ import matplotlib.pyplot as plt
 import io
 import os
 from PIL import ImageFilter, Image
-from typing import Any, Dict
+from typing import Any, Dict, Callable
 import csv
 import traceback
-from itemcloud.containers.base.image_item import ImageItem, to_img_size, to_img_xy, set_resize_resampling, set_rotate_resampling
+from itemcloud.containers.base.image_item import (
+    ResamplingType,
+    ImageItem,
+    to_img_size,
+    to_img_xy
+)
 
 from itemcloud.util.colors import (
     Color,
@@ -375,8 +379,8 @@ class Layout:
             layout_defaults.LAYOUT_SCALE: self.scale,
             layout_defaults.LAYOUT_MARGIN: self.margin,
             layout_defaults.LAYOUT_OPACITY: self.opacity,
-            layout_defaults.LAYOUT_RESIZE_RESAMPLING: self.resize_resampling,
-            layout_defaults.LAYOUT_ROTATE_RESAMPLING: self.rotate_resampling,
+            layout_defaults.LAYOUT_RESIZE_RESAMPLING: self.resize_resampling.name,
+            layout_defaults.LAYOUT_ROTATE_RESAMPLING: self.rotate_resampling.name,
             layout_defaults.LAYOUT_NAME: self.name,
             layout_defaults.LAYOUT_TOTAL_THREADS: self.total_threads,
             layout_defaults.LAYOUT_LATENCY: self._latency_str,
@@ -393,12 +397,11 @@ class Layout:
                     **(self.items[i].write(layout_directory))
                 })
                 
-        
     @staticmethod
-    def load(csv_filepath: str):
+    def load(csv_filepath: str, set_global_image_settings: Callable[[str, int, ResamplingType, ResamplingType], None] | None):
         try:
             canvas: LayoutCanvas | None = None
-            items: list[LayoutItem] = list()
+            item_rows: list[Dict[str, Any]] = list()
             contour: LayoutContour | None = None
             layout_directory: str = os.path.dirname(csv_filepath)
             layout_data: Dict[str,Any] = {}
@@ -416,9 +419,9 @@ class Layout:
                         canvas = LayoutCanvas.load(row, row_no, layout_directory)
                     if contour == None:
                         contour = LayoutContour.load(row, row_no, layout_directory)
-                    items.append(LayoutItem.load(row, row_no, layout_directory))
+                    item_rows.append(LayoutItem.pluck_item_rows(row, row_no, layout_directory))
             
-            if canvas == None or contour == None or 0 == len(items):
+            if canvas == None or contour == None or 0 == len(item_rows):
                 return None
             
             max_items = get_value_or_default(layout_defaults.LAYOUT_MAX_ITEMS, layout_data, None, int)
@@ -434,19 +437,21 @@ class Layout:
             scale = get_value_or_default(layout_defaults.LAYOUT_SCALE, layout_data, None, float)
             margin = get_value_or_default(layout_defaults.LAYOUT_MARGIN, layout_data, None, int)
             opacity = get_value_or_default(layout_defaults.LAYOUT_OPACITY, layout_data, None, int)
-            resize_resampling = get_value_or_default(layout_defaults.LAYOUT_RESIZE_RESAMPLING, layout_data, None, lambda v: Image.Resampling(int(v)))
-            rotate_resampling = get_value_or_default(layout_defaults.LAYOUT_ROTATE_RESAMPLING, layout_data, None, lambda v: Image.Resampling(int(v)))
+            resize_resampling = get_value_or_default(layout_defaults.LAYOUT_RESIZE_RESAMPLING, layout_data, None, lambda v: ResamplingType[v])
+            rotate_resampling = get_value_or_default(layout_defaults.LAYOUT_ROTATE_RESAMPLING, layout_data, None, lambda v: ResamplingType[v])
             name = get_value_or_default(layout_defaults.LAYOUT_NAME, layout_data, None)  
             total_threads = get_value_or_default(layout_defaults.LAYOUT_TOTAL_THREADS, layout_data, None, int)
             latency_str = get_value_or_default(layout_defaults.LAYOUT_LATENCY, layout_data, '')
             search_pattern =  get_value_or_default(layout_defaults.LAYOUT_SEARCH_PATTERN, layout_data, None, lambda v: SearchPattern[v])
-            set_opacity_percentage(opacity)
-            set_resize_resampling(resize_resampling)
-            set_rotate_resampling(resize_resampling)
+
+            # global image settings used when loading images to convert them to configured mode
+            if set_global_image_settings is not None:
+                set_global_image_settings(canvas.mode, opacity, resize_resampling, rotate_resampling)
+
             return Layout(
                 canvas,
                 contour,
-                items,
+                [LayoutItem.load_row(row) for row in item_rows],
                 max_items,
                 min_item_size,
                 item_step,

@@ -1,10 +1,10 @@
 from __future__ import annotations
 from itemcloud.containers.base.item_factory import load_item_row
-from itemcloud.containers.base.item import Item
+from itemcloud.containers.base.item import Item, PrimitiveItem
 from itemcloud.containers.base.item_types import ITEM_NAME
 from itemcloud.containers.base.image_item import ImageItem
 from itemcloud.containers.base.item_types import ItemType
-from itemcloud.containers.base.item import Item
+from itemcloud.containers.base.item import Item, PrimitiveItem
 from itemcloud.util.display_map import DISPLAY_MAP_TYPE
 from itemcloud.util.csv_utils import load_rows
 from itemcloud.containers.base.item_factory import create_named_item
@@ -27,6 +27,10 @@ class NamedItem(Item):
     @property
     def display_map(self) -> DISPLAY_MAP_TYPE:
         return self._item.display_map
+
+    @property
+    def primitive_item(self) -> PrimitiveItem:
+        return self._item
 
     @property
     def width(self) -> int:

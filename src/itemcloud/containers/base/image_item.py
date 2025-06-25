@@ -6,16 +6,51 @@ from collections.abc import Sequence
 import matplotlib.pyplot as plt
 import numpy as np
 from itemcloud.containers.base.item_types import ItemType, IMAGE_FILEPATH
-from itemcloud.containers.base.item import Item
+from itemcloud.containers.base.item import PrimitiveItem
 from itemcloud.box import Box, RotateDirection 
 from itemcloud.util.display_map import (
     DISPLAY_MAP_TYPE,
-    img_to_display_map
+    create_display_map,
+    MapFillType
 )
 from itemcloud.size import Size
 from itemcloud.logger.base_logger import BaseLogger, get_logger_instance
 from itemcloud.util.parsers import validate_row, to_unused_filepath
 from itemcloud.util.csv_utils import write_rows
+
+ResamplingType = Image.Resampling
+RESAMPLING_TYPES = [member.name for member in ResamplingType]
+MODE_TYPES = Image.MODES
+
+g_resize_resampling: ResamplingType = ResamplingType.NEAREST
+g_rotate_resampling: ResamplingType = ResamplingType.NEAREST
+g_max_alpha_value_for_transparency: int = 0
+g_image_mode: str | None = None
+
+def set_global_image_settings(
+    mode: str,
+    opacity_pct: int,
+    resize_resampling: ResamplingType,
+    rotate_resampling: ResamplingType
+) -> None:
+    global g_image_mode
+    global g_max_alpha_value_for_transparency
+    global g_resize_resampling
+    global g_rotate_resampling
+
+    if not(mode in MODE_TYPES):
+        raise ValueError(f"Image Mode {mode} Expected one of {'|'.join(MODE_TYPES)}")
+    if not(0 <= opacity_pct and opacity_pct <= 100):
+        raise ValueError(f"Image Opacity {opacity_pct}  Expected value between 0 and 100.")
+
+    g_image_mode = mode
+    g_max_alpha_value_for_transparency = round(opacity_pct/100 * 255)
+    g_resize_resampling = resize_resampling
+    g_rotate_resampling = rotate_resampling
+
+def is_transparent(img_pixel) -> bool:
+    global g_max_alpha_value_for_transparency
+    return len(img_pixel) == 4 and img_pixel[3] <= g_max_alpha_value_for_transparency
 
 def from_img_size(img: Image.Image) -> Size:
     return Size(img.width, img.height)
@@ -47,25 +82,22 @@ def extend_filename(filepath: str, added_name: str) -> str:
     parts['name'] = parts['name'] + added_name
     return from_filepath_parts(parts)
 
-g_resize_resampling: Image.Resampling = Image.Resampling.NEAREST
-g_rotate_resampling: Image.Resampling = Image.Resampling.NEAREST
+def img_to_display_map(image: ImageItem, map_fill_type: MapFillType = MapFillType.TRANSPARENT) -> DISPLAY_MAP_TYPE:
+    img = image._rendered_image
+    result = create_display_map(Size(img.width, img.height), 1)
+    if map_fill_type == MapFillType.TRANSPARENT:
+        if img.has_transparency_data:
+            pixels = img.load()
+            for x in range(img.width):
+                for y in range(img.height):
+                    pixel = pixels[x,y]
+                    if is_transparent(pixel):
+                        result[y,x] = 0 # y == rows, x == cols
+    if not(1 in result):
+        raise ValueError('Empty Image')
+    return result
 
-def set_resize_resampling(resize_resampling: Image.Resampling) -> None:
-    global g_resize_resampling
-    g_resize_resampling = resize_resampling
-
-def set_rotate_resampling(rotate_resampling: Image.Resampling) -> None:
-    global g_rotate_resampling
-    g_rotate_resampling = rotate_resampling
-
-def set_opacity_percentage(opacity_pct:int) -> None:
-    global g_max_alpha_value_for_transparency
-    if not(0 <= opacity_pct and opacity_pct <= 100):
-        raise ValueError(f"Expected value between 0 and 100. got {opacity_pct}")
-    g_max_alpha_value_for_transparency = round(opacity_pct/100 * 255)
-
-
-class ImageItem(Item):
+class ImageItem(PrimitiveItem):
     def __init__(self, image: Image.Image, filepath: str) -> None:
         self._image = image
         self._filepath = filepath
@@ -83,7 +115,7 @@ class ImageItem(Item):
     @property
     def display_map(self) -> DISPLAY_MAP_TYPE:
         if self._display_map is None:
-            self._display_map = img_to_display_map(self._rendered_image)
+            self._display_map = img_to_display_map(self)
         return self._display_map
 
     @property
@@ -163,7 +195,9 @@ class ImageItem(Item):
     
     def resize(self, size: tuple[int, int]) -> ImageItem:
         global g_resize_resampling
-        return ImageItem(self._image.resize(size=size, resample=g_resize_resampling), self.filepath)
+        result = ImageItem(self._image.resize(size=size, resample=g_resize_resampling), self.filepath)
+        result.original_item = self.original_item
+        return result
 
     def resize_item(self, size: Size) -> Item:
         return self.resize(to_img_size(size))
@@ -177,7 +211,7 @@ class ImageItem(Item):
         translate: tuple[int, int] | None = None,
         fillcolor: float | tuple[float, ...] | str | None = None
     ) -> ImageItem:
-        return ImageItem(self._image.rotate(
+        result = ImageItem(self._image.rotate(
             angle,
             resample,
             expand,
@@ -185,6 +219,8 @@ class ImageItem(Item):
             translate,
             fillcolor
         ), self.filepath)
+        result.original_item = self.original_item
+        return result
     
     def rotate_item(self, angle: float, direction: RotateDirection = RotateDirection.CLOCKWISE) -> Item:
         global g_rotate_resampling
@@ -193,7 +229,9 @@ class ImageItem(Item):
 
 
     def copy_item(self) -> Item:
-        return ImageItem(self._image, extend_filename(self.filepath, '-copy'))
+        result = ImageItem(self._image, extend_filename(self.filepath, '-copy'))
+        result.original_item = self.original_item
+        return result
 
     def convert(
         self,
@@ -203,13 +241,15 @@ class ImageItem(Item):
         palette: Image.Palette = Image.Palette.WEB,
         colors: int = 256,
     ) -> ImageItem:
-        return ImageItem(self._image.convert(
+        result = ImageItem(self._image.convert(
             mode,
             matrix,
             dither,
             palette,
             colors,
         ), self.filepath)
+        result.original_item = self.original_item
+        return result
     
     def putpalette(
         self,
@@ -222,7 +262,9 @@ class ImageItem(Item):
             self,
             filter: ImageFilter.Filter | type[ImageFilter.Filter]
     ) -> ImageItem:
-        return ImageItem(self._image.filter(filter), self.filepath)
+        result = ImageItem(self._image.filter(filter), self.filepath)
+        result.original_item = self.original_item
+        return result
     
     def load(self) -> Any | None:
         return self._image.load()
@@ -261,14 +303,18 @@ class ImageItem(Item):
 
     @staticmethod
     def fromarray(obj: Image.SupportsArrayInterface, mode: str | None = None) -> ImageItem:
-        return ImageItem(Image.fromarray(obj, mode), "from-array")
+        result = ImageItem(Image.fromarray(obj, mode), "from-array")
+        result.original_item = result
+        return result
     
     def alpha_composite(self, im: ImageItem, dest: Sequence[int] = (0, 0), source: Sequence[int] = (0, 0)) -> None:
         self._image.alpha_composite(im=im._image, dest=dest, source=source)
 
     @staticmethod
     def new_alpha_composite(im1: ImageItem, im2: ImageItem) -> ImageItem:
-        return ImageItem(Image.alpha_composite(im1._image, im2._image), im1.filepath + im2.filepath)
+        result = ImageItem(Image.alpha_composite(im1._image, im2._image), im1.filepath + im2.filepath)
+        result.original_item = result
+        return result
 
     @staticmethod
     def new(
@@ -276,7 +322,9 @@ class ImageItem(Item):
         size: tuple[int, int] | list[int],
         color: float | tuple[float, ...] | str | None = 0,
     ) -> ImageItem:
-        return ImageItem(Image.new(mode, size, color), 'new-image')
+        result = ImageItem(Image.new(mode, size, color), 'new-image')
+        result.original_item = result
+        return result
     
     @staticmethod
     def open(
@@ -284,7 +332,9 @@ class ImageItem(Item):
         mode: Literal["r"] = "r",
         formats: list[str] | tuple[str, ...] | None = None,
     ) -> ImageItem:
-        return ImageItem(Image.open(fp, mode, formats), str(fp))
+        result = ImageItem(Image.open(fp, mode, formats), str(fp))
+        result.original_item = result
+        return result
 
     def to_csv_row(self, _directory: str = '.') -> Dict[str, Any]:
         return {
@@ -299,8 +349,14 @@ class ImageItem(Item):
 
     @staticmethod
     def load_row(row: Dict[str, Any]) -> Item:
+        global g_image_mode
         validate_row(row, [IMAGE_FILEPATH])
-        return ImageItem.open(row[IMAGE_FILEPATH])
+        result = ImageItem.open(row[IMAGE_FILEPATH])
+        if g_image_mode is not None and g_image_mode != result.mode:
+            result = result.convert(g_image_mode)
+        result.original_item = result
+        return result
+
 
 IMAGE_FORMATS = [
     'blp',
