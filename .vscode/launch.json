@@ -11,7 +11,7 @@
             "request": "launch",
             "module": "clis.generate",
             "cwd": "${userHome}/Documents/image-clouds",
-            "args": "-i ./imagecloud-import-1.csv -output_directory ./image-cloud -output_image_format png -cloud_size 1586,1224 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_type MAINTAIN_ASPECT_RATIO -placement_search_pattern SPIRAL -rotation_increment 10 -maximize_empty_space -show_itemcloud -log_filepath ./image-cloud/generate-log.debug.txt -total_threads 64 -verbose"
+            "args": "-i ./imagecloud-import-3.csv -output_directory ./image-cloud -output_image_format png -cloud_size 1586,1224 -min_item_size 50,50 -resize_type MAINTAIN_ASPECT_RATIO -maximize_type MAINTAIN_ASPECT_RATIO -placement_search_pattern SPIRAL -rotation_increment 10 -maximize_empty_space -show_itemcloud -log_filepath ./image-cloud/generate-log.debug.txt -total_threads 64 -verbose"
         },
 
         {
